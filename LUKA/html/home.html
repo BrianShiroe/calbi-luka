@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/font.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/home.css">
+    <link rel="stylesheet" href="../css/tab.css">
+    <link rel="stylesheet" href="../css/upload.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <title>Home | Luka</title>
+</head>
+
+<body>
+    <div class="sidebar" id="sidebar-container">
+        <div class="logo-details">
+            <img class="logo_name" src="../img/luka-placeholder-logo.png" style="height: 100%;">
+            <i class='bx bx-menu' id="btn"></i>
+        </div>
+        <ul class="nav-list">
+            <li>
+                <a href="../html/home.html" class="home-sb">
+                    <i class='bx bx-grid-alt' style="color: #453cc6 !important;"></i>
+                    <span class='links_name' style="color: #453cc6 !important;">Home</span>
+                </a>
+                <span class="tooltip">Home</span>
+            </li>
+            <li>
+                <a href="../html/analytics.html">
+                    <i class='bx bx-pie-chart-alt-2'></i>
+                    <span class="links_name">Analytics</span>
+                </a>
+                <span class="tooltip">Analytics</span>
+            </li>
+            <li>
+                <a href="../html/files.html">
+                    <i class='bx bx-folder'></i>
+                    <span class="links_name">Files</span>
+                </a>
+                <span class="tooltip">Files</span>
+            </li>
+            <li>
+                <a href="../html/settings.html">
+                    <i class='bx bx-cog'></i>
+                    <span class="links_name">Settings</span>
+                </a>
+                <span class="tooltip">Settings</span>
+            </li>
+            <li>
+                <a href="../html/about.html">
+                    <i class='bx bx-info-circle'></i>
+                    <span class="links_name">About</span>
+                </a>
+                <span class="tooltip">About</span>
+            </li>
+            <li class="profile">
+                <div class="profile-details">
+                    <img src="../images/profile.png" alt="profileImg">
+                    <div class="name_job">
+                        <div class="name">John Dela Cruz</div>
+                        <div class="job">Security</div>
+                    </div>
+                </div>
+                <a href="../html/login.html">
+                    <i class='bx bx-log-out' id="log_out"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Notification Icon -->
+    <div id="notification-icon" class="notification-icon">
+        <i class="fas fa-bullhorn"></i>
+    </div>
+
+    <div class="header">
+        <img src="../img/logo-no-name.png" alt="logoImg" style="height:35px; margin-top:20px; margin-left:10%;">
+    </div>
+
+    <!-- Tab navigation -->
+    <div class="tabs">
+        <div class="tab active" id="live-feed-tab" onclick="changeTab('live-feed')">Live Feed</div>
+        <div class="tab" id="video-uploads-tab" onclick="changeTab('video-uploads')">Video Uploads</div>
+    </div>
+
+    <!-- Tab content -->
+    <div class="container">
+        <div class="tab-content active" id="live-feed">
+            <div class="grid-container" id="grid-container">
+                <!-- Dynamically populated device cards will appear here -->
+            </div>
+        </div>
+
+        <div class="tab-content" id="video-uploads">
+            <div class="upload-form">
+                <h2>Upload a Video</h2>
+                <input type="file" id="video-file" accept="video/*">
+                <button onclick="uploadVideo()">Upload Video</button>
+            </div>
+
+            <div class="uploaded-videos">
+                <h3>Uploaded Videos</h3>
+                <ul id="videos-list">
+                    <!-- List of uploaded videos will appear here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pop-up form for RTSP URL input -->
+    <div id="popup" class="popup" style="display: none;">
+        <div class="popup-content">
+            <h2>Add Device</h2>
+            <input type="text" id="rtsp-url" placeholder="Enter RTSP URL">
+            <div class="sub-rtsp" style="font-size: 10px; color: rgb(95, 98, 100); padding-top: 8px;">
+                <p>rtsp://username:password@ip_address:port/media</p>
+                <p>Example URL:</p>
+                <p>rtsp://admin:12345scw@192.168.1.210:554/stream1</p>
+            </div>
+            <button onclick="addDevice()">Add</button>
+            <button onclick="closePopup()">Cancel</button>
+        </div>
+    </div>
+
+    <div id="delete-popup" class="popup">
+        <div class="popup-content">
+            <img src="../img/delete.png" style="height: 50px; margin-top: 10px;">
+            <h2 style="margin: 20px;">Are you sure?</h2>
+            <p style="font-size: 14px; margin: 10px;"> Do you really want to delete this feed? This action cannot be undone.</p>
+            <button id="confirm-delete">Yes, Delete</button>
+            <button id="cancel-delete">Cancel</button>
+        </div>
+    </div>
+
+    <div id="edit-name-popup" class="popup">
+        <div class="popup-content">
+            <h2>Edit Device Name</h2>
+            <label for="edit-device-name">New Device Name:</label>
+            <input type="text" id="edit-device-name">
+            <button onclick="saveDeviceName()">Save</button>
+            <button onclick="closeEditNamePopup()">Cancel</button>
+        </div>
+    </div>
+
+    <script src="../js/live-feed.js"></script>
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/tab.js"></script>
+    <script src="../js/upload.js"></script>
+    <script src="../js/full-screen.js"></script>
+    
+</body>
+</html>
