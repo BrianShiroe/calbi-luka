@@ -1,1 +1,1 @@
-# Web-based System For Cccident And Natural Disaster Detection
+# Web-based System For Accident And Natural Disaster Detection
