@@ -1,11 +1,11 @@
 body {
-    margin: 0;
-    padding: 0;
+    padding: 20px;
+    padding-left: 100px;
     background-color: #fff;
 }
 
 .container {
-    max-width: 1200px;
+    /* max-width: 1200px; */
     margin: 20px auto;
     padding: 10px;
 }
