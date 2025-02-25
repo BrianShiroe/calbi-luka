@@ -1,0 +1,130 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+}
+
+.container {
+    display: flex;
+    justify-content: flex-end;
+    max-width: 1200px;
+    max-height: fit-content;
+    margin: 20px auto;
+}
+
+.analytics-sb {
+    background-color: #fff !important;
+}
+
+.current-weather-card {
+    width: 342px;
+    height: 184px;
+    margin-right: 28px;
+    position: relative;
+    padding: 20px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+  
+.background {
+    fill: linear-gradient(90deg, #5936B4 0%, #362A84 100%);
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+}
+  
+.current-weather-card .main-text {
+    font-size: 48px;
+    z-index: 2;
+}
+  
+.current-weather-card .info {
+    display: flex;
+    justify-content: space-between;
+}
+  
+.current-weather-card .info .text-gray {
+    color: rgba(235, 235, 245, 0.60);
+}
+  
+.current-weather-card .info .info-right {
+    align-self: flex-end;
+}
+
+.weather-container {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.current-weather-card {
+    flex: 0 0 342px;
+    height: 184px;
+    position: relative;
+    padding: 20px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.weather-cards-wrapper {
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.weather-cards {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.weather-card {
+    width: 162px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background: #fff;
+    color: #333;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.time {
+    font-size: 10px;
+    text-align: center;
+}
+
+.city {
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.condition {
+    font-size: 10px;
+    color: #777;
+}
+
+.weather-icon {
+    font-size: 25px;
+    margin: 5px 0;
+}
+
+.temperature {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.details p {
+    font-size: 10px;
+    display: flex;
+    justify-content: space-between;
+    margin-right: 15px;
+    margin-left: 15px;
+    margin-top: 2px;
+}
