@@ -5,6 +5,13 @@ import time
 
 app = Flask(__name__)
 
+# Global configuration variables
+FRAME_WIDTH = 640
+FRAME_HEIGHT = 360
+FRAME_FPS = 15
+BUFFER_SIZE = 1
+JPEG_QUALITY = 70
+
 # Dictionary to store active video streams
 streams = {}
 
@@ -19,14 +26,14 @@ class VideoStream:
         self.thread.start()
 
     def open_capture(self):
-        """Open RTSP stream with lower latency settings."""
+        """Open RTSP stream with adjustable settings."""
         if self.cap:
             self.cap.release()
         self.cap = cv2.VideoCapture(self.rtsp_url, cv2.CAP_FFMPEG)  # Use FFmpeg backend
-        self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Reduce buffer delay
-        self.cap.set(cv2.CAP_PROP_FPS, 15)  # Limit FPS to reduce processing load
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)  # Lower resolution for stability
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 360)
+        self.cap.set(cv2.CAP_PROP_BUFFERSIZE, BUFFER_SIZE)  # Reduce buffer delay
+        self.cap.set(cv2.CAP_PROP_FPS, FRAME_FPS)  # Limit FPS to reduce processing load
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)  # Set resolution
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
 
     def update_frames(self):
         """Continuously capture frames while running."""
@@ -45,8 +52,8 @@ class VideoStream:
             success, frame = self.cap.read()
             if success:
                 retries = 0  # Reset retry counter on success
-                frame = cv2.resize(frame, (640, 360))  # Adjust for speed
-                _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
+                frame = cv2.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))  # Adjust for speed
+                _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
                 with self.lock:
                     self.frame = buffer.tobytes()
             else:
@@ -82,7 +89,7 @@ def stream():
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
             else:
-                time.sleep(0.1)
+                time.sleep(1.0 / FRAME_FPS)  # Adjust sleep based on FPS
 
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
