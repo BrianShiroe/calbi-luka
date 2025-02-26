@@ -84,6 +84,28 @@
         <div class="tab" id="video-uploads-tab" onclick="changeTab('video-uploads')">Video Uploads</div>
     </div>
 
+    <!-- Main model toggle -->
+    <div class="toggle-container">
+        <label class="model-label">Model</label>
+        <label class="switch">
+            <input type="checkbox" id="model-status-checkbox">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <script>
+        document.getElementById("model-status-checkbox").addEventListener("change", function() {
+            fetch("http://localhost:5000/toggle_model", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ enabled: this.checked })
+            })
+            .then(response => response.json())
+            .then(data => console.log("Model toggle:", data.model_toggle))
+            .catch(error => console.error("Error:", error));
+        });
+    </script>
+
     <!-- Tab content -->
     <div class="container">
         <div class="tab-content active" id="live-feed">
