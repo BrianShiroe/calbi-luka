@@ -8,7 +8,7 @@ model_path = "model/car-fire-5.1.11n.pt"
 model = YOLO(model_path)
 
 # Toggle for enabling/disabling model inference
-model_toggle = False
+model_toggle = True 
 
 app = Flask(__name__)
 
