@@ -28,7 +28,6 @@ body {
 
 .current-weather-card {
     flex: 0 0 342px;
-    height: 184px;
     position: relative;
     padding: 20px;
     color: #fff;
