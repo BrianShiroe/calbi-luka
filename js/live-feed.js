@@ -1,13 +1,14 @@
-let devices = [];
-let currentEditDeviceIndex = null;
+let devices = []; // Array to store device information
+let currentEditDeviceIndex = null; // Stores index of device being edited
 
+// Initialize app on window load
 window.onload = function () {
-    loadDevices();
-    renderDevices();
-
-    showNotification();
+    loadDevices(); // Load saved devices from local storage
+    renderDevices(); // Render devices in the UI
+    showNotification(); // Show notification icon (if applicable)
 };
 
+// Load devices from localStorage
 function loadDevices() {
     const savedDevices = localStorage.getItem("devices");
     if (savedDevices) {
@@ -15,18 +16,22 @@ function loadDevices() {
     }
 }
 
+// Save devices to localStorage
 function saveDevices() {
     localStorage.setItem("devices", JSON.stringify(devices));
 }
 
+// Open the add device popup
 function openPopup() {
     document.getElementById("add-popup").style.display = "flex";
 }
 
+// Close the add device popup
 function closePopup() {
     document.getElementById("add-popup").style.display = "none";
 }
 
+// Add a new device to the list
 function addDevice() {
     const streamUrl = document.getElementById("stream-url").value;
     const feedName = document.getElementById("feed-name").value.trim();
@@ -34,16 +39,20 @@ function addDevice() {
     if (streamUrl && (streamUrl.startsWith("rtsp://") || streamUrl.startsWith("http://") || streamUrl.startsWith("https://"))) {
         const deviceName = feedName || `Stream Feed ${devices.length + 1}`;
         devices.push({ name: deviceName, streamUrl });
+        
+        // Clear input fields
         document.getElementById("feed-name").value = "";
         document.getElementById("stream-url").value = "";
-        closePopup();
-        saveDevices();
-        renderDevices();
+        
+        closePopup(); // Close the popup
+        saveDevices(); // Save updated devices list
+        renderDevices(); // Re-render device list
     } else {
         alert("Please enter a valid RTSP, HTTP, or HTTPS URL.");
     }
 }
 
+// Render the devices on the UI
 function renderDevices() {
     const gridContainer = document.getElementById("grid-container");
     gridContainer.innerHTML = ""; // Clear the grid before rendering
@@ -54,19 +63,20 @@ function renderDevices() {
         gridContainer.appendChild(deviceCard);
     });
 
-    // Add Device Button at the end of the grid
+    // Add 'Add Device' button at the end of the grid
     const addDeviceCard = document.createElement("div");
     addDeviceCard.className = "device-card add-device-card";
     addDeviceCard.innerHTML = `
-    <div class="add-device-container">
-        <i class="fas fa-plus add-icon" style="font-size:20px; position:relative; left:35%;"></i>
-        <p style="font-size:12px; color:grey;">Add Device</p>
-    </div>
-`   ;
+        <div class="add-device-container">
+            <i class="fas fa-plus add-icon" style="font-size:20px; position:relative; left:35%;"></i>
+            <p style="font-size:12px; color:grey;">Add Device</p>
+        </div>
+    `;
     addDeviceCard.onclick = openPopup;
     gridContainer.appendChild(addDeviceCard);
 }
 
+// Create a device card element
 function createDeviceCard(videoFeedURL, deviceName, deviceIndex) {
     const deviceCard = document.createElement("div");
     deviceCard.className = "device-card";
@@ -79,7 +89,7 @@ function createDeviceCard(videoFeedURL, deviceName, deviceIndex) {
     const nameElement = document.createElement("h3");
     nameElement.textContent = deviceName;
 
-    // Kebab menu
+    // Kebab menu for options
     const menuContainer = document.createElement("div");
     menuContainer.className = "menu-container";
 
@@ -90,8 +100,8 @@ function createDeviceCard(videoFeedURL, deviceName, deviceIndex) {
     const menuOptions = document.createElement("div");
     menuOptions.className = "menu-options";
     menuOptions.innerHTML = `
-        <p onclick="openEditNamePopup(${deviceIndex})"><span><i class="fa-solid fa-pen-to-square"></i></span>  Edit</p>
-        <p onclick="showDeletePopup(${deviceIndex})"><span><i class="fa-solid fa-trash"></i></span>  Delete</p>
+        <p onclick="openEditNamePopup(${deviceIndex})"><span><i class="fa-solid fa-pen-to-square"></i></span> Edit</p>
+        <p onclick="showDeletePopup(${deviceIndex})"><span><i class="fa-solid fa-trash"></i></span> Delete</p>
     `;
 
     menuContainer.appendChild(menuIcon);
@@ -104,6 +114,7 @@ function createDeviceCard(videoFeedURL, deviceName, deviceIndex) {
     return deviceCard;
 }
 
+// Toggle the visibility of the kebab menu
 function toggleMenu(menu) {
     menu.style.display = menu.style.display === "block" ? "none" : "block";
 }
@@ -117,6 +128,7 @@ document.addEventListener("click", function (event) {
     });
 });
 
+// Show confirmation popup for deleting a device
 function showDeletePopup(deviceIndex) {
     const deletePopup = document.getElementById("delete-popup");
     deletePopup.style.display = "flex";
@@ -131,12 +143,14 @@ function showDeletePopup(deviceIndex) {
     };
 }
 
+// Delete a device from the list
 function deleteDevice(deviceIndex) {
     devices.splice(deviceIndex, 1);
-    saveDevices();
-    renderDevices();
+    saveDevices(); // Save updated devices list
+    renderDevices(); // Re-render device list
 }
 
+// Open the edit name popup for a specific device
 function openEditNamePopup(deviceIndex) {
     const device = devices[deviceIndex];
     document.getElementById("edit-device-name").value = device.name;
@@ -144,10 +158,12 @@ function openEditNamePopup(deviceIndex) {
     currentEditDeviceIndex = deviceIndex;
 }
 
+// Close the edit name popup
 function closeEditNamePopup() {
     document.getElementById("edit-name-popup").style.display = "none";
 }
 
+// Save the edited device name
 function saveDeviceName() {
     const newName = document.getElementById("edit-device-name").value;
     if (newName) {
@@ -158,6 +174,7 @@ function saveDeviceName() {
     }
 }
 
+// Show notification icon
 function showNotification() {
     const notificationIcon = document.getElementById("notification-icon");
     notificationIcon.classList.add("show");
