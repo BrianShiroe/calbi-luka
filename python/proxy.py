@@ -1,15 +1,20 @@
 from flask import Flask, Response, request
 import cv2
+import torch
+from ultralytics import YOLO
+
+# Load YOLO model
+model_path = "model/car-fire-5.1.11n.pt"
+model = YOLO(model_path)
+
+# Toggle for enabling/disabling model inference
+model_toggle = True 
 
 app = Flask(__name__)
-
-# Dictionary to store active video capture objects
-streams = {}
 
 def generate_frames(stream_url):
     """ Continuously fetch frames from the video stream and return as HTTP response. """
     cap = cv2.VideoCapture(stream_url)
-
     if not cap.isOpened():
         print(f"Failed to open stream: {stream_url}")
         return
@@ -19,7 +24,12 @@ def generate_frames(stream_url):
         if not success:
             print(f"Stream disconnected: {stream_url}")
             break
-        
+
+        if model_toggle:
+            results = model(frame)
+            for result in results:
+                frame = result.plot()  # Draw detections on the frame
+
         _, buffer = cv2.imencode('.jpg', frame)
         frame_bytes = buffer.tobytes()
 
@@ -35,11 +45,17 @@ def stream():
     if not stream_url:
         return "Stream URL is missing", 400
 
-    # Validate that URL starts with supported protocols
     if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
         return "Invalid stream URL. Must start with rtsp://, http://, or https://", 400
 
     return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/toggle_model', methods=['POST'])
+def toggle_model():
+    """ Toggle the YOLO model on or off. """
+    global model_toggle
+    model_toggle = not model_toggle
+    return {"model_active": model_toggle}
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
