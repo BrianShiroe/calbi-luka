@@ -20,17 +20,21 @@ function saveDevices() {
 }
 
 function openPopup() {
-    document.getElementById("popup").style.display = "flex";
+    document.getElementById("add-popup").style.display = "flex";
 }
 
 function closePopup() {
-    document.getElementById("popup").style.display = "none";
+    document.getElementById("add-popup").style.display = "none";
 }
 
 function addDevice() {
     const streamUrl = document.getElementById("stream-url").value;
+    const feedName = document.getElementById("feed-name").value.trim();
+    
     if (streamUrl && (streamUrl.startsWith("rtsp://") || streamUrl.startsWith("http://") || streamUrl.startsWith("https://"))) {
-        devices.push({ name: `Stream Feed ${devices.length + 1}`, streamUrl });
+        const deviceName = feedName || `Stream Feed ${devices.length + 1}`;
+        devices.push({ name: deviceName, streamUrl });
+        document.getElementById("feed-name").value = "";
         document.getElementById("stream-url").value = "";
         closePopup();
         saveDevices();

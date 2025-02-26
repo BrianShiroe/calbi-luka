@@ -109,9 +109,10 @@
     </div>
 
     <!-- Pop-up form for URL input -->
-    <div id="popup" class="popup" style="display: none;">
+    <div id="add-popup" class="popup" style="display: none;">
         <div class="popup-content">
             <h2>Add Device</h2>
+            <input type="text" id="feed-name" placeholder="Enter Feed Name (Optional)">
             <input type="text" id="stream-url" placeholder="Enter Stream URL">
             <div class="sub-stream" style="font-size: 10px; color: rgb(95, 98, 100); padding-top: 8px;">
                 <p>Supported Formats:</p>
@@ -119,7 +120,7 @@
                 <p>HTTP: http://ip_address:port/video</p>
                 <p>HTTPS: https://ip_address:port/video</p>
                 <p>Example URLs:</p>
-                <p>rtsp://kaabii2:p@ssw0rLd@192.168.68.129:554/stream1</p>
+                <p>rtsp://user1:pass@192.168.18.128:8080/stream1</p>
                 <p>https://192.168.18.128:8080/video</p>
                 <p>http://192.168.18.128:8080/video</p>
             </div>
