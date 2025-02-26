@@ -16,8 +16,8 @@ JPEG_QUALITY = 70
 streams = {}
 
 class VideoStream:
-    def __init__(self, rtsp_url):
-        self.rtsp_url = rtsp_url
+    def __init__(self, stream_url):
+        self.stream_url = stream_url
         self.frame = None
         self.running = True
         self.lock = threading.Lock()
@@ -26,10 +26,13 @@ class VideoStream:
         self.thread.start()
 
     def open_capture(self):
-        """Open RTSP stream with adjustable settings."""
+        """Open stream with adjustable settings."""
         if self.cap:
             self.cap.release()
-        self.cap = cv2.VideoCapture(self.rtsp_url, cv2.CAP_FFMPEG)  # Use FFmpeg backend
+        if self.stream_url.startswith("rtsp://"):
+            self.cap = cv2.VideoCapture(self.stream_url, cv2.CAP_FFMPEG)  # Use FFmpeg backend for RTSP
+        else:
+            self.cap = cv2.VideoCapture(self.stream_url)  # Use default backend for HTTP/HTTPS
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, BUFFER_SIZE)  # Reduce buffer delay
         self.cap.set(cv2.CAP_PROP_FPS, FRAME_FPS)  # Limit FPS to reduce processing load
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)  # Set resolution
@@ -75,16 +78,16 @@ class VideoStream:
 
 @app.route('/stream')
 def stream():
-    rtsp_url = request.args.get('rtsp_url')
-    if not rtsp_url:
-        return "RTSP URL missing", 400
+    stream_url = request.args.get('stream_url')
+    if not stream_url:
+        return "Stream URL missing", 400
 
-    if rtsp_url not in streams:
-        streams[rtsp_url] = VideoStream(rtsp_url)
+    if stream_url not in streams:
+        streams[stream_url] = VideoStream(stream_url)
 
     def generate():
         while True:
-            frame = streams[rtsp_url].get_frame()
+            frame = streams[stream_url].get_frame()
             if frame:
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
@@ -95,10 +98,10 @@ def stream():
 
 @app.route('/stop')
 def stop_stream():
-    rtsp_url = request.args.get('rtsp_url')
-    if rtsp_url in streams:
-        streams[rtsp_url].stop()
-        del streams[rtsp_url]
+    stream_url = request.args.get('stream_url')
+    if stream_url in streams:
+        streams[stream_url].stop()
+        del streams[stream_url]
         return "Stream stopped", 200
     return "Stream not found", 404
 

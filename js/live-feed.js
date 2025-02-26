@@ -28,15 +28,15 @@ function closePopup() {
 }
 
 function addDevice() {
-    const rtspUrl = document.getElementById("rtsp-url").value;
-    if (rtspUrl) {
-        devices.push({ name: `Stream Feed ${devices.length + 1}`, rtspUrl });
-        document.getElementById("rtsp-url").value = "";
+    const streamUrl = document.getElementById("stream-url").value;
+    if (streamUrl && (streamUrl.startsWith("rtsp://") || streamUrl.startsWith("http://") || streamUrl.startsWith("https://"))) {
+        devices.push({ name: `Stream Feed ${devices.length + 1}`, streamUrl });
+        document.getElementById("stream-url").value = "";
         closePopup();
         saveDevices();
         renderDevices();
     } else {
-        alert("Please enter a valid RTSP URL.");
+        alert("Please enter a valid RTSP, HTTP, or HTTPS URL.");
     }
 }
 
@@ -45,7 +45,7 @@ function renderDevices() {
     gridContainer.innerHTML = ""; // Clear the grid before rendering
 
     devices.forEach((device, index) => {
-        const videoFeedURL = `http://localhost:5000/stream?rtsp_url=${encodeURIComponent(device.rtspUrl)}`;
+        const videoFeedURL = `http://localhost:5000/stream?stream_url=${encodeURIComponent(device.streamUrl)}`;
         const deviceCard = createDeviceCard(videoFeedURL, device.name, index);
         gridContainer.appendChild(deviceCard);
     });

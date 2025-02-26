@@ -108,15 +108,20 @@
         </div>
     </div>
 
-    <!-- Pop-up form for RTSP URL input -->
+    <!-- Pop-up form for URL input -->
     <div id="popup" class="popup" style="display: none;">
         <div class="popup-content">
             <h2>Add Device</h2>
-            <input type="text" id="rtsp-url" placeholder="Enter RTSP URL">
-            <div class="sub-rtsp" style="font-size: 10px; color: rgb(95, 98, 100); padding-top: 8px;">
-                <p>rtsp://username:password@ip_address:port/media</p>
-                <p>Example URL:</p>
-                <p>rtsp://admin:12345scw@192.168.1.210:554/stream1</p>
+            <input type="text" id="stream-url" placeholder="Enter Stream URL">
+            <div class="sub-stream" style="font-size: 10px; color: rgb(95, 98, 100); padding-top: 8px;">
+                <p>Supported Formats:</p>
+                <p>RTSP: rtsp://username:password@ip_address:port/media</p>
+                <p>HTTP: http://ip_address:port/video</p>
+                <p>HTTPS: https://ip_address:port/video</p>
+                <p>Example URLs:</p>
+                <p>rtsp://kaabii2:p@ssw0rLd@192.168.68.129:554/stream1</p>
+                <p>https://192.168.18.128:8080/video</p>
+                <p>http://192.168.18.128:8080/video</p>
             </div>
             <button onclick="addDevice()">Add</button>
             <button onclick="closePopup()">Cancel</button>
