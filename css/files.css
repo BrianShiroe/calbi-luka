@@ -85,7 +85,7 @@ body {
 }
 
 .kebab-menu:hover {
-    color: #4c3d81;
+    color: #453cc6;
 }
 
 .menu-container {
@@ -102,7 +102,7 @@ body {
     padding: 8px;
     margin: 0;
     cursor: pointer;
-    color: #23204b;
+    color: black;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -130,22 +130,22 @@ body {
     padding: 20px;
     border-radius: 8px;
     text-align: center;
-    width: 300px;
+    width: 400px;
     position: relative;
 }
 
 .close {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 20px;
+    top: 7px;
+    right: 15px;
+    font-size: 24px;
     cursor: pointer;
 }
 
 button {
     padding: 10px 20px;
     margin-top: 10px;
-    background-color: #23204b;
+    background-color: #453cc6;
     color: white;
     border: none;
     border-radius: 5px;
@@ -158,7 +158,6 @@ button:hover {
 
 input {
     padding: 8px;
-    margin-top: 10px;
     width: 80%;
     border: 1px solid #ccc;
     border-radius: 5px;
