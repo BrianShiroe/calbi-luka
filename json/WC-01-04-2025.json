@@ -2,10 +2,9 @@
         "date": "2025-01-04",
         "city": "Olongapo",
         "time": "8:00 AM",
-        "temperature": -2,
-        "condition": "Snow",
+        "temperature": 25,
+        "condition": "Cloudy",
         "pm25": 12,
         "sunrise": "6:30 AM",
-        "wind_speed": "10 KM/S",
-        "icon": "❄️"
+        "wind_speed": "2 KM/S"
     }

@@ -3,9 +3,8 @@
     "city": "Olongapo",
     "time": "2:36 AM",
     "temperature": 26,
-    "condition": "Rain",
+    "condition": "Rainy",
     "pm25": 39,
     "sunrise": "4:36 AM",
-    "wind_speed": "3 KM/S",
-    "icon": "🌧️"
+    "wind_speed": "3 KM/S"
 }
