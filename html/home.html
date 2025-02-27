@@ -94,6 +94,25 @@
     </div>
 
     <script>
+        // persist model-status-checkbox
+        document.addEventListener("DOMContentLoaded", function () {
+            const modelCheckbox = document.getElementById("model-status-checkbox");
+            const savedStatus = localStorage.getItem("model-status-checkbox");
+
+            // Set checkbox state from localStorage
+            if (savedStatus === "true") {
+                modelCheckbox.checked = true;
+            } else if (savedStatus === "false") {
+                modelCheckbox.checked = false;
+            }
+
+            // Add event listener to save checkbox state
+            modelCheckbox.addEventListener("change", function () {
+                localStorage.setItem("model-status-checkbox", modelCheckbox.checked);
+            });
+        });
+
+        // get model status for python
         document.getElementById("model-status-checkbox").addEventListener("change", function() {
             fetch("http://localhost:5000/toggle_model", {
                 method: "POST",
