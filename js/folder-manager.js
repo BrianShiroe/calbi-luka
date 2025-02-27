@@ -15,15 +15,21 @@ const FolderManager = (() => {
         const folderTitle = document.createElement("div");
         folderTitle.classList.add("folder-name");
         folderTitle.innerText = folderName;
-        folderTitle.setAttribute("contenteditable", "true");
+        folderTitle.setAttribute("contenteditable", "false");
+
+        folderTitle.addEventListener("dblclick", function () {
+            enableRename(folderTitle);
+        });
+
+        folderTitle.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                disableRename(folderTitle, folderName);
+            }
+        });
 
         folderTitle.addEventListener("blur", function () {
-            if (!folderTitle.innerText.trim()) {
-                alert("Folder name cannot be empty.");
-                folderTitle.innerText = folderName;
-            } else {
-                updateFolderName(folderElement, folderTitle.innerText);
-            }
+            disableRename(folderTitle, folderName);
         });
 
         const kebabMenu = document.createElement("div");
@@ -41,6 +47,32 @@ const FolderManager = (() => {
         return folderElement;
     }
 
+    function enableRename(folderTitle) {
+        folderTitle.setAttribute("contenteditable", "true");
+        folderTitle.classList.add("editing");
+        folderTitle.focus();
+
+        // Select text inside the folder name
+        const range = document.createRange();
+        range.selectNodeContents(folderTitle);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+
+    function disableRename(folderTitle, originalName) {
+        folderTitle.setAttribute("contenteditable", "false");
+        folderTitle.classList.remove("editing");
+
+        const newName = folderTitle.innerText.trim();
+        if (!newName) {
+            alert("Folder name cannot be empty.");
+            folderTitle.innerText = originalName;
+        } else {
+            updateFolderName(folderTitle.parentElement, newName);
+        }
+    }
+
     function toggleMenu(folderElement, folderTitle) {
         let existingMenu = document.querySelector(".menu-container");
         if (existingMenu) existingMenu.remove();
@@ -56,7 +88,7 @@ const FolderManager = (() => {
         `;
 
         menuContainer.querySelector(".rename-option").addEventListener("click", function () {
-            folderTitle.focus();
+            enableRename(folderTitle);
             menuContainer.remove();
         });
 

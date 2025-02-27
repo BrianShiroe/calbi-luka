@@ -66,21 +66,56 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const addFolderButton = FolderManager.createAddFolderButton();
     folderContainer.appendChild(addFolderButton);
+    
+    function getUniqueFolderName(baseName) {
+        let folderNames = FolderManager.getFolders().map(folder => folder.name);
+        if (!folderNames.includes(baseName)) return baseName;
 
-    closeAddFolderModal.addEventListener("click", function () {
-        addFolderModal.style.display = "none";
+        let count = 2;
+        let newName = `${baseName} (${count})`;
+
+        while (folderNames.includes(newName)) {
+            count++;
+            newName = `${baseName} (${count})`;
+        }
+
+        return newName;
+    }
+
+    // When opening the modal, prefill the input with folder name "Untitled Folder"
+    addFolderButton.addEventListener("click", function () {
+        addFolderModal.style.display = "flex";
+        folderNameInput.value = getUniqueFolderName("Untitled Folder");
+        setTimeout(() => {
+            folderNameInput.select();
+            folderNameInput.focus(); 
+        }, 100);
     });
 
-    createFolderBtn.addEventListener("click", function () {
-        const folderName = folderNameInput.value.trim();
-        if (folderName) {
-            FolderManager.addFolder(folderContainer, folderName);
-            folderNameInput.value = "";
-            addFolderModal.style.display = "none";
-        } else {
-            alert("Folder name cannot be empty.");
+    // Handle Enter key in modal input
+    folderNameInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault(); // Prevent accidental double submission
+            createFolder();
         }
     });
+
+    createFolderBtn.addEventListener("click", createFolder);
+
+    function createFolder() {
+        let folderName = folderNameInput.value.trim();
+
+        if (!folderName) {
+            alert("Folder name cannot be empty.");
+            folderNameInput.focus();
+            return;
+        }
+
+        folderName = getUniqueFolderName(folderName);
+        FolderManager.addFolder(folderContainer, folderName);
+        folderNameInput.value = "";
+        addFolderModal.style.display = "none";
+    }
 
     confirmDeleteBtn.onclick = function () {
         if (folderToDelete) {
