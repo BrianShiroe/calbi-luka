@@ -162,3 +162,45 @@ input {
     border: 1px solid #ccc;
     border-radius: 5px;
 }
+
+.sort-container {
+    position: relative;
+}
+
+.sort-button {
+    background: #453cc6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: -2px;
+    padding: 5px 10px;
+}
+
+.sort-dropdown {
+    display: none;
+    position: absolute;
+    top: 35px;
+    left: 0;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 120px;
+    z-index: 1;
+}
+
+.sort-dropdown p {
+    padding: 8px 10px;
+    margin: 0;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+.sort-dropdown p:hover {
+    background: #ddd;
+}
+
+.sort-dropdown.visible {
+    display: block;
+}

@@ -54,7 +54,7 @@ async function fetchWeather() {
                     </defs>
                 </svg>
                 <h1 class="main-text">${latestData.temperature}°</h1>
-                <div class="info-left" style="font-size:16px;">
+                <div class="info-left" style="font-size:15px;">
                     <p>${latestData.city}</p>
                     <p class="text-gray">PM2.5 : ${latestData.pm25 || "--"}  Wind : ${latestData.wind_speed || "--"}°</p>
                     <p>${latestData.condition || "--"}</p>
