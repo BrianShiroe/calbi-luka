@@ -8,19 +8,23 @@ async function fetchWeather() {
         const indexData = await indexResponse.json();
 
         weatherCardsContainer.innerHTML = ""; 
-        currentWeatherContainer.innerHTML = ""; // Ensure it's empty before adding new content
+        currentWeatherContainer.innerHTML = ""; 
 
         let latestData = null;
 
-        for (const file of indexData.files) {
+        // Reverse files so the last added file is treated as the latest
+        const reversedFiles = [...indexData.files].reverse();
+
+        for (let i = 0; i < reversedFiles.length; i++) {
+            const file = reversedFiles[i];
             const response = await fetch(`../json/${file}`);
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
             const data = await response.json();
             if (!data.city || !data.temperature) continue;
 
-            // Store the latest data (first file in list)
-            if (!latestData) {
+            if (i === 0) {
+                // Store the latest data (last added file)
                 latestData = data;
             } else {
                 // Append previous data to weather cards

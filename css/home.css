@@ -282,15 +282,15 @@ body {
 }
 
 .model-label {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 12px;
+    font-weight: medium;
 }
 
 .switch {
     position: relative;
     display: inline-block;
-    width: 60px;
-    height: 34px;
+    width: 50px;
+    height: 25px;
 }
 
 .switch input {
@@ -314,8 +314,8 @@ body {
 .slider:before {
     position: absolute;
     content: "";
-    height: 26px;
-    width: 26px;
+    height: 17px;
+    width: 17px;
     left: 4px;
     bottom: 4px;
     background-color: white;
