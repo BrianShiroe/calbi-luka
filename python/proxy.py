@@ -10,7 +10,7 @@ model = YOLO(model_path)
 
 # Toggle for enabling/disabling model inference
 global model_toggle
-model_toggle = False 
+model_toggle = True
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -28,6 +28,7 @@ def generate_frames(stream_url):
             print(f"Stream disconnected: {stream_url}")
             break
 
+        # run model in cctv
         if model_toggle:
             results = model(frame)
             for result in results:
@@ -53,6 +54,7 @@ def stream():
 
     return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# model on/off toggle
 @app.route('/toggle_model', methods=['POST'])
 def toggle_model():
     """ Toggle model inference on or off. """

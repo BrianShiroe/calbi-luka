@@ -19,14 +19,18 @@ if __name__ == "__main__":
     url = "http://localhost:8000/html/home.html"
     
     # Start HTTP Server
-    process = subprocess.Popen(["python", "-m", "http.server", "8000"])
-    time.sleep(1)  # Give server time to start
+    server_process = subprocess.Popen(["python", "-m", "http.server", "8000"])
+    
+    # Start proxy script in another process
+    proxy_process = subprocess.Popen(["python", "python/proxy.py"])
+    
+    time.sleep(1)  # Give servers time to start
 
     # Automatically open browser
     webbrowser.open(url)
 
     # Start Watchdog observer
-    event_handler = ReloadHandler(process)
+    event_handler = ReloadHandler(server_process)
     observer = Observer()
     observer.schedule(event_handler, ".", recursive=True)
     observer.start()
@@ -35,6 +39,7 @@ if __name__ == "__main__":
         while True:
             pass
     except KeyboardInterrupt:
-        process.kill()
+        server_process.kill()
+        proxy_process.kill()
         observer.stop()
     observer.join()
