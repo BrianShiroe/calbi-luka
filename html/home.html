@@ -182,10 +182,12 @@
 
     <div id="edit-name-popup" class="popup">
         <div class="popup-content">
-            <h2>Edit Device Name</h2>
+            <h2>Edit Device Details</h2>
             <label for="edit-device-name">New Device Name:</label>
             <input type="text" id="edit-device-name">
-            <button onclick="saveDeviceName()">Save</button>
+            <label for="edit-stream-url">New Stream URL:</label>
+            <input type="text" id="edit-stream-url">
+            <button onclick="saveDeviceDetails()">Save</button>
             <button onclick="closeEditNamePopup()">Cancel</button>
         </div>
     </div>

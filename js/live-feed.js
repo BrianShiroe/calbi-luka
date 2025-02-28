@@ -154,6 +154,7 @@ function deleteDevice(deviceIndex) {
 function openEditNamePopup(deviceIndex) {
     const device = devices[deviceIndex];
     document.getElementById("edit-device-name").value = device.name;
+    document.getElementById("edit-stream-url").value = device.streamUrl;
     document.getElementById("edit-name-popup").style.display = "flex";
     currentEditDeviceIndex = deviceIndex;
 }
@@ -163,14 +164,19 @@ function closeEditNamePopup() {
     document.getElementById("edit-name-popup").style.display = "none";
 }
 
-// Save the edited device name
-function saveDeviceName() {
-    const newName = document.getElementById("edit-device-name").value;
-    if (newName) {
-        devices[currentEditDeviceIndex].name = newName;
+// Save the edited device details (name and stream URL)
+function saveDeviceDetails() {
+    const newName = document.getElementById("edit-device-name").value.trim();
+    const newStreamUrl = document.getElementById("edit-stream-url").value.trim();
+
+    if (newStreamUrl && (newStreamUrl.startsWith("rtsp://") || newStreamUrl.startsWith("http://") || newStreamUrl.startsWith("https://"))) {
+        devices[currentEditDeviceIndex].name = newName || `Stream Feed ${currentEditDeviceIndex + 1}`;
+        devices[currentEditDeviceIndex].streamUrl = newStreamUrl;
         saveDevices();
         renderDevices();
         closeEditNamePopup();
+    } else {
+        alert("Please enter a valid RTSP, HTTP, or HTTPS URL.");
     }
 }
 
