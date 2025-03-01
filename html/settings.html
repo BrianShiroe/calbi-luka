@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -9,7 +10,7 @@
     <link rel="stylesheet" href="../css/main.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <title>Setting | Luka</title>
-<head>
+</head>
 <body>
     <div class="sidebar" id="sidebar-container">
         <div class="logo-details">
@@ -17,41 +18,11 @@
             <i class='bx bx-menu' id="btn"></i>
         </div>
         <ul class="nav-list">
-            <li>
-                <a href="../html/home.html" class="home-sb">
-                    <i class='bx bx-grid-alt'></i>
-                    <span class='links_name'>Home</span>
-                </a>
-                <span class="tooltip">Home</span>
-            </li>
-            <li>
-                <a href="../html/analytics.html">
-                    <i class='bx bx-pie-chart-alt-2'></i>
-                    <span class="links_name">Analytics</span>
-                </a>
-                <span class="tooltip">Analytics</span>
-            </li>
-            <li>
-                <a href="../html/files.html">
-                    <i class='bx bx-folder'></i>
-                    <span class="links_name">Files</span>
-                </a>
-                <span class="tooltip">Files</span>
-            </li>
-            <li>
-                <a href="../html/settings.html" class="settings-sb">
-                    <i class='bx bx-cog' style="color: #453cc6 !important;"></i>
-                    <span class="links_name" style="color: #453cc6 !important;">Settings</span>
-                </a>
-                <span class="tooltip">Settings</span>
-            </li>
-            <li>
-                <a href="../html/about.html">
-                    <i class='bx bx-info-circle'></i>
-                    <span class="links_name">About</span>
-                </a>
-                <span class="tooltip">About</span>
-            </li>
+            <li><a href="../html/home.html"><i class='bx bx-grid-alt'></i><span class='links_name'>Home</span></a></li>
+            <li><a href="../html/analytics.html"><i class='bx bx-pie-chart-alt-2'></i><span class="links_name">Analytics</span></a></li>
+            <li><a href="../html/files.html"><i class='bx bx-folder'></i><span class="links_name">Files</span></a></li>
+            <li><a href="../html/settings.html" class="settings-sb"><i class='bx bx-cog' style="color: #453cc6 !important;"></i><span class="links_name" style="color: #453cc6 !important;">Settings</span></a></li>
+            <li><a href="../html/about.html"><i class='bx bx-info-circle'></i><span class="links_name">About</span></a></li>
             <li class="profile">
                 <div class="profile-details">
                     <img src="../images/profile.png" alt="profileImg">
@@ -60,32 +31,130 @@
                         <div class="job">Security</div>
                     </div>
                 </div>
-                <a href="../html/login.html">
-                    <i class='bx bx-log-out' id="log_out"></i>
-                </a>
+                <a href="../html/login.html"><i class='bx bx-log-out' id="log_out"></i></a>
             </li>
         </ul>
-    </div>
-
-    <div class="settings">
-        <div class="basic-settings">
-            <!-- Audio Toggle -->
-            <!-- Recording Mode -->
-
-        </div>
-        <div class="model-settings">
-
-        </div>
     </div>
 
     <div class="header">
         <img src="../img/logo-no-name.png" alt="logoImg">
     </div>
 
-    <script src="../js/live-feed.js"></script>
+    <div class="container">
+        <div class="tab-container">
+            <input type="radio" name="tab" id="tab1" class="tab tab--1" checked>
+            <label class="tab_label" for="tab1">General</label>
+            
+            <input type="radio" name="tab" id="tab2" class="tab tab--2">
+            <label class="tab_label" for="tab2">Account</label>
+            
+            <input type="radio" name="tab" id="tab3" class="tab tab--3">
+            <label class="tab_label" for="tab3">Security</label>
+            
+            <div class="indicator"></div>
+        </div>
+
+        <div class="settings-content">
+            <!-- General Settings -->
+            <div class="settings-panel" id="general-settings">
+                <h4>General Settings</h4>
+                <div class="setting">
+                    <label><input type="checkbox"> Detection Mode</label>
+                </div>
+                <div class="setting">
+                    <label><input type="checkbox"> Show Bounding Box</label>
+                </div>
+                <div class="setting">
+                    <label>Confidence</label>
+                    <input type="range" min="0" max="100" value="50">
+                </div>
+                <div class="setting">
+                    <label>Frame Rate</label>
+                    <input type="range" min="0" max="100" value="30">
+                </div>
+                <div class="setting">
+                    <label>Target Object</label>
+                    <select>
+                        <option>Car</option>
+                        <option>Fire</option>
+                        <option>Flood</option>
+                        <option>Landslide</option>
+                        <option>Earthquake</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Account Settings -->
+            <div class="settings-panel" id="account-settings" style="display: none;">
+                <h4>Account Settings</h4>
+                <div class="box">
+                    <div class="settings-label">Profile
+                        <button class="edit-btn">Edit</button>
+                    </div>
+                    <div class="setting">
+                        <div class="profile-container">
+                            <div class="profile-picture">
+                                <img id="profile-img" src="../img/default.png" alt="Profile Picture">
+                            </div>
+                            <div class="profile-info">
+                                <label for="profile-upload">John Dela Cruz</label>
+                                <p>Admin</p>
+                                <!-- <input type="file" id="profile-upload" accept="image/*"> -->
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="settings-label">Personal Information
+                        <button class="edit-btn">Edit</button>
+                    </div>
+                    <div class="settings-row">
+                        <div class="setting">
+                            <label>First Name</label>
+                            <p>John</p>
+                        </div>
+                        <div class="setting">
+                            <label>Last Name</label>
+                            <p>Dela Cruz</p>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="setting">
+                            <label>Email</label>
+                            <p>iamemail@gmail.com</p>
+                        </div>
+                        <div class="setting">
+                            <label>Phone</label>
+                            <p>+63 912 345 6789</p>
+                        </div>
+                    </div>
+                </div>                
+            </div>
+
+            <!-- Security Settings -->
+            <div class="settings-panel" id="security-settings" style="display: none;">
+                <h4>Security Settings</h4>
+                <div class="setting">
+                    <label>Change Password</label>
+                    <input type="password" placeholder="Enter new password">
+                </div>
+                <div class="setting">
+                    <label>Enable Two-Factor Authentication</label>
+                    <input type="checkbox">
+                </div>
+                <div class="setting">
+                    <label>Trusted Devices</label>
+                    <button class="manage-btn">Manage Devices</button>
+                </div>
+            </div>
+            <button class="save-btn">Save Changes</button>
+            <button class="cancel-btn">Cancel</button>
+        </div>
+    </div>
+
     <script src="../js/sidebar.js"></script>
     <script src="../js/tab.js"></script>
-    <script src="../js/upload.js"></script>
-    <script src="../js/full-screen.js"></script>
+    <script src="../js/settings.js"></script>
 </body>
 </html>
