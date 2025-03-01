@@ -29,10 +29,9 @@ async function fetchWeather() {
                 card.innerHTML = `
                     <h2 class="city">${data.city}</h2>
                     <p class="time">${data.time || "--"}</p>
-                    <p class="condition">${data.condition || "--"}</p>
                     <div class="weather-icon">${getWeatherIcon(data.condition)}</div>
                     <h1 class="temperature">${data.temperature ? data.temperature + "°" : "--°"}</h1>
-                    <div class="details">
+                        <div class="details">
                         <p>PM2.5: <span>${data.pm25 || "--"}</span></p>
                         <p>Sunrise: <span>${data.sunrise || "--"}</span></p>
                         <p>Wind: <span>${data.wind_speed || "--"}</span></p>

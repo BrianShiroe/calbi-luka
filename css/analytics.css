@@ -81,28 +81,42 @@ body {
 } */
 
 .weather-cards-wrapper {
-    flex-grow: 1;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    overflow-x: auto; /* Horizontal scrolling */
+    white-space: nowrap;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 10px;
+    gap: 10px;
+    max-width: 100%;
 }
 
 .weather-cards {
     display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    /* justify-content: flex-end; */
+    flex-wrap: nowrap;
+    gap: 10px;
 }
 
 .weather-card {
-    min-width: 140px;
+    flex: 0 0 120px;
     border-radius: 10px;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     background: #fff;
     color: #333;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    scroll-snap-align: start;
+}
+
+.weather-cards-wrapper::-webkit-scrollbar {
+    height: 3px;
+}
+
+.weather-cards-wrapper::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.weather-cards-wrapper::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .time {
@@ -137,4 +151,26 @@ body {
     margin-right: 15px;
     margin-left: 15px;
     margin-top: 2px;
+}
+
+.charts-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 20px;
+    align-items: center;
+}
+
+canvas {
+    flex: 1;
+    max-width: 400px;
+    max-height: 300px;
+}
+
+#lineChart {
+    order: 1; /* Line chart appears first (left) */
+}
+
+#pieChart {
+    order: 2; /* Pie chart appears second (right) */
 }
