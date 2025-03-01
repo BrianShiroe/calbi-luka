@@ -11,20 +11,21 @@ import cv2
 from ultralytics import YOLO
 
 # Configuration
-PORT = 5500
-DIRECTORY = "."
-DEFAULT_FILE = "/html/home.html"
-MODEL_PATH = "model/yolo11n.pt"
+PORT = 5500  # Port number for the HTTP server
+DIRECTORY = "."  # Directory to serve files from
+DEFAULT_FILE = "/html/home.html"  # Default file to open in the browser
+MODEL_PATH = "model/yolo11n.pt"  # Path to the YOLO model
 
 # Load YOLO model
 model = YOLO(MODEL_PATH)
 model_toggle = True  # Toggle for enabling/disabling model inference
 
-# Flask App Setup
+# Initialize Flask application
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
 
-def generate_frames(stream_url):
+def generate_frames(stream_url): #generate stream frames
+    """ Continuously fetch frames from the video stream and return as HTTP response. """
     cap = cv2.VideoCapture(stream_url)
     if not cap.isOpened():
         print(f"Failed to open stream: {stream_url}")
@@ -37,9 +38,9 @@ def generate_frames(stream_url):
             break
 
         if model_toggle:
-            results = model(frame, verbose=False)
+            results = model(frame, verbose=False)  # Run model inference with verbose mode off "the loop print in terminal"
             for result in results:
-                frame = result.plot()
+                frame = result.plot()  # Draw detections on the frame
 
         _, buffer = cv2.imencode('.jpg', frame)
         yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
@@ -48,6 +49,7 @@ def generate_frames(stream_url):
 
 @app.route('/stream')
 def stream():
+    """ Endpoint to stream video from RTSP, HTTP, or HTTPS sources. """
     stream_url = request.args.get('stream_url')
     if not stream_url:
         return "Stream URL is missing", 400
@@ -57,6 +59,7 @@ def stream():
 
 @app.route('/toggle_model', methods=['POST'])
 def toggle_model():
+    """ Toggle model inference on or off. """
     global model_toggle
     data = request.get_json()
     if 'enabled' in data:
@@ -65,10 +68,12 @@ def toggle_model():
 
 # HTTP Server
 class SimpleHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    """ Custom HTTP request handler to serve files from the specified directory. """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
 
 def start_http_server():
+    """ Start an HTTP server to serve static files. """
     with socketserver.TCPServer(("", PORT), SimpleHTTPRequestHandler) as httpd:
         print(f"Serving at http://localhost:{PORT}")
         webbrowser.open_new_tab(f"http://localhost:{PORT}{DEFAULT_FILE}")
@@ -76,10 +81,12 @@ def start_http_server():
 
 # File Watcher
 class ReloadHandler(FileSystemEventHandler):
+    """ Watchdog event handler to detect file changes. """
     def on_modified(self, event):
         print(f"File changed: {event.src_path}")
 
 def start_file_watcher():
+    """ Start a file watcher to detect changes in the project directory. """
     event_handler = ReloadHandler()
     observer = Observer()
     observer.schedule(event_handler, path=DIRECTORY, recursive=True)
