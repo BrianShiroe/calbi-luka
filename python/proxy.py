@@ -5,7 +5,7 @@ import cv2
 from ultralytics import YOLO
 
 # Load YOLO model
-model_path = "model/yolo11n.pt"
+model_path = "model/car-fire-5.1.11n.pt.pt"
 model = YOLO(model_path)
 
 # Toggle for enabling/disabling model inference
