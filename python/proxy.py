@@ -1,7 +1,7 @@
+# python/proxy.py
 from flask import Flask, Response, request, jsonify
 from flask_cors import CORS
 import cv2
-import torch
 from ultralytics import YOLO
 
 # Load YOLO model

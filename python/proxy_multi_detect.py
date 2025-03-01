@@ -1,7 +1,6 @@
 from flask import Flask, Response, request, jsonify
 from flask_cors import CORS
 import cv2
-import torch
 import numpy as np
 from ultralytics import YOLO
 

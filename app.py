@@ -1,39 +1,84 @@
 import http.server
 import socketserver
-import os
 import time
 import webbrowser
 import threading
-import subprocess
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from flask import Flask, Response, request, jsonify
+from flask_cors import CORS
+import cv2
+from ultralytics import YOLO
 
-# Define the port and directory to serve
+# Configuration
 PORT = 5500
 DIRECTORY = "."
-DEFAULT_FILE = "/html/home.html"  # The default file to open in the browser
-PROXY_SCRIPT = "python/proxy.py"  # Path to the proxy script
+DEFAULT_FILE = "/html/home.html"
+MODEL_PATH = "model/yolo11n.pt"
 
-# Custom handler to serve files
+# Load YOLO model
+model = YOLO(MODEL_PATH)
+model_toggle = True  # Toggle for enabling/disabling model inference
+
+# Flask App Setup
+app = Flask(__name__)
+CORS(app)
+
+def generate_frames(stream_url):
+    cap = cv2.VideoCapture(stream_url)
+    if not cap.isOpened():
+        print(f"Failed to open stream: {stream_url}")
+        return
+
+    while True:
+        success, frame = cap.read()
+        if not success:
+            print(f"Stream disconnected: {stream_url}")
+            break
+
+        if model_toggle:
+            results = model(frame, verbose=False)
+            for result in results:
+                frame = result.plot()
+
+        _, buffer = cv2.imencode('.jpg', frame)
+        yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+
+    cap.release()
+
+@app.route('/stream')
+def stream():
+    stream_url = request.args.get('stream_url')
+    if not stream_url:
+        return "Stream URL is missing", 400
+    if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
+        return "Invalid stream URL", 400
+    return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/toggle_model', methods=['POST'])
+def toggle_model():
+    global model_toggle
+    data = request.get_json()
+    if 'enabled' in data:
+        model_toggle = data['enabled']
+    return jsonify({"model_toggle": model_toggle})
+
+# HTTP Server
 class SimpleHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
 
-# Watchdog event handler to detect file changes
-class ReloadHandler(FileSystemEventHandler):
-    def on_modified(self, event):
-        print(f"File changed: {event.src_path}")
-        # You can add logic here to trigger a browser refresh (e.g., via WebSocket or SSE)
-
-# Start the HTTP server
 def start_http_server():
     with socketserver.TCPServer(("", PORT), SimpleHTTPRequestHandler) as httpd:
         print(f"Serving at http://localhost:{PORT}")
-        # Open the default file in the browser
         webbrowser.open_new_tab(f"http://localhost:{PORT}{DEFAULT_FILE}")
         httpd.serve_forever()
 
-# Start the file watcher
+# File Watcher
+class ReloadHandler(FileSystemEventHandler):
+    def on_modified(self, event):
+        print(f"File changed: {event.src_path}")
+
 def start_file_watcher():
     event_handler = ReloadHandler()
     observer = Observer()
@@ -47,28 +92,19 @@ def start_file_watcher():
         observer.stop()
     observer.join()
 
-# Function to run the proxy script
-def run_proxy_script():
-    print(f"Starting {PROXY_SCRIPT}...")
-    try:
-        # Use subprocess to run the proxy script
-        subprocess.run(["python", PROXY_SCRIPT], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error running {PROXY_SCRIPT}: {e}")
-
 if __name__ == "__main__":
-    # Start the proxy script first and wait for it to be ready
-    proxy_thread = threading.Thread(target=run_proxy_script)
-    proxy_thread.daemon = True
-    proxy_thread.start()
-
-    # Wait a few seconds to ensure the proxy is up and running
-    time.sleep(5)  # Adjust the sleep time as needed
-
-    # Start the HTTP server in a separate thread
+    # Start the Flask proxy server in a thread
+    flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000, threaded=True, use_reloader=False))
+    flask_thread.daemon = True
+    flask_thread.start()
+    
+    # Wait for Flask to initialize
+    time.sleep(5)
+    
+    # Start HTTP server in a thread
     http_thread = threading.Thread(target=start_http_server)
     http_thread.daemon = True
     http_thread.start()
-
-    # Start the file watcher in the main thread
+    
+    # Start file watcher in main thread
     start_file_watcher()
