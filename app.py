@@ -14,18 +14,23 @@ from ultralytics import YOLO
 PORT = 5500  # Port number for the HTTP server
 DIRECTORY = "."  # Directory to serve files from
 DEFAULT_FILE = "/html/home.html"
-MODEL_PATH = "model/yolo11n.pt"
+MODEL_PATHS = [
+    "model/yolo11n.pt",
+    # "model/car-fire-5.1.11n.pt",
+    # "model/flood-5.1.11n.pt",
+    # "model/landslide-5.1.11n.pt",
+    ]
 DB_PATH = "db/luka.db"
 
-# Load YOLO model
-model = YOLO(MODEL_PATH)
+# Load multiple YOLO models
+models = [YOLO(path) for path in MODEL_PATHS]
 model_toggle = True  # Toggle for enabling/disabling model inference
 
 # Initialize Flask application
 app = Flask(__name__)
 CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
 
-def generate_frames(stream_url): #generate stream frames
+def generate_frames(stream_url):
     """ Continuously fetch frames from the video stream and return as HTTP response. """
     cap = cv2.VideoCapture(stream_url)
     if not cap.isOpened():
@@ -39,9 +44,10 @@ def generate_frames(stream_url): #generate stream frames
             break
 
         if model_toggle:
-            results = model(frame, verbose=False)  # Run model inference with verbose mode off "the loop print in terminal"
-            for result in results:
-                frame = result.plot()  # Draw detections on the frame
+            for model in models:
+                results = model(frame, verbose=False)  # Run inference on each model
+                for result in results:
+                    frame = result.plot()  # Overlay detections from each model
 
         _, buffer = cv2.imencode('.jpg', frame)
         yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
