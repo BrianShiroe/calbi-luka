@@ -33,19 +33,19 @@ function closePopup() {
 
 // Add a new device to the list
 function addDevice() {
-    const streamUrl = document.getElementById("stream-url").value;
-    const feedName = document.getElementById("feed-name").value.trim();
+    const streamUrl = document.getElementById("ip_address").value;
+    const feedName = document.getElementById("title").value.trim();
     
     if (streamUrl && (streamUrl.startsWith("rtsp://") || streamUrl.startsWith("http://") || streamUrl.startsWith("https://"))) {
         const deviceName = feedName || `Stream Feed ${devices.length + 1}`;
         devices.push({ name: deviceName, streamUrl });
         
         // Clear input fields
-        document.getElementById("feed-name").value = "";
-        document.getElementById("stream-url").value = "";
+        document.getElementById("title").value = "";
+        document.getElementById("ip_address").value = "";
         
-        closePopup(); // Close the popup
         saveDevices(); // Save updated devices list
+        closePopup(); // Close the popup
         renderDevices(); // Re-render device list
     } else {
         alert("Please enter a valid RTSP, HTTP, or HTTPS URL.");
@@ -153,8 +153,8 @@ function deleteDevice(deviceIndex) {
 // Open the edit name popup for a specific device
 function openEditNamePopup(deviceIndex) {
     const device = devices[deviceIndex];
-    document.getElementById("edit-device-name").value = device.name;
-    document.getElementById("edit-stream-url").value = device.streamUrl;
+    document.getElementById("edit-title").value = device.name;
+    document.getElementById("edit-ip_address").value = device.streamUrl;
     document.getElementById("edit-name-popup").style.display = "flex";
     currentEditDeviceIndex = deviceIndex;
 }
@@ -166,8 +166,8 @@ function closeEditNamePopup() {
 
 // Save the edited device details (name and stream URL)
 function saveDeviceDetails() {
-    const newName = document.getElementById("edit-device-name").value.trim();
-    const newStreamUrl = document.getElementById("edit-stream-url").value.trim();
+    const newName = document.getElementById("edit-title").value.trim();
+    const newStreamUrl = document.getElementById("edit-ip_address").value.trim();
 
     if (newStreamUrl && (newStreamUrl.startsWith("rtsp://") || newStreamUrl.startsWith("http://") || newStreamUrl.startsWith("https://"))) {
         devices[currentEditDeviceIndex].name = newName || `Stream Feed ${currentEditDeviceIndex + 1}`;
