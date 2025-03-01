@@ -13,8 +13,9 @@ from ultralytics import YOLO
 # Configuration
 PORT = 5500  # Port number for the HTTP server
 DIRECTORY = "."  # Directory to serve files from
-DEFAULT_FILE = "/html/home.html"  # Default file to open in the browser
-MODEL_PATH = "model/yolo11n.pt"  # Path to the YOLO model
+DEFAULT_FILE = "/html/home.html"
+MODEL_PATH = "model/yolo11n.pt"
+DB_PATH = "db/luka.db"
 
 # Load YOLO model
 model = YOLO(MODEL_PATH)
