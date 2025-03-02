@@ -1,19 +1,18 @@
-import http.server
-import socketserver
 import time
 import webbrowser
 import threading
+import sqlite3
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from flask import Flask, Response, request, jsonify
+from flask import Flask, Response, request, jsonify, g, send_from_directory
 from flask_cors import CORS
 import cv2
 from ultralytics import YOLO
 
 # Configuration
-PORT = 5500  # Port number for the HTTP server
-DIRECTORY = "."  # Directory to serve files from
-DEFAULT_FILE = "/html/home.html"
+FLASK_PORT = 5500  # Flask serves as the main server
+DIRECTORY = "html"  # Directory to serve static files from
+DEFAULT_FILE = "home.html"
 MODEL_PATHS = ["model/yolo11n.pt"]
 DB_PATH = "db/luka.db"
 
@@ -22,8 +21,20 @@ models = [YOLO(path) for path in MODEL_PATHS]
 model_toggle = True  # Toggle for enabling/disabling model inference
 
 # Initialize Flask application
-app = Flask(__name__)
+app = Flask(__name__, static_folder=".")
 CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
+
+# Database helper function
+def get_db():
+    if 'db' not in g:
+        g.db = sqlite3.connect(DB_PATH)
+        g.db.row_factory = sqlite3.Row
+    return g.db
+
+@app.teardown_appcontext
+def close_db(error):
+    if 'db' in g:
+        g.db.close()
 
 def generate_frames(stream_url):
     """ Continuously fetch frames from the video stream and return as HTTP response. """
@@ -49,6 +60,63 @@ def generate_frames(stream_url):
 
     cap.release()
 
+@app.route("/")
+def serve_home():
+    return send_from_directory("html", "home.html")
+
+@app.route("/html/<path:filename>")
+def serve_html(filename):
+    """ Serve files specifically from the `html/` folder with /html/ in the URL """
+    return send_from_directory("html", filename)
+
+@app.route("/<path:filename>")
+def serve_static(filename):
+    """ Serve static files from various directories """
+    if filename.startswith(("css/", "js/", "img/", "json/", "model/")):
+        return send_from_directory(".", filename)
+    return send_from_directory("html", filename)  # Default to HTML folder
+
+@app.route('/get_devices', methods=['GET'])
+def get_devices():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM camera WHERE status = 'active'")
+    devices = cursor.fetchall()
+    return jsonify([dict(device) for device in devices])
+
+@app.route('/add_device', methods=['POST'])
+def add_device():
+    data = request.get_json()
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "INSERT INTO camera (title, ip_address, location, status) VALUES (?, ?, ?, 'active')",
+        (data['title'], data['ip_address'], data['location'])
+    )
+    db.commit()
+    return jsonify({"id": cursor.lastrowid, **data})
+
+@app.route('/update_device', methods=['POST'])
+def update_device():
+    data = request.get_json()
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "UPDATE camera SET title = ?, ip_address = ? WHERE id = ?",
+        (data['title'], data['ip_address'], data['id'])
+    )
+    db.commit()
+    return jsonify({"success": True})
+
+@app.route('/delete_device', methods=['POST'])
+def delete_device():
+    data = request.get_json()
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("UPDATE camera SET status = 'inactive' WHERE id = ?", (data['id'],))
+    db.commit()
+    return jsonify({"success": True})
+
 @app.route('/stream')
 def stream():
     """ Endpoint to stream video from RTSP, HTTP, or HTTPS sources. """
@@ -67,19 +135,6 @@ def toggle_model():
     if 'enabled' in data:
         model_toggle = data['enabled']
     return jsonify({"model_toggle": model_toggle})
-
-# HTTP Server
-class SimpleHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
-    """ Custom HTTP request handler to serve files from the specified directory. """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=DIRECTORY, **kwargs)
-
-def start_http_server():
-    """ Start an HTTP server to serve static files. """
-    with socketserver.TCPServer(("127.0.0.1", PORT), SimpleHTTPRequestHandler) as httpd:
-        print(f"Serving at http://127.0.0.1:{PORT}")
-        webbrowser.open_new_tab(f"http://127.0.0.1:{PORT}{DEFAULT_FILE}")  # Force 127.0.0.1
-        httpd.serve_forever()
 
 # File Watcher
 class ReloadHandler(FileSystemEventHandler):
@@ -102,18 +157,16 @@ def start_file_watcher():
     observer.join()
 
 if __name__ == "__main__":
-    # Start the Flask proxy server in a thread
-    flask_thread = threading.Thread(target=lambda: app.run(host='127.0.0.1', port=5000, threaded=True, use_reloader=False))
+    # Start Flask server in a thread
+    flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=FLASK_PORT, threaded=True, use_reloader=False))
     flask_thread.daemon = True
     flask_thread.start()
     
     # Wait for Flask to initialize
-    time.sleep(5)
+    time.sleep(3)
     
-    # Start HTTP server in a thread
-    http_thread = threading.Thread(target=start_http_server)
-    http_thread.daemon = True
-    http_thread.start()
+    # Open the default page in a browser
+    webbrowser.open_new_tab(f"http://localhost:{FLASK_PORT}/")
     
-    # Start file watcher in main thread
+    # Start file watcher in the main thread
     start_file_watcher()

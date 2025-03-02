@@ -10,10 +10,13 @@ window.onload = function () {
 
 // Load devices from localStorage
 function loadDevices() {
-    const savedDevices = localStorage.getItem("devices");
-    if (savedDevices) {
-        devices = JSON.parse(savedDevices);
-    }
+    fetch("http://localhost:5500/get_devices")
+        .then(response => response.json())
+        .then(data => {
+            devices = data; // Store the fetched devices
+            renderDevices(); // Render the devices in the UI
+        })
+        .catch(error => console.error("Error loading devices:", error));
 }
 
 // Save devices to localStorage
@@ -35,18 +38,26 @@ function closePopup() {
 function addDevice() {
     const streamUrl = document.getElementById("ip_address").value;
     const feedName = document.getElementById("title").value.trim();
-    
+    const location = document.getElementById("location").value.trim();
+
     if (streamUrl && (streamUrl.startsWith("rtsp://") || streamUrl.startsWith("http://") || streamUrl.startsWith("https://"))) {
         const deviceName = feedName || `Stream Feed ${devices.length + 1}`;
-        devices.push({ name: deviceName, streamUrl });
-        
-        // Clear input fields
-        document.getElementById("title").value = "";
-        document.getElementById("ip_address").value = "";
-        
-        saveDevices(); // Save updated devices list
-        closePopup(); // Close the popup
-        renderDevices(); // Re-render device list
+
+        fetch("http://localhost:5500/add_device", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: deviceName, ip_address: streamUrl, location: location })
+        })
+        .then(response => response.json())
+        .then(data => {
+            devices.push({ id: data.id, title: deviceName, ip_address: streamUrl, location: location });
+            document.getElementById("title").value = "";
+            document.getElementById("ip_address").value = "";
+            document.getElementById("location").value = "";
+            closePopup();
+            renderDevices();
+        })
+        .catch(error => console.error("Error adding device:", error));
     } else {
         alert("Please enter a valid RTSP, HTTP, or HTTPS URL.");
     }
@@ -58,8 +69,8 @@ function renderDevices() {
     gridContainer.innerHTML = ""; // Clear the grid before rendering
 
     devices.forEach((device, index) => {
-        const videoFeedURL = `http://localhost:5000/stream?stream_url=${encodeURIComponent(device.streamUrl)}`;
-        const deviceCard = createDeviceCard(videoFeedURL, device.name, index);
+        const videoFeedURL = `http://localhost:5500/stream?stream_url=${encodeURIComponent(device.ip_address)}`;
+        const deviceCard = createDeviceCard(videoFeedURL, device.title, device.location, index);
         gridContainer.appendChild(deviceCard);
     });
 
@@ -77,7 +88,7 @@ function renderDevices() {
 }
 
 // Create a device card element
-function createDeviceCard(videoFeedURL, deviceName, deviceIndex) {
+function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceIndex) {
     const deviceCard = document.createElement("div");
     deviceCard.className = "device-card";
 
@@ -88,6 +99,11 @@ function createDeviceCard(videoFeedURL, deviceName, deviceIndex) {
 
     const nameElement = document.createElement("h3");
     nameElement.textContent = deviceName;
+
+    const locationElement = document.createElement("p");
+    locationElement.textContent = `Location: ${deviceLocation}`;
+    locationElement.style.fontSize = "12px";
+    locationElement.style.color = "grey";
 
     // Kebab menu for options
     const menuContainer = document.createElement("div");
@@ -109,6 +125,7 @@ function createDeviceCard(videoFeedURL, deviceName, deviceIndex) {
 
     deviceCard.appendChild(imgElement);
     deviceCard.appendChild(nameElement);
+    deviceCard.appendChild(locationElement);
     deviceCard.appendChild(menuContainer);
 
     return deviceCard;
@@ -131,50 +148,77 @@ document.addEventListener("click", function (event) {
 // Show confirmation popup for deleting a device
 function showDeletePopup(deviceIndex) {
     const deletePopup = document.getElementById("delete-form");
-    deletePopup.style.display = "flex";
+    deletePopup.style.display = "flex"; // Show the delete confirmation popup
 
+    // Set up the "Yes, Delete" button
     document.getElementById("confirm-delete").onclick = () => {
-        deleteDevice(deviceIndex);
-        deletePopup.style.display = "none";
+        deleteDevice(deviceIndex); // Call the deleteDevice function
+        deletePopup.style.display = "none"; // Hide the popup after deletion
     };
 
+    // Set up the "Cancel" button
     document.getElementById("cancel-delete").onclick = () => {
-        deletePopup.style.display = "none";
+        deletePopup.style.display = "none"; // Hide the popup without deleting
     };
 }
 
 // Delete a device from the list
 function deleteDevice(deviceIndex) {
-    devices.splice(deviceIndex, 1);
-    saveDevices(); // Save updated devices list
-    renderDevices(); // Re-render device list
+    const deviceId = devices[deviceIndex].id; // Get the device ID
+
+    fetch("http://localhost:5500/delete_device", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: deviceId }) // Send the device ID to the backend
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            devices.splice(deviceIndex, 1); // Remove the device from the local array
+            renderDevices(); // Refresh the UI
+        } else {
+            console.error("Failed to delete device:", data.error);
+        }
+    })
+    .catch(error => console.error("Error deleting device:", error));
 }
 
 // Open the edit name popup for a specific device
 function openEditNamePopup(deviceIndex) {
-    const device = devices[deviceIndex];
-    document.getElementById("edit-title").value = device.name;
-    document.getElementById("edit-ip_address").value = device.streamUrl;
-    document.getElementById("edit-name-form").style.display = "flex";
-    currentEditDeviceIndex = deviceIndex;
+    const device = devices[deviceIndex]; // Get the device data
+    document.getElementById("edit-title").value = device.title || ""; // Populate the title field
+    document.getElementById("edit-ip_address").value = device.ip_address || ""; // Populate the stream URL field
+    document.getElementById("edit-name-form").style.display = "flex"; // Show the edit form
+    currentEditDeviceIndex = deviceIndex; // Store the index of the device being edited
 }
 
 // Close the edit name popup
 function closeEditNamePopup() {
-    document.getElementById("edit-name-form").style.display = "none";
+    document.getElementById("edit-name-form").style.display = "none"; // Hide the edit form
+    document.getElementById("edit-title").value = ""; // Clear the title field
+    document.getElementById("edit-ip_address").value = ""; // Clear the stream URL field
 }
 
 // Save the edited device details (name and stream URL)
 function saveDeviceDetails() {
     const newName = document.getElementById("edit-title").value.trim();
     const newStreamUrl = document.getElementById("edit-ip_address").value.trim();
+    const deviceId = devices[currentEditDeviceIndex].id;
 
     if (newStreamUrl && (newStreamUrl.startsWith("rtsp://") || newStreamUrl.startsWith("http://") || newStreamUrl.startsWith("https://"))) {
-        devices[currentEditDeviceIndex].name = newName || `Stream Feed ${currentEditDeviceIndex + 1}`;
-        devices[currentEditDeviceIndex].streamUrl = newStreamUrl;
-        saveDevices();
-        renderDevices();
-        closeEditNamePopup();
+        fetch("http://localhost:5500/update_device", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: deviceId, title: newName, ip_address: newStreamUrl })
+        })
+        .then(response => response.json())
+        .then(data => {
+            devices[currentEditDeviceIndex].title = newName || `Stream Feed ${currentEditDeviceIndex + 1}`;
+            devices[currentEditDeviceIndex].ip_address = newStreamUrl;
+            renderDevices(); // Refresh the device list
+            closeEditNamePopup(); // Close the edit form
+        })
+        .catch(error => console.error("Error updating device:", error));
     } else {
         alert("Please enter a valid RTSP, HTTP, or HTTPS URL.");
     }
