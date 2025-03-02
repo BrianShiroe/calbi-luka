@@ -1,3 +1,3 @@
 # Web-based System For Accident And Natural Disaster Detection
-Test 1
-Test 2
+
+Detected Classes (collision, fire, smoke, flood, landslide)

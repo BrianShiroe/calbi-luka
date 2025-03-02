@@ -19,12 +19,15 @@ MODEL_PATHS = [
     # "model/car-fire-5.1.11n.pt",
     # "model/flood-5.1.11n.pt",
     # "model/landslide-5.1.11n.pt",
-    ]
+]
 DB_PATH = "db/luka.db"
 
 # Load multiple YOLO models
 models = [YOLO(path) for path in MODEL_PATHS]
 model_toggle = True  # Toggle for enabling/disabling model inference
+
+# Define target classes to detect
+TARGET_CLASSES = {"person", "collision", "fire", "smoke", "flood", "landslide"}
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -47,7 +50,16 @@ def generate_frames(stream_url):
             for model in models:
                 results = model(frame, verbose=False)  # Run inference on each model
                 for result in results:
-                    frame = result.plot()  # Overlay detections from each model
+                    filtered_boxes = []
+                    for box in result.boxes:
+                        class_id = int(box.cls[0].item())  # Get class index
+                        class_name = model.names.get(class_id, "unknown")  # Get class name
+                        if class_name in TARGET_CLASSES:
+                            filtered_boxes.append(box)  # Keep only target classes
+
+                    # Update results to only include filtered detections
+                    result.boxes = filtered_boxes
+                    frame = result.plot()  # Overlay detections from filtered classes
 
         _, buffer = cv2.imencode('.jpg', frame)
         yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
