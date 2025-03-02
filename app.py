@@ -76,9 +76,9 @@ class SimpleHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 def start_http_server():
     """ Start an HTTP server to serve static files. """
-    with socketserver.TCPServer(("", PORT), SimpleHTTPRequestHandler) as httpd:
-        print(f"Serving at http://localhost:{PORT}")
-        webbrowser.open_new_tab(f"http://localhost:{PORT}{DEFAULT_FILE}")
+    with socketserver.TCPServer(("127.0.0.1", PORT), SimpleHTTPRequestHandler) as httpd:
+        print(f"Serving at http://127.0.0.1:{PORT}")
+        webbrowser.open_new_tab(f"http://127.0.0.1:{PORT}{DEFAULT_FILE}")  # Force 127.0.0.1
         httpd.serve_forever()
 
 # File Watcher
@@ -103,7 +103,7 @@ def start_file_watcher():
 
 if __name__ == "__main__":
     # Start the Flask proxy server in a thread
-    flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000, threaded=True, use_reloader=False))
+    flask_thread = threading.Thread(target=lambda: app.run(host='127.0.0.1', port=5000, threaded=True, use_reloader=False))
     flask_thread.daemon = True
     flask_thread.start()
     
