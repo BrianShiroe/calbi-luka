@@ -260,16 +260,16 @@ body {
 }
 
 /* Confirmation Popup for Delete */
-#delete-popup .popup-content {
+#delete-form .popup-content {
     background-color: #f1f1f1;
     text-align: center;
 }
 
-#delete-popup .popup-content button {
+#delete-form .popup-content button {
     background-color: #453cc6;
 }
 
-#delete-popup .popup-content button:hover {
+#delete-form .popup-content button:hover {
     background-color: #1a1740;
 }
 

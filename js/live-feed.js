@@ -23,12 +23,12 @@ function saveDevices() {
 
 // Open the add device popup
 function openPopup() {
-    document.getElementById("add-popup").style.display = "flex";
+    document.getElementById("add-form").style.display = "flex";
 }
 
 // Close the add device popup
 function closePopup() {
-    document.getElementById("add-popup").style.display = "none";
+    document.getElementById("add-form").style.display = "none";
 }
 
 // Add a new device to the list
@@ -130,7 +130,7 @@ document.addEventListener("click", function (event) {
 
 // Show confirmation popup for deleting a device
 function showDeletePopup(deviceIndex) {
-    const deletePopup = document.getElementById("delete-popup");
+    const deletePopup = document.getElementById("delete-form");
     deletePopup.style.display = "flex";
 
     document.getElementById("confirm-delete").onclick = () => {
@@ -155,13 +155,13 @@ function openEditNamePopup(deviceIndex) {
     const device = devices[deviceIndex];
     document.getElementById("edit-title").value = device.name;
     document.getElementById("edit-ip_address").value = device.streamUrl;
-    document.getElementById("edit-name-popup").style.display = "flex";
+    document.getElementById("edit-name-form").style.display = "flex";
     currentEditDeviceIndex = deviceIndex;
 }
 
 // Close the edit name popup
 function closeEditNamePopup() {
-    document.getElementById("edit-name-popup").style.display = "none";
+    document.getElementById("edit-name-form").style.display = "none";
 }
 
 // Save the edited device details (name and stream URL)
