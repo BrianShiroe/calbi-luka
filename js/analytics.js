@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
     
             categorizedData[category].count++;
-            categorizedData[category].table.push([incident.date, incident.type, incident.location, incident.status]);
+            categorizedData[category].table.push([incident.date, incident.type, incident.location, incident.time]);
     
             const eventIndex = eventTypes.indexOf(incident.type);
             if (eventIndex !== -1) {

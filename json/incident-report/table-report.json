@@ -1,8 +1,8 @@
 [
-    { "date": "2025-03-02", "type": "Fire", "location": "Main Street", "status": "Resolved" },
-    { "date": "2025-03-02", "type": "Flood", "location": "Riverside", "status": "Ongoing" },
-    { "date": "2025-03-03", "type": "Landslide", "location": "Hillside", "status": "Pending" },
-    { "date": "2025-03-03", "type": "Car Crash", "location": "Highway 7", "status": "Resolved" },
-    { "date": "2025-03-03", "type": "Earthquake", "location": "City Center", "status": "Ongoing" },
-    { "date": "2025-03-04", "type": "Fire", "location": "Warehouse District", "status": "Pending" }
+    { "date": "2025-03-02", "type": "Fire", "location": "Barangay Hall", "time": "10:01 AM" },
+    { "date": "2025-03-02", "type": "Flood", "location": "Santa Rita Church", "time": "10:01 AM" },
+    { "date": "2025-03-03", "type": "Landslide", "location": "Mayumi Street", "time": "10:01 AM" },
+    { "date": "2025-03-03", "type": "Car Crash", "location": "Purok 1", "time": "10:01 AM" },
+    { "date": "2025-03-03", "type": "Earthquake", "location": "Purok 2", "time": "10:01 AM" },
+    { "date": "2025-03-04", "type": "Fire", "location": "Purok 3", "time": "10:01 AM" }
 ]
