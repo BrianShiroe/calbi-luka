@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const incidentTable = document.getElementById("incident-table");
     const activityList = document.getElementById("activity-list");
 
-    let lineChart, pieChart;
+    let lineChart, pieChart;    
 
     function fetchData(timeframe) {
         fetch("../json/incident-report/table-report.json")
@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
     
     function processIncidentData(data, timeframe) {
         const categorizedData = {
-            daily: { count: 0, history: [], events: [0, 0, 0, 0, 0], table: [] },
             weekly: { count: 0, history: [0, 0, 0, 0, 0], events: [0, 0, 0, 0, 0], table: [] },
             monthly: { count: 0, history: [0, 0, 0, 0, 0], events: [0, 0, 0, 0, 0], table: [] }
         };
@@ -27,9 +26,9 @@ document.addEventListener("DOMContentLoaded", function () {
         
         data.forEach(incident => {
             const incidentDate = new Date(incident.date);
-            let category = "daily";
+            let category = "weekly";
     
-            // Categorize into daily, weekly, or monthly
+            // Categorize into weekly or monthly
             if ((today - incidentDate) / (1000 * 60 * 60 * 24) > 7) {
                 category = "monthly";
             } else if ((today - incidentDate) / (1000 * 60 * 60 * 24) > 1) {
@@ -63,11 +62,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
     
-        const labels = timeframe === "daily"
-            ? ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"]
-            : timeframe === "weekly"
+        const labels = 
+            timeframe === "weekly"
             ? ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"]
-            : ["Month 1", "Month 2", "Month 3", "Month 4", "Month 5"];
+            : ["January", "February", "March", "April", "June"];
     
         if (lineChart) {
             lineChart.data.labels = labels;
@@ -89,11 +87,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
                     scales: {
                         x: { grid: { display: false } },
                         y: { beginAtZero: true }
                     }
+                },
+                animation: {
+                    duration: 0
                 }
             });
         }
@@ -119,6 +119,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         position: "bottom"
                     }                 
                 }
+            },
+            animation: {
+                duration:0
             }
         });
     }    
@@ -140,7 +143,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fetchData(timeframeSelect.value);
     });
 
-    fetchData("daily");
+    fetchData("weekly");
 
     // Tab Switching
     const tabs = document.querySelectorAll(".tab-button");
