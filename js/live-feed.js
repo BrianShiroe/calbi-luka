@@ -36,21 +36,22 @@ function closePopup() {
 
 // Add a new device to the list
 function addDevice() {
-    const streamUrl = document.getElementById("ip_address").value;
-    const feedName = document.getElementById("title").value.trim();
-    const location = document.getElementById("location").value.trim();
+    const streamUrl = document.getElementById("ip_address").value.trim();
+    let feedName = document.getElementById("title").value.trim();
+    let location = document.getElementById("location").value.trim();
 
     if (streamUrl && (streamUrl.startsWith("rtsp://") || streamUrl.startsWith("http://") || streamUrl.startsWith("https://"))) {
-        const deviceName = feedName || `Stream Feed ${devices.length + 1}`;
+        feedName = feedName || `CAM${devices.length + 1}`;
+        location = location || "Unknown"; // Default location if empty
 
         fetch("http://localhost:5500/add_device", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title: deviceName, ip_address: streamUrl, location: location })
+            body: JSON.stringify({ title: feedName, ip_address: streamUrl, location: location })
         })
         .then(response => response.json())
         .then(data => {
-            devices.push({ id: data.id, title: deviceName, ip_address: streamUrl, location: location });
+            devices.push({ id: data.id, title: feedName, ip_address: streamUrl, location: location });
             document.getElementById("title").value = "";
             document.getElementById("ip_address").value = "";
             document.getElementById("location").value = "";
@@ -62,6 +63,8 @@ function addDevice() {
         alert("Please enter a valid RTSP, HTTP, or HTTPS URL.");
     }
 }
+
+
 
 // Render the devices on the UI
 function renderDevices() {
@@ -186,8 +189,9 @@ function deleteDevice(deviceIndex) {
 // Open the edit name popup for a specific device
 function openEditNamePopup(deviceIndex) {
     const device = devices[deviceIndex]; // Get the device data
-    document.getElementById("edit-title").value = device.title || ""; // Populate the title field
-    document.getElementById("edit-ip_address").value = device.ip_address || ""; // Populate the stream URL field
+    document.getElementById("edit-title").value = device.title || "";
+    document.getElementById("edit-ip_address").value = device.ip_address || "";
+    document.getElementById("edit-location").value = device.location || ""; // Populate location
     document.getElementById("edit-name-form").style.display = "flex"; // Show the edit form
     currentEditDeviceIndex = deviceIndex; // Store the index of the device being edited
 }
@@ -195,26 +199,36 @@ function openEditNamePopup(deviceIndex) {
 // Close the edit name popup
 function closeEditNamePopup() {
     document.getElementById("edit-name-form").style.display = "none"; // Hide the edit form
-    document.getElementById("edit-title").value = ""; // Clear the title field
-    document.getElementById("edit-ip_address").value = ""; // Clear the stream URL field
+    document.getElementById("edit-title").value = "";
+    document.getElementById("edit-ip_address").value = "";
+    document.getElementById("edit-location").value = "";
 }
 
-// Save the edited device details (name and stream URL)
 function saveDeviceDetails() {
-    const newName = document.getElementById("edit-title").value.trim();
-    const newStreamUrl = document.getElementById("edit-ip_address").value.trim();
+    let newTitle = document.getElementById("edit-title").value.trim();
+    let newIpAddress = document.getElementById("edit-ip_address").value.trim();
+    let newLocation = document.getElementById("edit-location").value.trim();
     const deviceId = devices[currentEditDeviceIndex].id;
 
-    if (newStreamUrl && (newStreamUrl.startsWith("rtsp://") || newStreamUrl.startsWith("http://") || newStreamUrl.startsWith("https://"))) {
+    if (newIpAddress && (newIpAddress.startsWith("rtsp://") || newIpAddress.startsWith("http://") || newIpAddress.startsWith("https://"))) {
+        newTitle = newTitle || `CAM${currentEditDeviceIndex + 1}`; // Default to CAM# if empty
+        newLocation = newLocation || "Unknown"; // Default location if empty
+
         fetch("http://localhost:5500/update_device", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: deviceId, title: newName, ip_address: newStreamUrl })
+            body: JSON.stringify({
+                id: deviceId,
+                title: newTitle,
+                ip_address: newIpAddress,
+                location: newLocation
+            })
         })
         .then(response => response.json())
         .then(data => {
-            devices[currentEditDeviceIndex].title = newName || `Stream Feed ${currentEditDeviceIndex + 1}`;
-            devices[currentEditDeviceIndex].ip_address = newStreamUrl;
+            devices[currentEditDeviceIndex].title = newTitle;
+            devices[currentEditDeviceIndex].ip_address = newIpAddress;
+            devices[currentEditDeviceIndex].location = newLocation;
             renderDevices(); // Refresh the device list
             closeEditNamePopup(); // Close the edit form
         })

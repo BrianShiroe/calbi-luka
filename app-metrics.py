@@ -2,6 +2,7 @@ import time
 import webbrowser
 import threading
 import sqlite3
+import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from flask import Flask, Response, request, jsonify, g, send_from_directory
@@ -19,6 +20,8 @@ DB_PATH = "db/luka.db"
 # Load multiple YOLO models
 models = [YOLO(path) for path in MODEL_PATHS]
 model_toggle = True  # Toggle for enabling/disabling model inference
+performance_metrics_toggle = True # Toggle for displaying performance metrics
+update_interval = 0.5 # Update text every # second instead of every frame
 
 # Initialize Flask application
 app = Flask(__name__, static_folder=".")
@@ -44,20 +47,85 @@ def generate_frames(stream_url):
         print(f"Failed to open stream: {stream_url}")
         return
 
+    frame_count = 0
+    start_time = time.time()
+    last_frame_time = None
+    last_update_time = time.time()  # Controls how often metrics are updated
+
+    # Cached values for smoother updates
+    displayed_fps = 0
+    displayed_frame_rate = 0
+    displayed_processing_time = 0
+    displayed_real_time_lag = 0
+
     while True:
+        frame_start_time = time.time()  
         success, frame = cap.read()
         if not success:
             print(f"Stream disconnected: {stream_url}")
             break
 
+        # Calculate frame rate and timing
+        if last_frame_time:
+            frame_interval = frame_start_time - last_frame_time  
+            frame_rate = 1 / frame_interval if frame_interval > 0 else 0
+        else:
+            frame_rate = 0  
+
+        last_frame_time = frame_start_time  
+
+        # Measure processing time
+        process_start = time.time()
+        
         if model_toggle:
             for model in models:
-                results = model(frame, verbose=False)  # Run inference on each model
+                results = model(frame, verbose=False)  
                 for result in results:
-                    frame = result.plot()  # Overlay detections from each model
+                    frame = result.plot()  
 
+        process_end = time.time()
+        processing_time = process_end - process_start  
+
+        # FPS Calculation
+        frame_count += 1
+        elapsed_time = time.time() - start_time
+        fps = frame_count / elapsed_time if elapsed_time > 0 else 0
+
+        # Real-Time Lag (Streaming Delay)
+        real_time_lag = time.time() - frame_start_time  
+
+        # Only update displayed values every `update_interval` seconds
+        if time.time() - last_update_time > update_interval:
+            last_update_time = time.time()
+            displayed_fps = fps
+            displayed_frame_rate = frame_rate
+            displayed_processing_time = processing_time
+            displayed_real_time_lag = real_time_lag
+
+        # Text properties
+        font_scale = 2.5  
+        font_thickness = 6  
+        colors = {
+            "FPS": (0, 255, 0),       # Green
+            "Frame Rate": (255, 255, 0),  # Yellow
+            "Processing Time": (255, 0, 255),  # Magenta
+            "Streaming Delay": (0, 165, 255)  # Orange
+        }
+
+        if performance_metrics_toggle:
+            cv2.putText(frame, f"FPS: {displayed_fps:.2f}", (30, 100),
+                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["FPS"], font_thickness)
+            cv2.putText(frame, f"Frame Rate: {displayed_frame_rate:.2f} FPS", (30, 200),
+                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Frame Rate"], font_thickness)
+            cv2.putText(frame, f"Processing Time: {displayed_processing_time:.3f}s", (30, 300),
+                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Processing Time"], font_thickness)
+            cv2.putText(frame, f"Streaming Delay: {displayed_real_time_lag:.3f}s", (30, 400),
+                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Streaming Delay"], font_thickness)
+
+        # Encode frame
         _, buffer = cv2.imencode('.jpg', frame)
-        yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
 
     cap.release()
 
