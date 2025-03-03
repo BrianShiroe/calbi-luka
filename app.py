@@ -171,7 +171,7 @@ if __name__ == "__main__":
     time.sleep(3)
     
     # Open the default page in a browser
-    webbrowser.open_new_tab(f"http://localhost:{FLASK_PORT}/")
+    webbrowser.open_new_tab(f"http://127.0.0.1:{FLASK_PORT}/")
     
     # Start file watcher in the main thread
     start_file_watcher()
