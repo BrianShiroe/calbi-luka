@@ -31,13 +31,14 @@ def get_db():
         g.db.row_factory = sqlite3.Row
     return g.db
 
+# Close the database connection when the app context ends
 @app.teardown_appcontext
 def close_db(error):
     if 'db' in g:
         g.db.close()
 
+# Continuously fetch frames from the video stream and return as HTTP response
 def generate_frames(stream_url):
-    """ Continuously fetch frames from the video stream and return as HTTP response. """
     cap = cv2.VideoCapture(stream_url)
     if not cap.isOpened():
         print(f"Failed to open stream: {stream_url}")
@@ -60,22 +61,24 @@ def generate_frames(stream_url):
 
     cap.release()
 
+# Serve the main home page
 @app.route("/")
 def serve_home():
     return send_from_directory("html", "home.html")
 
+# Serve files specifically from the `html/` folder with /html/ in the URL
 @app.route("/html/<path:filename>")
 def serve_html(filename):
-    """ Serve files specifically from the `html/` folder with /html/ in the URL """
     return send_from_directory("html", filename)
 
+# Serve static files from various directories
 @app.route("/<path:filename>")
 def serve_static(filename):
-    """ Serve static files from various directories """
     if filename.startswith(("css/", "js/", "img/", "json/", "model/")):
         return send_from_directory(".", filename)
     return send_from_directory("html", filename)  # Default to HTML folder
 
+# Retrieve all active devices from the database
 @app.route('/get_devices', methods=['GET'])
 def get_devices():
     db = get_db()
@@ -84,6 +87,7 @@ def get_devices():
     devices = cursor.fetchall()
     return jsonify([dict(device) for device in devices])
 
+# Add a new camera device to the database
 @app.route('/add_device', methods=['POST'])
 def add_device():
     data = request.get_json()
@@ -96,6 +100,7 @@ def add_device():
     db.commit()
     return jsonify({"id": cursor.lastrowid, **data})
 
+# Update an existing camera device
 @app.route('/update_device', methods=['POST'])
 def update_device():
     data = request.get_json()
@@ -108,6 +113,7 @@ def update_device():
     db.commit()
     return jsonify({"success": True})
 
+# Soft-delete a camera device by marking it as inactive
 @app.route('/delete_device', methods=['POST'])
 def delete_device():
     data = request.get_json()
@@ -117,9 +123,9 @@ def delete_device():
     db.commit()
     return jsonify({"success": True})
 
+# Endpoint to stream video from RTSP, HTTP, or HTTPS sources
 @app.route('/stream')
 def stream():
-    """ Endpoint to stream video from RTSP, HTTP, or HTTPS sources. """
     stream_url = request.args.get('stream_url')
     if not stream_url:
         return "Stream URL is missing", 400
@@ -127,23 +133,22 @@ def stream():
         return "Invalid stream URL", 400
     return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# Toggle model inference on or off
 @app.route('/toggle_model', methods=['POST'])
 def toggle_model():
-    """ Toggle model inference on or off. """
     global model_toggle
     data = request.get_json()
     if 'enabled' in data:
         model_toggle = data['enabled']
     return jsonify({"model_toggle": model_toggle})
 
-# File Watcher
+# Watchdog event handler to detect file changes
 class ReloadHandler(FileSystemEventHandler):
-    """ Watchdog event handler to detect file changes. """
     def on_modified(self, event):
         print(f"File changed: {event.src_path}")
 
+# Start a file watcher to detect changes in the project directory
 def start_file_watcher():
-    """ Start a file watcher to detect changes in the project directory. """
     event_handler = ReloadHandler()
     observer = Observer()
     observer.schedule(event_handler, path=DIRECTORY, recursive=True)
