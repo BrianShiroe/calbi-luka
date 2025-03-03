@@ -14,52 +14,90 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => processIncidentData(data, timeframe))
             .catch(error => console.error("Error loading incident data:", error));
     }
-
+    
     function processIncidentData(data, timeframe) {
         const categorizedData = {
             daily: { count: 0, history: [], events: [0, 0, 0, 0, 0], table: [] },
-            weekly: { count: 0, history: [], events: [0, 0, 0, 0, 0], table: [] },
-            monthly: { count: 0, history: [], events: [0, 0, 0, 0, 0], table: [] }
+            weekly: { count: 0, history: [0, 0, 0, 0, 0], events: [0, 0, 0, 0, 0], table: [] },
+            monthly: { count: 0, history: [0, 0, 0, 0, 0], events: [0, 0, 0, 0, 0], table: [] }
         };
-
+    
+        const eventTypes = ["Landslide", "Flood", "Fire", "Car Crash", "Earthquake"];
+        const today = new Date();
+        
         data.forEach(incident => {
+            const incidentDate = new Date(incident.date);
             let category = "daily";
-
-            if (incident.date.startsWith("2025-03-02")) category = "weekly";
-            if (incident.date.startsWith("2025-03-03")) category = "monthly";
-
+    
+            // Categorize into daily, weekly, or monthly
+            if ((today - incidentDate) / (1000 * 60 * 60 * 24) > 7) {
+                category = "monthly";
+            } else if ((today - incidentDate) / (1000 * 60 * 60 * 24) > 1) {
+                category = "weekly";
+            }
+    
             categorizedData[category].count++;
             categorizedData[category].table.push([incident.date, incident.type, incident.location, incident.status]);
-
-            const eventTypes = ["Landslide", "Flood", "Fire", "Car Crash", "Earthquake"];
-            const index = eventTypes.indexOf(incident.type);
-            if (index !== -1) {
-                categorizedData[category].events[index]++;
+    
+            const eventIndex = eventTypes.indexOf(incident.type);
+            if (eventIndex !== -1) {
+                categorizedData[category].events[eventIndex]++;
+            }
+    
+            // Populate history for line chart
+            if (category === timeframe) {
+                let timeIndex = Math.min(Math.floor((today - incidentDate) / (1000 * 60 * 60 * 24)), 4);
+                categorizedData[category].history[timeIndex] = (categorizedData[category].history[timeIndex] || 0) + 1;
             }
         });
-
+    
         incidentCount.textContent = categorizedData[timeframe].count;
-        updateLineChart(categorizedData[timeframe].history);
+        updateLineChart(categorizedData[timeframe].history, timeframe);
         updatePieChart(categorizedData[timeframe].events);
         updateIncidentTable(categorizedData[timeframe].table);
     }
-
-    function updateLineChart(data) {
-        if (lineChart) lineChart.destroy();
-        lineChart = new Chart(ctxLine, {
-            type: "line",
-            data: {
-                labels: ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"],
-                datasets: [{
-                    label: "Incidents Over Time",
-                    data: data,
-                    borderColor: "#fff",
-                    backgroundColor: "#383197",
-                    fill: true
-                }]
-            }
-        });
-    }
+    
+    function updateLineChart(data, timeframe) {
+        if (!ctxLine) {
+            console.error("Canvas context is missing for line chart.");
+            return;
+        }
+    
+        const labels = timeframe === "daily"
+            ? ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"]
+            : timeframe === "weekly"
+            ? ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"]
+            : ["Month 1", "Month 2", "Month 3", "Month 4", "Month 5"];
+    
+        if (lineChart) {
+            lineChart.data.labels = labels;
+            lineChart.data.datasets[0].data = data;
+            lineChart.update();
+        } else {
+            lineChart = new Chart(ctxLine, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Detected Incidents`,
+                        data: data,
+                        borderColor: "#fff",
+                        backgroundColor: "#383197",
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+    }    
 
     function updatePieChart(data) {
         if (pieChart) pieChart.destroy();

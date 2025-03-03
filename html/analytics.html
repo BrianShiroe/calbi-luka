@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="../css/analytics.css">
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/overview.css">
+    <link rel="stylesheet" href="../css/report.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Analytics | Luka</title>
@@ -87,6 +89,11 @@
                     <i class='bx bxs-analyse'></i>
                     <p>Total Detections</p>
                     <h3 id="incident-count">0</h3>
+                    <select id="timeframe">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
                 </div>
 
                 <div class="incident-summary">
@@ -117,13 +124,7 @@
                     <i class='bx bx-radar'></i>
                     <p>Title</p>
                     <h3 id="title">0</h3>
-                    <select id="timeframe">
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                    </select>
                 </div>
-
             </div>
 
             <div class="charts-container">
@@ -132,10 +133,11 @@
             </div>
 
             <aside class="recent-activities">
+                <h5 class="recent-title">Recent Activity</h5>
                 <ul id="activity-list">
                     <!-- Dynamic content will be inserted here -->
                 </ul>
-            </aside>
+            </aside>            
 
         </div>
 
