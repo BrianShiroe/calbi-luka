@@ -102,8 +102,8 @@ def update_device():
     db = get_db()
     cursor = db.cursor()
     cursor.execute(
-        "UPDATE camera SET title = ?, ip_address = ? WHERE id = ?",
-        (data['title'], data['ip_address'], data['id'])
+        "UPDATE camera SET title = ?, ip_address = ?, location = ? WHERE id = ?",
+        (data['title'], data['ip_address'], data['location'], data['id'])
     )
     db.commit()
     return jsonify({"success": True})

@@ -221,10 +221,17 @@ body {
     color: #ff0000;
 }
 
+.popup label{
+    display: flex;
+    text-align: center;
+    justify-content: center;
+}
+
 .popup input {
     width: 90%;
     padding: 12px;
-    margin-top: 12px;
+    margin-top: 6px;
+    margin-bottom: 6px;
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 14px;
