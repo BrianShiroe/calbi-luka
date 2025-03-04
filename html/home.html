@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="../css/home.css">
     <link rel="stylesheet" href="../css/tab.css">
     <link rel="stylesheet" href="../css/upload.css">
-    <link rel="stylesheet" href="../css/main.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <title>Home | Luka</title>
 <head>
@@ -86,7 +85,7 @@
 
     <!-- Main model toggle -->
     <div class="toggle-container">
-        <label class="model-label">Activate AI Model</label>
+        <label class="model-label">Detection Mode</label>
         <label class="switch">
             <input type="checkbox" id="model-status-checkbox">
             <span class="slider"></span>
@@ -114,13 +113,13 @@
 
         // get model status for python
         document.getElementById("model-status-checkbox").addEventListener("change", function() {
-            fetch("http://localhost:5000/toggle_model", {
+            fetch("http://localhost:5500/toggle_model", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ enabled: this.checked })
             })
             .then(response => response.json())
-            .then(data => console.log("Model toggle:", data.model_toggle))
+            .then(data => console.log("Model toggle:", data.detection_mode))
             .catch(error => console.error("Error:", error));
         });
     </script>

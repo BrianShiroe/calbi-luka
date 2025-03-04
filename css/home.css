@@ -5,6 +5,10 @@ body {
     background-color: #fff;
 }
 
+.header img{
+    height:35px;
+}
+
 .container {
     /* max-width: 1200px; */
     max-height: fit-content;

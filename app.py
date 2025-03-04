@@ -18,7 +18,8 @@ DB_PATH = "db/luka.db"
 
 # Load multiple YOLO models
 models = [YOLO(path) for path in MODEL_PATHS]
-model_toggle = True  # Toggle for enabling/disabling model inference
+detection_mode = True  # Toggle for enabling/disabling model inference
+show_bounding_box = True
 
 # Initialize Flask application
 app = Flask(__name__, static_folder=".")
@@ -50,7 +51,7 @@ def generate_frames(stream_url):
             print(f"Stream disconnected: {stream_url}")
             break
 
-        if model_toggle:
+        if detection_mode:
             for model in models:
                 results = model(frame, verbose=False)  # Run inference on each model
                 for result in results:
@@ -136,11 +137,11 @@ def stream():
 # Toggle model inference on or off
 @app.route('/toggle_model', methods=['POST'])
 def toggle_model():
-    global model_toggle
+    global detection_mode
     data = request.get_json()
     if 'enabled' in data:
-        model_toggle = data['enabled']
-    return jsonify({"model_toggle": model_toggle})
+        detection_mode = data['enabled']
+    return jsonify({"detection_mode": detection_mode})
 
 # Watchdog event handler to detect file changes
 class ReloadHandler(FileSystemEventHandler):
@@ -168,7 +169,7 @@ if __name__ == "__main__":
     flask_thread.start()
     
     # Wait for Flask to initialize
-    time.sleep(3)
+    time.sleep(3)   
     
     # Open the default page in a browser
     webbrowser.open_new_tab(f"http://127.0.0.1:{FLASK_PORT}/")
