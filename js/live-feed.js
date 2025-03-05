@@ -102,10 +102,20 @@ function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceIndex)
 
     let mediaElement;
 
-    mediaElement = document.createElement("img");
-    mediaElement.src = videoFeedURL;
-    mediaElement.style.width = "100%";
-    mediaElement.style.borderRadius = "10px";
+    if (videoFeedURL.match(/\.(mp4|webm|ogg)$/i)) {
+        // If it's a video file, use the <video> element
+        mediaElement = document.createElement("video");
+        mediaElement.src = videoFeedURL;
+        mediaElement.style.width = "100%";
+        mediaElement.style.borderRadius = "10px";
+        mediaElement.controls = true;
+    } else {
+        // Fallback to image if it's not a recognized video format
+        mediaElement = document.createElement("img");
+        mediaElement.src = videoFeedURL;
+        mediaElement.style.width = "100%";
+        mediaElement.style.borderRadius = "10px";
+    }
 
     mediaElement.onclick = function () {
         openFullscreen(videoFeedURL);
