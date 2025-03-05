@@ -84,48 +84,7 @@
         <div class="tab active" id="live-feed-tab" onclick="changeTab('live-feed')">Live Feed</div>
         <div class="tab" id="video-uploads-tab" onclick="changeTab('video-uploads')">Video Uploads</div>
     </div>
-
-    <!-- Main model toggle -->
-    <div class="toggle-container">
-        <label class="model-label">Detection Mode</label>
-        <label class="switch">
-            <input type="checkbox" id="model-status-checkbox">
-            <span class="slider"></span>
-        </label>
-    </div>
-
-    <script>
-        // persist model-status-checkbox
-        document.addEventListener("DOMContentLoaded", function () {
-            const modelCheckbox = document.getElementById("model-status-checkbox");
-            const savedStatus = localStorage.getItem("model-status-checkbox");
-
-            // Set checkbox state from localStorage
-            if (savedStatus === "true") {
-                modelCheckbox.checked = true;
-            } else if (savedStatus === "false") {
-                modelCheckbox.checked = false;
-            }
-
-            // Add event listener to save checkbox state
-            modelCheckbox.addEventListener("change", function () {
-                localStorage.setItem("model-status-checkbox", modelCheckbox.checked);
-            });
-        });
-
-        // get model status for python
-        document.getElementById("model-status-checkbox").addEventListener("change", function() {
-            fetch("http://localhost:5500/toggle_model", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ enabled: this.checked })
-            })
-            .then(response => response.json())
-            .then(data => console.log("Model toggle:", data.detection_mode))
-            .catch(error => console.error("Error:", error));
-        });
-    </script>
-
+    
     <!-- Tab content -->
     <div class="container">
         <div class="tab-content active" id="live-feed">

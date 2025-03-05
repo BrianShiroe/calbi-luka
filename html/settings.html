@@ -59,28 +59,35 @@
             <!-- General Settings -->
             <div class="settings-panel" id="general-settings">
                 <h4>General Settings</h4>
+                
                 <div class="setting">
-                    <label><input type="checkbox"> Detection Mode</label>
+                    <label><input type="checkbox" id="toggle-detection" onchange="toggleDetection()"> Detection Mode</label>
                 </div>
+                
                 <div class="setting">
-                    <label><input type="checkbox"> Show Bounding Box</label>
+                    <label><input type="checkbox" id="toggle-bounding-box" onchange="toggleBoundingBox()"> Show Bounding Box</label>
                 </div>
+                
                 <div class="setting">
                     <label>Confidence</label>
-                    <input type="range" min="0" max="100" value="50">
+                    <input type="range" id="confidence-level" min="0" max="100" value="70" oninput="updateConfidence(this.value)">
+                    <span id="confidence-value">70%</span>
                 </div>
+                
                 <div class="setting">
                     <label>Frame Rate</label>
-                    <input type="range" min="0" max="100" value="30">
+                    <input type="range" id="frame-rate" min="1" max="60" value="30" oninput="updateFrameRate(this.value)">
+                    <span id="frame-rate-value">30 FPS</span>
                 </div>
+                
                 <div class="setting">
                     <label>Target Object</label>
-                    <select>
-                        <option>Car</option>
-                        <option>Fire</option>
-                        <option>Flood</option>
-                        <option>Landslide</option>
-                        <option>Earthquake</option>
+                    <select id="target-object" onchange="updateTargetObject(this.value)">
+                        <option value="car">Car</option>
+                        <option value="fire">Fire</option>
+                        <option value="flood">Flood</option>
+                        <option value="landslide">Landslide</option>
+                        <option value="earthquake">Earthquake</option>
                     </select>
                 </div>
             </div>
@@ -156,6 +163,7 @@
 
     <script src="../js/tab.js"></script>
     <script src="../js/settings.js"></script>
+    <script src="../js/sidebar.js"></script>
     <script src="../js/sidebar.js"></script>
 </body>
 </html>

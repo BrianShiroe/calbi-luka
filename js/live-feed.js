@@ -8,7 +8,7 @@ window.onload = function () {
     showNotification(); // Show notification icon (if applicable)
 };
 
-// Load devices from localStorage
+// Load devices
 function loadDevices() {
     fetch("http://localhost:5500/get_devices")
         .then(response => response.json())
@@ -17,11 +17,6 @@ function loadDevices() {
             renderDevices(); // Render the devices in the UI
         })
         .catch(error => console.error("Error loading devices:", error));
-}
-
-// Save devices to localStorage
-function saveDevices() {
-    localStorage.setItem("devices", JSON.stringify(devices));
 }
 
 // Open the add device popup
@@ -236,13 +231,11 @@ function showDeletePopup(deviceIndex) {
     const deletePopup = document.getElementById("delete-form");
     deletePopup.style.display = "flex"; // Show the delete confirmation popup
 
-    // Set up the "Yes, Delete" button
     document.getElementById("confirm-delete").onclick = () => {
         deleteDevice(deviceIndex); // Call the deleteDevice function
         deletePopup.style.display = "none"; // Hide the popup after deletion
     };
 
-    // Set up the "Cancel" button
     document.getElementById("cancel-delete").onclick = () => {
         deletePopup.style.display = "none"; // Hide the popup without deleting
     };
