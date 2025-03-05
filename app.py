@@ -21,7 +21,7 @@ models = [YOLO(path) for path in MODEL_PATHS] # Load multiple YOLO models
 detection_mode = True  # Toggle for enabling/disabling model inference
 show_bounding_box = True  # Toggle model bounding Box
 confidence_level = 0.7  # Model's confidence level
-max_frame = 60 #60fps. Provide maximum frame that the feed can stream.
+max_frame_rate = 60 #60fps. Provide maximum frame that the feed can stream.
 performance_metrics_toggle = True # Toggle for displaying performance metrics
 update_metric_interval = 0.5 # Update text every # second instead of every frame
 metric_font_size = 24 #24px. font size for metric values
@@ -128,7 +128,7 @@ def generate_frames(stream_url):
             displayed_real_time_lag = real_time_lag
 
         # Text properties
-        font_scale = 2.5  
+        font_scale = metric_font_size / 10  # Adjust font scale based on metric_font_size
         font_thickness = 6  
         colors = {
             "Model Status": (0, 0, 255),  # Red
@@ -154,6 +154,12 @@ def generate_frames(stream_url):
         _, buffer = cv2.imencode('.jpg', frame)
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+
+        # Enforce max frame rate for streaming only
+        if max_frame_rate > 0:
+            time_to_wait = 1.0 / max_frame_rate - (time.time() - frame_start_time)
+            if time_to_wait > 0:
+                time.sleep(time_to_wait)
 
     cap.release()
 
@@ -252,7 +258,7 @@ def set_confidence_level():
     global confidence_level
     data = request.get_json()
     if 'confidence' in data:
-        confidence_level = float(data['confidence'])
+        confidence_level = float(data['confidence'])  # The value from frontend is in 0-1 range now
     return jsonify({"confidence_level": confidence_level})
 
 @app.route('/set_update_metric_interval', methods=['POST'])
@@ -271,13 +277,13 @@ def set_metric_font_size():
         metric_font_size = int(data['size'])
     return jsonify({"metric_font_size": metric_font_size})
 
-@app.route('/set_max_frame', methods=['POST'])
-def set_max_frame():
-    global max_frame
+@app.route('/set_max_frame_rate', methods=['POST'])
+def set_max_frame_rate():
+    global max_frame_rate
     data = request.get_json()
-    if 'max_frame' in data:
-        max_frame = int(data['max_frame'])
-    return jsonify({"max_frame": max_frame})
+    if 'max_frame_rate' in data:
+        max_frame_rate = int(data['max_frame_rate'])
+    return jsonify({"max_frame_rate": max_frame_rate})
 
 @app.route('/set_target_object', methods=['POST'])
 def set_target_object():

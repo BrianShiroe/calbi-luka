@@ -59,42 +59,62 @@
             <!-- General Settings -->
             <div class="settings-panel" id="general-settings">
                 <h4>General Settings</h4>
-                
+            
                 <div class="setting">
-                    <label><input type="checkbox" id="toggle-detection" onchange="toggleDetection()"> Detection Mode</label>
+                    <label><input type="checkbox" id="toggle-detection" checked> Detection Mode</label>
                 </div>
-                
+            
                 <div class="setting">
-                    <label><input type="checkbox" id="toggle-bounding-box" onchange="toggleBoundingBox()"> Show Bounding Box</label>
+                    <label><input type="checkbox" id="toggle-bounding-box" checked> Show Bounding Box</label>
                 </div>
-                
+            
+                <div class="setting">
+                    <label><input type="checkbox" id="toggle-performance-metrics" checked> Show Performance Metrics</label>
+                </div>
+            
                 <div class="setting">
                     <label>Confidence</label>
-                    <input type="range" id="confidence-level" min="0" max="100" value="70" oninput="updateConfidence(this.value)">
-                    <span id="confidence-value">70%</span>
+                    <input type="range" id="confidence-level" min="0" max="100" value="70">
+                    <span id="confidence-level-value">70%</span>
                 </div>
-                
+            
                 <div class="setting">
-                    <label>Frame Rate</label>
-                    <input type="range" id="frame-rate" min="1" max="60" value="30" oninput="updateFrameRate(this.value)">
-                    <span id="frame-rate-value">30 FPS</span>
+                    <label>Max Frame Rate</label>
+                    <input type="range" id="frame-rate" min="1" max="60" value="60">
+                    <span id="frame-rate-value">60 FPS</span>
                 </div>
-                
+            
                 <div class="setting">
-                    <label>Target Object</label>
-                    <select id="target-object" onchange="updateTargetObject(this.value)">
-                        <option value="car">Car</option>
+                    <label>Metric Update Interval</label>
+                    <input type="range" id="update-metric-interval" min="0.1" max="5" step="0.1" value="0.5">
+                    <span id="update-metric-interval-value">0.5s</span>
+                </div>
+            
+                <div class="setting">
+                    <label>Metric Font Size</label>
+                    <input type="range" id="metric-font-size" min="10" max="50" value="24">
+                    <span id="metric-font-size-value">24px</span>
+                </div>
+            
+                <div class="setting">
+                    <label>Target Object <span class="tooltip">This feature is currently under development.</span></label>
+                    <select id="target-object">
+                        <option value="car" selected>Car</option>
                         <option value="fire">Fire</option>
                         <option value="flood">Flood</option>
                         <option value="landslide">Landslide</option>
                         <option value="earthquake">Earthquake</option>
                     </select>
                 </div>
+            
+                <button class="save-btn">Save Changes</button>
+                <button class="cancel-btn">Cancel</button>
+                <button class="reset-btn">Reset</button>
             </div>
 
             <!-- Account Settings -->
             <div class="settings-panel" id="account-settings" style="display: none;">
-                <h4>Account Settings</h4>
+                <h4>Account Settings <span class="tooltip">This feature is currently under development.</span></h4>
                 <div class="box">
                     <div class="settings-label">Profile
                         <button class="edit-btn">Edit</button>
@@ -137,12 +157,16 @@
                             <p>+63 912 345 6789</p>
                         </div>
                     </div>
-                </div>                
+                </div>
+                
+                <button class="save-btn">Save Changes</button>
+                <button class="cancel-btn">Cancel</button>
+                <button class="reset-btn">Reset</button>
             </div>
 
             <!-- Security Settings -->
             <div class="settings-panel" id="security-settings" style="display: none;">
-                <h4>Security Settings</h4>
+                <h4>Security Settings <span class="tooltip">This feature is currently under development.</span></h4>
                 <div class="setting">
                     <label>Change Password</label>
                     <input type="password" placeholder="Enter new password">
@@ -155,9 +179,11 @@
                     <label>Trusted Devices</label>
                     <button class="manage-btn">Manage Devices</button>
                 </div>
+
+                <button class="save-btn">Save Changes</button>
+                <button class="cancel-btn">Cancel</button>
+                <button class="reset-btn">Reset</button>
             </div>
-            <button class="save-btn">Save Changes</button>
-            <button class="cancel-btn">Cancel</button>
         </div>
     </div>
 

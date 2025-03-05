@@ -198,3 +198,14 @@ button {
 #profile-upload {
     display: block;
 }
+
+/* In Development CSS */
+.tooltip {
+    font-size: 12px;
+    color: gray;
+    font-style: italic;
+}
+#new-feature:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
