@@ -16,10 +16,10 @@ DEFAULT_FILE = "home.html"
 MODEL_PATHS = ["model/yolo11n.pt"]
 DB_PATH = "db/luka.db"
 
-# Load multiple YOLO models
-models = [YOLO(path) for path in MODEL_PATHS]
+models = [YOLO(path) for path in MODEL_PATHS] # Load multiple YOLO models
 detection_mode = True  # Toggle for enabling/disabling model inference
-show_bounding_box = True
+show_bounding_box = True  # Toggle model bounding Box
+confidence_level = 0.7  # Model's confidence level
 
 # Initialize Flask application
 app = Flask(__name__, static_folder=".")
@@ -37,111 +37,6 @@ def get_db():
 def close_db(error):
     if 'db' in g:
         g.db.close()
-
-# Continuously fetch frames from the video stream and return as HTTP response
-def generate_frames(stream_url):
-    cap = cv2.VideoCapture(stream_url)
-    if not cap.isOpened():
-        print(f"Failed to open stream: {stream_url}")
-        return
-
-    while True:
-        success, frame = cap.read()
-        if not success:
-            print(f"Stream disconnected: {stream_url}")
-            break
-
-        if detection_mode:
-            for model in models:
-                results = model(frame, verbose=False)  # Run inference on each model
-                for result in results:
-                    frame = result.plot()  # Overlay detections from each model
-
-        _, buffer = cv2.imencode('.jpg', frame)
-        yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
-
-    cap.release()
-
-# Serve the main home page
-@app.route("/")
-def serve_home():
-    return send_from_directory("html", "home.html")
-
-# Serve files specifically from the `html/` folder with /html/ in the URL
-@app.route("/html/<path:filename>")
-def serve_html(filename):
-    return send_from_directory("html", filename)
-
-# Serve static files from various directories
-@app.route("/<path:filename>")
-def serve_static(filename):
-    if filename.startswith(("css/", "js/", "img/", "json/", "model/")):
-        return send_from_directory(".", filename)
-    return send_from_directory("html", filename)  # Default to HTML folder
-
-# Retrieve all active devices from the database
-@app.route('/get_devices', methods=['GET'])
-def get_devices():
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM camera WHERE status = 'active'")
-    devices = cursor.fetchall()
-    return jsonify([dict(device) for device in devices])
-
-# Add a new camera device to the database
-@app.route('/add_device', methods=['POST'])
-def add_device():
-    data = request.get_json()
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute(
-        "INSERT INTO camera (title, ip_address, location, status) VALUES (?, ?, ?, 'active')",
-        (data['title'], data['ip_address'], data['location'])
-    )
-    db.commit()
-    return jsonify({"id": cursor.lastrowid, **data})
-
-# Update an existing camera device
-@app.route('/update_device', methods=['POST'])
-def update_device():
-    data = request.get_json()
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute(
-        "UPDATE camera SET title = ?, ip_address = ?, location = ? WHERE id = ?",
-        (data['title'], data['ip_address'], data['location'], data['id'])
-    )
-    db.commit()
-    return jsonify({"success": True})
-
-# Soft-delete a camera device by marking it as inactive
-@app.route('/delete_device', methods=['POST'])
-def delete_device():
-    data = request.get_json()
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("UPDATE camera SET status = 'inactive' WHERE id = ?", (data['id'],))
-    db.commit()
-    return jsonify({"success": True})
-
-# Endpoint to stream video from RTSP, HTTP, or HTTPS sources
-@app.route('/stream')
-def stream():
-    stream_url = request.args.get('stream_url')
-    if not stream_url:
-        return "Stream URL is missing", 400
-    if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
-        return "Invalid stream URL", 400
-    return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-# Toggle model inference on or off
-@app.route('/toggle_model', methods=['POST'])
-def toggle_model():
-    global detection_mode
-    data = request.get_json()
-    if 'enabled' in data:
-        detection_mode = data['enabled']
-    return jsonify({"detection_mode": detection_mode})
 
 # Watchdog event handler to detect file changes
 class ReloadHandler(FileSystemEventHandler):
@@ -161,6 +56,120 @@ def start_file_watcher():
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
+
+# Continuously fetch frames from the video stream and return as HTTP response
+def generate_frames(stream_url):
+    cap = cv2.VideoCapture(stream_url)
+    if not cap.isOpened():
+        print(f"Failed to open stream: {stream_url}")
+        return
+
+    while True:
+        success, frame = cap.read()
+        if not success:
+            print(f"Stream disconnected: {stream_url}")
+            break
+
+        if detection_mode:
+            for model in models:
+                results = model(frame, verbose=False, conf=confidence_level)  # Run inference on each model
+                for result in results:
+                    if show_bounding_box:
+                        frame = result.plot()  # Overlay detections if enabled
+
+        _, buffer = cv2.imencode('.jpg', frame)
+        yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+
+    cap.release()
+
+# Flask route handlers
+@app.route("/")
+def serve_home():
+    return send_from_directory("html", "home.html")
+
+@app.route("/html/<path:filename>")
+def serve_html(filename):
+    return send_from_directory("html", filename)
+
+@app.route("/<path:filename>")
+def serve_static(filename):
+    if filename.startswith(("css/", "js/", "img/", "json/", "model/")):
+        return send_from_directory(".", filename)
+    return send_from_directory("html", filename)  # Default to HTML folder
+
+@app.route('/get_devices', methods=['GET'])
+def get_devices():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM camera WHERE status = 'active'")
+    devices = cursor.fetchall()
+    return jsonify([dict(device) for device in devices])
+
+@app.route('/add_device', methods=['POST'])
+def add_device():
+    data = request.get_json()
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "INSERT INTO camera (title, ip_address, location, status) VALUES (?, ?, ?, 'active')",
+        (data['title'], data['ip_address'], data['location'])
+    )
+    db.commit()
+    return jsonify({"id": cursor.lastrowid, **data})
+
+@app.route('/update_device', methods=['POST'])
+def update_device():
+    data = request.get_json()
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "UPDATE camera SET title = ?, ip_address = ?, location = ? WHERE id = ?",
+        (data['title'], data['ip_address'], data['location'], data['id'])
+    )
+    db.commit()
+    return jsonify({"success": True})
+
+@app.route('/delete_device', methods=['POST'])
+def delete_device():
+    data = request.get_json()
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("UPDATE camera SET status = 'inactive' WHERE id = ?", (data['id'],))
+    db.commit()
+    return jsonify({"success": True})
+
+@app.route('/stream')
+def stream():
+    stream_url = request.args.get('stream_url')
+    if not stream_url:
+        return "Stream URL is missing", 400
+    if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
+        return "Invalid stream URL", 400
+    return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/toggle_model', methods=['POST'])
+def toggle_model():
+    global detection_mode
+    data = request.get_json()
+    if 'enabled' in data:
+        detection_mode = data['enabled']
+    return jsonify({"detection_mode": detection_mode})
+
+@app.route('/toggle_bounding_box', methods=['POST'])
+def toggle_bounding_box():
+    global show_bounding_box
+    data = request.get_json()
+    if 'enabled' in data:
+        show_bounding_box = data['enabled']
+    return jsonify({"show_bounding_box": show_bounding_box})
+
+@app.route('/set_confidence_level', methods=['POST'])
+def set_confidence_level():
+    global confidence_level
+    data = request.get_json()
+    if 'confidence' in data:
+        confidence_level = float(data['confidence'])
+    return jsonify({"confidence_level": confidence_level})
 
 if __name__ == "__main__":
     # Start Flask server in a thread
