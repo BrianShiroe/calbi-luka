@@ -15,11 +15,16 @@ DIRECTORY = "html"  # Directory to serve static files from
 DEFAULT_FILE = "home.html"
 MODEL_PATHS = ["model/yolo11n.pt"]
 DB_PATH = "db/luka.db"
-
 models = [YOLO(path) for path in MODEL_PATHS] # Load multiple YOLO models
+
+#Modifications
 detection_mode = True  # Toggle for enabling/disabling model inference
 show_bounding_box = True  # Toggle model bounding Box
 confidence_level = 0.7  # Model's confidence level
+max_frame = 60 #60fps. Provide maximum frame that the feed can stream.
+performance_metrics_toggle = True # Toggle for displaying performance metrics
+update_metric_interval = 0.5 # Update text every # second instead of every frame
+metric_font_size = 24 #24px. font size for metric values
 
 # Initialize Flask application
 app = Flask(__name__, static_folder=".")
