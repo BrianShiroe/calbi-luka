@@ -222,6 +222,7 @@ def stream():
         return "Invalid stream URL", 400
     return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# Modification Toggle and Setup
 @app.route('/toggle_model', methods=['POST'])
 def toggle_model():
     global detection_mode
@@ -238,6 +239,14 @@ def toggle_bounding_box():
         show_bounding_box = data['enabled']
     return jsonify({"show_bounding_box": show_bounding_box})
 
+@app.route('/toggle_performance_metrics', methods=['POST'])
+def toggle_performance_metrics():
+    global performance_metrics_toggle
+    data = request.get_json()
+    if 'enabled' in data:
+        performance_metrics_toggle = data['enabled']
+    return jsonify({"performance_metrics_toggle": performance_metrics_toggle})
+
 @app.route('/set_confidence_level', methods=['POST'])
 def set_confidence_level():
     global confidence_level
@@ -245,6 +254,37 @@ def set_confidence_level():
     if 'confidence' in data:
         confidence_level = float(data['confidence'])
     return jsonify({"confidence_level": confidence_level})
+
+@app.route('/set_update_metric_interval', methods=['POST'])
+def set_update_metric_interval():
+    global update_metric_interval
+    data = request.get_json()
+    if 'interval' in data:
+        update_metric_interval = float(data['interval'])
+    return jsonify({"update_metric_interval": update_metric_interval})
+
+@app.route('/set_metric_font_size', methods=['POST'])
+def set_metric_font_size():
+    global metric_font_size
+    data = request.get_json()
+    if 'size' in data:
+        metric_font_size = int(data['size'])
+    return jsonify({"metric_font_size": metric_font_size})
+
+@app.route('/set_max_frame', methods=['POST'])
+def set_max_frame():
+    global max_frame
+    data = request.get_json()
+    if 'max_frame' in data:
+        max_frame = int(data['max_frame'])
+    return jsonify({"max_frame": max_frame})
+
+@app.route('/set_target_object', methods=['POST'])
+def set_target_object():
+    data = request.get_json()
+    selected_target = data.get('target')
+    print(f"Target object set to: {selected_target}")
+    return jsonify({"selected_target": selected_target})
 
 if __name__ == "__main__":
     # Start Flask server in a thread

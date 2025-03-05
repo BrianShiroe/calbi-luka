@@ -6,3 +6,5 @@ document.querySelectorAll(".tab").forEach(tab => {
         if (this.id === "tab3") document.getElementById("security-settings").style.display = "block";
     });
 });
+
+// General Settings

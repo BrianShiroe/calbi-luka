@@ -8,7 +8,7 @@ window.onload = function () {
     showNotification(); // Show notification icon (if applicable)
 };
 
-// Load devices from localStorage
+// Load devices
 function loadDevices() {
     fetch("http://localhost:5500/get_devices")
         .then(response => response.json())
@@ -17,11 +17,6 @@ function loadDevices() {
             renderDevices(); // Render the devices in the UI
         })
         .catch(error => console.error("Error loading devices:", error));
-}
-
-// Save devices to localStorage
-function saveDevices() {
-    localStorage.setItem("devices", JSON.stringify(devices));
 }
 
 // Open the add device popup
@@ -236,13 +231,11 @@ function showDeletePopup(deviceIndex) {
     const deletePopup = document.getElementById("delete-form");
     deletePopup.style.display = "flex"; // Show the delete confirmation popup
 
-    // Set up the "Yes, Delete" button
     document.getElementById("confirm-delete").onclick = () => {
         deleteDevice(deviceIndex); // Call the deleteDevice function
         deletePopup.style.display = "none"; // Hide the popup after deletion
     };
 
-    // Set up the "Cancel" button
     document.getElementById("cancel-delete").onclick = () => {
         deletePopup.style.display = "none"; // Hide the popup without deleting
     };
@@ -326,33 +319,3 @@ function showNotification() {
     const notificationIcon = document.getElementById("notification-icon");
     notificationIcon.classList.add("show");
 }
-
-// persist model-status-checkbox
-document.addEventListener("DOMContentLoaded", function () {
-    const modelCheckbox = document.getElementById("model-status-checkbox");
-    const savedStatus = localStorage.getItem("model-status-checkbox");
-
-    // Set checkbox state from localStorage
-    if (savedStatus === "true") {
-        modelCheckbox.checked = true;
-    } else if (savedStatus === "false") {
-        modelCheckbox.checked = false;
-    }
-
-    // Add event listener to save checkbox state
-    modelCheckbox.addEventListener("change", function () {
-        localStorage.setItem("model-status-checkbox", modelCheckbox.checked);
-    });
-});
-
-// get model status for python
-document.getElementById("model-status-checkbox").addEventListener("change", function() {
-    fetch("http://localhost:5500/toggle_model", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ enabled: this.checked })
-    })
-    .then(response => response.json())
-    .then(data => console.log("Model toggle:", data.detection_mode))
-    .catch(error => console.error("Error:", error));
-});
