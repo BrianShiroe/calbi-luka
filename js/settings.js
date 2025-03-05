@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
         performance_metrics_toggle: true,
         confidence_level: 70, // 0.7 * 100
         frame_rate: 60, // max_frame_rate default
-        update_metric_interval: 0.5,
+        update_metric_interval: 1,
         metric_font_size: 24,
         target_object: "car"
     };

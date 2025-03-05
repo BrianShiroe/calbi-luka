@@ -24,7 +24,7 @@ show_bounding_box = True  # Toggle model bounding Box
 confidence_level = 0.7  # Model's confidence level
 max_frame_rate = 60 #60fps. Provide maximum frame that the feed can stream.
 performance_metrics_toggle = True # Toggle for displaying performance metrics
-update_metric_interval = 0.5 # Update text every # second instead of every frame
+update_metric_interval = 1 # Update text every # second instead of every frame
 metric_font_size = 24 #24px. font size for metric values
 
 # Initialize Flask application
@@ -310,7 +310,7 @@ if __name__ == "__main__":
     time.sleep(3)   
     
     # Open the default page in a browser
-    webbrowser.open_new_tab(f"http://127.0.0.1:{FLASK_PORT}/")
+    webbrowser.open_new_tab(f"http://127.0.0.1:{FLASK_PORT}/html/home.html")
     
     # Start file watcher in the main thread
     start_file_watcher()
