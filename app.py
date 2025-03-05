@@ -16,6 +16,7 @@ DEFAULT_FILE = "home.html"
 MODEL_PATHS = ["model/yolo11n.pt"]
 DB_PATH = "db/luka.db"
 models = [YOLO(path) for path in MODEL_PATHS] # Load multiple YOLO models
+stream_threads = {} # Thread-safe dictionary to store video capture objects
 
 #Modifications
 detection_mode = True  # Toggle for enabling/disabling model inference
@@ -62,8 +63,7 @@ def start_file_watcher():
         observer.stop()
     observer.join()
 
-# Continuously fetch frames from the video stream and return as HTTP response
-def generate_frames(stream_url):
+def threaded_generate_frames(stream_url):
     cap = cv2.VideoCapture(stream_url)
     if not cap.isOpened():
         print(f"Failed to open stream: {stream_url}")
@@ -72,9 +72,9 @@ def generate_frames(stream_url):
     frame_count = 0
     start_time = time.time()
     last_frame_time = None
-    last_update_time = time.time()  # Controls how often metrics are updated
+    last_update_time = time.time()  # Controls metric update interval
 
-    # Cached values for smoother updates
+    # Cached metric values for smoother updates
     displayed_fps = 0
     displayed_frame_rate = 0
     displayed_processing_time = 0
@@ -119,6 +119,9 @@ def generate_frames(stream_url):
         # Real-Time Lag (Streaming Delay)
         real_time_lag = time.time() - frame_start_time  
 
+        # Get number of active threads
+        active_threads = threading.active_count()
+
         # Only update displayed values every `update_metric_interval` seconds
         if time.time() - last_update_time > update_metric_interval:
             last_update_time = time.time()
@@ -128,14 +131,15 @@ def generate_frames(stream_url):
             displayed_real_time_lag = real_time_lag
 
         # Text properties
-        font_scale = metric_font_size / 10  # Adjust font scale based on metric_font_size
+        font_scale = metric_font_size / 10  
         font_thickness = 6  
         colors = {
             "Model Status": (0, 0, 255),  # Red
             "FPS": (0, 255, 0),       # Green
             "Frame Rate": (255, 255, 0),  # Yellow
             "Processing Time": (255, 0, 255),  # Magenta
-            "Streaming Delay": (0, 165, 255)  # Orange
+            "Streaming Delay": (0, 165, 255),  # Orange
+            "Active Threads": (255, 255, 255)  # White
         }
 
         if performance_metrics_toggle:
@@ -149,13 +153,15 @@ def generate_frames(stream_url):
                         cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Processing Time"], font_thickness)
             cv2.putText(frame, f"Streaming Delay: {displayed_real_time_lag:.3f}s", (30, 500),
                         cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Streaming Delay"], font_thickness)
+            cv2.putText(frame, f"Threads: {active_threads}", (30, 600),
+                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Active Threads"], font_thickness)
 
         # Encode frame
         _, buffer = cv2.imencode('.jpg', frame)
         yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+            b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
 
-        # Enforce max frame rate for streaming only
+        # Enforce max frame rate for streaming
         if max_frame_rate > 0:
             time_to_wait = 1.0 / max_frame_rate - (time.time() - frame_start_time)
             if time_to_wait > 0:
@@ -226,7 +232,13 @@ def stream():
         return "Stream URL is missing", 400
     if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
         return "Invalid stream URL", 400
-    return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+    if stream_url not in stream_threads:
+        stream_threads[stream_url] = threading.Thread(target=threaded_generate_frames, args=(stream_url,))
+        stream_threads[stream_url].daemon = True
+        stream_threads[stream_url].start()
+
+    return Response(threaded_generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # Modification Toggle and Setup
 @app.route('/toggle_model', methods=['POST'])
