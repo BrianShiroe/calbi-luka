@@ -90,15 +90,28 @@ function renderDevices() {
     gridContainer.appendChild(addDeviceCard);
 }
 
-// Create a device card element
 function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceIndex) {
     const deviceCard = document.createElement("div");
     deviceCard.className = "device-card";
 
-    const imgElement = document.createElement("img");
-    imgElement.src = videoFeedURL;
-    imgElement.style.width = "100%";
-    imgElement.style.borderRadius = "10px";
+    const mediaContainer = document.createElement("div");
+    mediaContainer.style.position = "relative";
+    mediaContainer.style.width = "100%";
+    mediaContainer.style.borderRadius = "10px";
+    mediaContainer.style.cursor = "pointer";
+
+    let mediaElement;
+
+    mediaElement = document.createElement("img");
+    mediaElement.src = videoFeedURL;
+    mediaElement.style.width = "100%";
+    mediaElement.style.borderRadius = "10px";
+
+    mediaElement.onclick = function () {
+        openFullscreen(videoFeedURL);
+    };
+
+    mediaContainer.appendChild(mediaElement);
 
     const nameElement = document.createElement("h3");
     nameElement.textContent = deviceName;
@@ -126,12 +139,72 @@ function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceIndex)
     menuContainer.appendChild(menuIcon);
     menuContainer.appendChild(menuOptions);
 
-    deviceCard.appendChild(imgElement);
+    deviceCard.appendChild(mediaContainer);
     deviceCard.appendChild(nameElement);
     deviceCard.appendChild(locationElement);
     deviceCard.appendChild(menuContainer);
 
     return deviceCard;
+}
+
+function openFullscreen(videoFeedURL) {
+    const videoContainer = document.createElement("div");
+    videoContainer.className = "fullscreen-video";
+
+    let mediaElement;
+
+    if (videoFeedURL.match(/\.(mp4|webm|ogg)$/i)) {
+        mediaElement = document.createElement("video");
+        mediaElement.src = videoFeedURL;
+        mediaElement.style.width = "100%";
+        mediaElement.style.height = "100%";
+        mediaElement.controls = true;
+        mediaElement.autoplay = true;
+    } else {
+        mediaElement = document.createElement("img");
+        mediaElement.src = videoFeedURL;
+        mediaElement.style.width = "100%";
+        mediaElement.style.height = "100%";
+        mediaElement.style.objectFit = "contain";
+    }
+
+    const closeButton = document.createElement("button");
+    closeButton.textContent = "Close";
+    Object.assign(closeButton.style, {
+        position: "absolute",
+        top: "10px",
+        right: "10px",
+        background: "black",
+        color: "white",
+        padding: "5px 10px",
+        border: "none",
+        cursor: "pointer",
+    });
+    closeButton.onclick = closeFullscreen;
+
+    Object.assign(videoContainer.style, {
+        position: "fixed",
+        top: "0",
+        left: "0",
+        width: "100vw",
+        height: "100vh",
+        backgroundColor: "black",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: "1000",
+    });
+
+    videoContainer.appendChild(mediaElement);
+    videoContainer.appendChild(closeButton);
+    document.body.appendChild(videoContainer);
+}
+
+function closeFullscreen() {
+    const videoContainer = document.querySelector(".fullscreen-video");
+    if (videoContainer) {
+        videoContainer.remove();
+    }
 }
 
 // Toggle the visibility of the kebab menu
