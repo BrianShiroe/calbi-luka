@@ -2,6 +2,7 @@ import time
 import webbrowser
 import threading
 import sqlite3
+import psutil
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from flask import Flask, Response, request, jsonify, g, send_from_directory
@@ -61,6 +62,10 @@ def start_file_watcher():
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
+
+def get_memory_usage():
+    process = psutil.Process()
+    return process.memory_info().rss / (1024 * 1024)  # Convert to MB
 
 # Continuously fetch frames from the video stream and return as HTTP response
 def generate_frames(stream_url):
@@ -149,6 +154,9 @@ def generate_frames(stream_url):
                         cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Processing Time"], font_thickness)
             cv2.putText(frame, f"Streaming Delay: {displayed_real_time_lag:.3f}s", (30, 500),
                         cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Streaming Delay"], font_thickness)
+            memory_usage = get_memory_usage()
+            cv2.putText(frame, f"Memory: {memory_usage:.2f} MB", (30, 600),
+                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
 
         # Encode frame
         _, buffer = cv2.imencode('.jpg', frame)
