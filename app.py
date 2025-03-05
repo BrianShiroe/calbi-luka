@@ -139,15 +139,15 @@ def generate_frames(stream_url):
         }
 
         if performance_metrics_toggle:
-            cv2.putText(frame, model_status_text, (30, 500),
+            cv2.putText(frame, model_status_text, (30, 100),
                         cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Model Status"], font_thickness)
-            cv2.putText(frame, f"FPS: {displayed_fps:.2f}", (30, 100),
+            cv2.putText(frame, f"FPS: {displayed_fps:.2f}", (30, 200),
                         cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["FPS"], font_thickness)
-            cv2.putText(frame, f"Frame Rate: {displayed_frame_rate:.2f} FPS", (30, 200),
+            cv2.putText(frame, f"Frame Rate: {displayed_frame_rate:.2f} FPS", (30, 300),
                         cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Frame Rate"], font_thickness)
-            cv2.putText(frame, f"Processing Time: {displayed_processing_time:.3f}s", (30, 300),
+            cv2.putText(frame, f"Processing Time: {displayed_processing_time:.3f}s", (30, 400),
                         cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Processing Time"], font_thickness)
-            cv2.putText(frame, f"Streaming Delay: {displayed_real_time_lag:.3f}s", (30, 400),
+            cv2.putText(frame, f"Streaming Delay: {displayed_real_time_lag:.3f}s", (30, 500),
                         cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Streaming Delay"], font_thickness)
 
         # Encode frame
