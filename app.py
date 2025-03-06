@@ -3,7 +3,6 @@ import webbrowser
 import threading
 import sqlite3
 import psutil
-import queue
 import cv2
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -29,13 +28,7 @@ update_metric_interval = 1 # Update text every # second instead of every frame
 metric_font_size = 24 #24px. font size for metric values
 target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect objects for yolo
 
-# Global variables
-frame_queue = queue.Queue(maxsize=5)  # Limit queue size to prevent memory overload
-processed_frame = None  # Stores the latest processed frame
-lock = threading.Lock()  # Synchronization lock for updating frames
-
-# Initialize Flask application
-app = Flask(__name__, static_folder=".")
+app = Flask(__name__, static_folder=".") # Initialize Flask application
 CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
 
 # Database helper function
@@ -57,7 +50,7 @@ class ReloadHandler(FileSystemEventHandler):
         print(f"File changed: {event.src_path}")
 
 # Start a file watcher to detect changes in the project directory
-def start_file_watcher():
+def start_file_watcher(): 
     event_handler = ReloadHandler()
     observer = Observer()
     observer.schedule(event_handler, path=DIRECTORY, recursive=True)
@@ -74,7 +67,7 @@ def get_memory_usage():
     process = psutil.Process()
     return process.memory_info().rss / (1024 * 1024)  # Convert to MB
 
-# Continuously fetch frames from the video stream and return as HTTP response
+# streaming, model, and metric functionality
 def generate_frames(stream_url):
     cap = cv2.VideoCapture(stream_url)
     if not cap.isOpened():
@@ -84,7 +77,7 @@ def generate_frames(stream_url):
     frame_count = 0
     start_time = time.time()
     last_frame_time = None
-    last_update_time = time.time()  # Controls how often metrics are updated
+    last_update_time = time.time() # Controls how often metrics are updated
 
     # Cached values for smoother updates
     displayed_fps = 0
@@ -178,6 +171,7 @@ def generate_frames(stream_url):
 
     cap.release()
 
+# stream handler
 @app.route('/stream')
 def stream():
     stream_url = request.args.get('stream_url')
@@ -187,7 +181,7 @@ def stream():
         return "Invalid stream URL", 400
     return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# Flask route handlers
+# Start of flask route handlers
 @app.route("/")
 def serve_home():
     return send_from_directory("html", "home.html")
@@ -210,6 +204,7 @@ def get_devices():
     devices = cursor.fetchall()
     return jsonify([dict(device) for device in devices])
 
+# Start of device configuration API
 @app.route('/add_device', methods=['POST'])
 def add_device():
     data = request.get_json()
@@ -243,7 +238,7 @@ def delete_device():
     db.commit()
     return jsonify({"success": True})
 
-# Modification Toggle and Setup
+# Start of feature toggle API
 @app.route('/toggle_model', methods=['POST'])
 def toggle_model():
     global detection_mode
