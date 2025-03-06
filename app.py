@@ -3,11 +3,12 @@ import webbrowser
 import threading
 import sqlite3
 import psutil
+import queue
+import cv2
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from flask import Flask, Response, request, jsonify, g, send_from_directory
 from flask_cors import CORS
-import cv2
 from ultralytics import YOLO
 
 # Configuration
@@ -26,6 +27,11 @@ max_frame_rate = 60 #60fps. Provide maximum frame that the feed can stream.
 performance_metrics_toggle = True # Toggle for displaying performance metrics
 update_metric_interval = 1 # Update text every # second instead of every frame
 metric_font_size = 24 #24px. font size for metric values
+
+# Global variables
+frame_queue = queue.Queue(maxsize=5)  # Limit queue size to prevent memory overload
+processed_frame = None  # Stores the latest processed frame
+lock = threading.Lock()  # Synchronization lock for updating frames
 
 # Initialize Flask application
 app = Flask(__name__, static_folder=".")
@@ -171,6 +177,15 @@ def generate_frames(stream_url):
 
     cap.release()
 
+@app.route('/stream')
+def stream():
+    stream_url = request.args.get('stream_url')
+    if not stream_url:
+        return "Stream URL is missing", 400
+    if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
+        return "Invalid stream URL", 400
+    return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 # Flask route handlers
 @app.route("/")
 def serve_home():
@@ -226,15 +241,6 @@ def delete_device():
     cursor.execute("UPDATE camera SET status = 'inactive' WHERE id = ?", (data['id'],))
     db.commit()
     return jsonify({"success": True})
-
-@app.route('/stream')
-def stream():
-    stream_url = request.args.get('stream_url')
-    if not stream_url:
-        return "Stream URL is missing", 400
-    if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
-        return "Invalid stream URL", 400
-    return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # Modification Toggle and Setup
 @app.route('/toggle_model', methods=['POST'])

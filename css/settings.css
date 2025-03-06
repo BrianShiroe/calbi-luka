@@ -1,3 +1,4 @@
+/* Main Styles */
 body {
     margin: 0;
     padding: 20px;
@@ -5,8 +6,8 @@ body {
     background-color: #fff;
 }
 
-.header img{
-    height:35px;
+.header img {
+    height: 35px;
 }
 
 .container {
@@ -15,10 +16,11 @@ body {
     padding: 10px;
 }
 
-.settings-sb{
+.settings-sb {
     background-color: #fff !important;
 }
 
+/* Tabs */
 .tab-container {
     display: flex;
     background-color: #e8e8e9;
@@ -66,41 +68,35 @@ body {
     opacity: 0.6;
 }
 
-.tab--1:checked ~ .indicator {
-    left: 2px;
-}
+.tab--1:checked ~ .indicator { left: 2px; }
+.tab--2:checked ~ .indicator { left: calc(100px + 2px); }
+.tab--3:checked ~ .indicator { left: calc(100px * 2 + 2px); }
 
-.tab--2:checked ~ .indicator {
-    left: calc(100px + 2px);
-}
-
-.tab--3:checked ~ .indicator {
-    left: calc(100px * 2 + 2px);
-}
-
-.box{
+/* Settings Box */
+.box {
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
     padding: 10px;
     border-radius: 10px;
 }
 
-.settings-content{
+.settings-content {
     box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.15);
     padding: 30px;
 }
 
-.settings-label{
+.settings-label {
     font-size: 14px;
     font-weight: 600;
 }
 
-.settings-row{
+.settings-row {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
     color: #5f5f5f;
 }
 
+/* Individual Settings */
 .setting {
     margin: 15px 0;
     font-size: 12px;
@@ -120,55 +116,45 @@ input[type="checkbox"], input[type="range"], select {
     border: 1px solid #ccc;
 }
 
-input[type="range"], select{
+input[type="range"], select {
     width: 50%;
 }
 
-/* input[type="text"],input[type="password"], input[type="email"]{
-    border-radius: 5px;
-    padding: 5px;
-} */
-
+/* Buttons */
 button {
-    width: 10%;
-    padding: 10px;
+    width: 12%;
+    padding: 12px;
     color: #fff;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    margin-top: 15px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-.edit-btn{
-    background-color: #fff;
-    color: #727272;
-    font-size: 12px;
-    cursor: pointer;
+button:hover {
+    transform: translateY(-2px);
 }
 
-.save-btn{
-    background: #007bff;
+#buttons{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.save-btn:hover {
-    background: #0056b3;
-}
+.save-btn { background: #007bff; }
+.save-btn:hover { background: #0056b3; }
 
-.cancel-btn{
-    background: #dfdfe0;
-    color: #333;
-}
+.cancel-btn { background: #dfdfe0; color: #333; }
+.cancel-btn:hover { background: #abadaf; color: #fff; }
 
-.cancel-btn:hover{
-    background: #abadaf;
-    color: #fff;
-}
+.reset-btn { background: #dc3545; }
+.reset-btn:hover { background: #a71d2a; }
 
-.manage-btn{
-    background-color: #4e4e4e;
-    font-size: 12px;
-}
+.manage-btn { background-color: #4e4e4e; font-size: 12px; }
 
+/* Profile Section */
 .profile-container {
     display: flex;
     align-items: center;
@@ -199,12 +185,17 @@ button {
     display: block;
 }
 
+#account-box{
+    margin-bottom: 10px;
+}
+
 /* In Development CSS */
 .tooltip {
     font-size: 12px;
     color: gray;
     font-style: italic;
 }
+
 #new-feature:disabled {
     background-color: #f5f5f5;
     cursor: not-allowed;

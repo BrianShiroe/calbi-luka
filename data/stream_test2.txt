@@ -1,0 +1,95 @@
+[h264 @ 00000220446d5bc0] left block unavailable for requested intra mode
+[h264 @ 00000220446d5bc0] error while decoding MB 0 59, bytestream 18760
+[h264 @ 00000220446d6e00] left block unavailable for requested intra4x4 mode -1
+[h264 @ 00000220446d6e00] error while decoding MB 0 37, bytestream 84618
+[h264 @ 00000220446d5bc0] left block unavailable for requested intra mode
+[h264 @ 00000220446d5bc0] error while decoding MB 0 54, bytestream 30597
+[h264 @ 00000220459242c0] left block unavailable for requested intra mode
+[h264 @ 00000220459242c0] error while decoding MB 0 7, bytestream 60252
+[h264 @ 0000022045926740] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000022045926740] error while decoding MB 0 15, bytestream 50804
+[h264 @ 000002207d2719c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 000002207d2719c0] error while decoding MB 0 4, bytestream 43763
+127.0.0.1 - - [06/Mar/2025 15:49:30] "OPTIONS /delete_device HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:49:30] "POST /delete_device HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:49:32] "POST /delete_device HTTP/1.1" 200 -
+[h264 @ 0000022045925e40] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000022045925e40] error while decoding MB 0 7, bytestream 55219
+[h264 @ 00000220446d52c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 00000220446d52c0] error while decoding MB 0 13, bytestream 153726
+[h264 @ 00000220446d3c00] left block unavailable for requested intra mode
+[h264 @ 00000220446d5bc0] left block unavailable for requested intra mode
+[h264 @ 00000220446d5bc0] error while decoding MB 0 54, bytestream 30597
+[h264 @ 00000220459242c0] left block unavailable for requested intra mode
+[h264 @ 00000220459242c0] error while decoding MB 0 7, bytestream 60252
+[h264 @ 0000022045926740] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000022045926740] error while decoding MB 0 15, bytestream 50804
+[h264 @ 000002207d2719c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 000002207d2719c0] error while decoding MB 0 4, bytestream 43763
+127.0.0.1 - - [06/Mar/2025 15:49:30] "OPTIONS /delete_device HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:49:30] "POST /delete_device HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:49:32] "POST /delete_device HTTP/1.1" 200 -
+[h264 @ 0000022045925e40] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000022045925e40] error while decoding MB 0 7, bytestream 55219
+[h264 @ 00000220446d52c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 00000220446d52c0] error while decoding MB 0 13, bytestream 153726
+[h264 @ 00000220446d3c00] left block unavailable for requested intra mode
+[h264 @ 00000220446d5bc0] error while decoding MB 0 54, bytestream 30597
+[h264 @ 00000220459242c0] left block unavailable for requested intra mode
+[h264 @ 00000220459242c0] error while decoding MB 0 7, bytestream 60252
+[h264 @ 0000022045926740] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000022045926740] error while decoding MB 0 15, bytestream 50804
+[h264 @ 000002207d2719c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 000002207d2719c0] error while decoding MB 0 4, bytestream 43763
+127.0.0.1 - - [06/Mar/2025 15:49:30] "OPTIONS /delete_device HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:49:30] "POST /delete_device HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:49:32] "POST /delete_device HTTP/1.1" 200 -
+[h264 @ 0000022045925e40] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000022045925e40] error while decoding MB 0 7, bytestream 55219
+[h264 @ 00000220446d52c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 00000220446d52c0] error while decoding MB 0 13, bytestream 153726
+[h264 @ 00000220446d3c00] left block unavailable for requested intra mode
+[h264 @ 0000022045926740] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000022045926740] error while decoding MB 0 15, bytestream 50804
+[h264 @ 000002207d2719c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 000002207d2719c0] error while decoding MB 0 4, bytestream 43763
+127.0.0.1 - - [06/Mar/2025 15:49:30] "OPTIONS /delete_device HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:49:30] "POST /delete_device HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:49:32] "POST /delete_device HTTP/1.1" 200 -
+[h264 @ 0000022045925e40] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000022045925e40] error while decoding MB 0 7, bytestream 55219
+[h264 @ 00000220446d52c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 00000220446d52c0] error while decoding MB 0 13, bytestream 153726
+[h264 @ 00000220446d3c00] left block unavailable for requested intra mode
+127.0.0.1 - - [06/Mar/2025 15:49:30] "OPTIONS /delete_device HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:49:30] "POST /delete_device HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:49:32] "POST /delete_device HTTP/1.1" 200 -
+[h264 @ 0000022045925e40] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000022045925e40] error while decoding MB 0 7, bytestream 55219
+[h264 @ 00000220446d52c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 00000220446d52c0] error while decoding MB 0 13, bytestream 153726
+[h264 @ 00000220446d3c00] left block unavailable for requested intra mode
+[h264 @ 0000022045925e40] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000022045925e40] error while decoding MB 0 7, bytestream 55219
+[h264 @ 00000220446d52c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 00000220446d52c0] error while decoding MB 0 13, bytestream 153726
+[h264 @ 00000220446d3c00] left block unavailable for requested intra mode
+[h264 @ 00000220446d52c0] error while decoding MB 0 13, bytestream 153726
+[h264 @ 00000220446d3c00] left block unavailable for requested intra mode
+[h264 @ 00000220446d3c00] left block unavailable for requested intra mode
+[h264 @ 00000220446d3c00] error while decoding MB 0 23, bytestream 117321
+[h264 @ 00000220459262c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 00000220459262c0] error while decoding MB 0 15, bytestream 39093
+[h264 @ 000002207d2719c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 000002207d2719c0] error while decoding MB 0 23, bytestream 32422
+[h264 @ 0000022045926740] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000022045926740] error while decoding MB 0 6, bytestream 75242
+[h264 @ 00000220446d52c0] left block unavailable for requested intra mode
+[h264 @ 00000220446d52c0] error while decoding MB 0 19, bytestream 122828
+[h264 @ 000002207d270c00] left block unavailable for requested intra4x4 mode -1
+[h264 @ 000002207d270c00] error while decoding MB 0 18, bytestream 39793
+[h264 @ 000002207d271e40] left block unavailable for requested intra4x4 mode -1
+[h264 @ 000002207d271e40] error while decoding MB 0 14, bytestream 48439
+[h264 @ 00000220446d2500] error while decoding MB 104 52, bytestream -22
+[h264 @ 00000220446d6500] left block unavailable for requested intra mode
+[h264 @ 00000220446d6500] error while decoding MB 0 9, bytestream 141843

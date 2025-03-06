@@ -1,0 +1,324 @@
+Microsoft Windows [Version 10.0.26100.3194]
+(c) Microsoft Corporation. All rights reserved.
+
+(conda_detection_env) C:\Users\brian\Desktop\calbi-luka>D:/Softwares/anaconda3/envs/conda_detection_env/python.exe c:/Users/brian/Desktop/calbi-luka/app.py
+ * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5500
+ * Running on http://192.168.68.121:5500
+Press CTRL+C to quit
+Watching for file changes in html...
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /html/home.html HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /css/font.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /css/sidebar.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /css/home.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /css/tab.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /css/upload.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /img/luka-placeholder-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /images/profile.png HTTP/1.1" 404 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /img/logo-no-name.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /img/delete.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /js/live-feed.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /js/sidebar.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /js/tab.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /js/upload.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:22] "GET /js/full-screen.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:27:23] "GET /get_devices HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:27:28] "GET /stream?stream_url=rtsp://kaabii2:p@ssw0rLd@192.168.68.129:554/stream1 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:27:28] "GET /stream?stream_url=rtsp://kaabii1:p@ssw0rLd@192.168.68.124:554/stream1 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:27:28] "GET /stream?stream_url=https://192.168.68.119:8080/video HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:27:28] "GET /stream?stream_url=http://192.168.68.100:8080/video HTTP/1.1" 200 -
+[h264 @ 0000025c5805d780] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000025c5805d780] error while decoding MB 0 21, bytestream 35412
+127.0.0.1 - - [06/Mar/2025 15:27:31] "GET /stream?stream_url=rtsp://kaabii3:p@ssw0rLd@192.168.68.103:554/stream1 HTTP/1.1" 200 -
+[h264 @ 0000025c5866e4c0] error while decoding MB 28 40, bytestream -11
+[h264 @ 0000025c1ea18b00] error while decoding MB 25 53, bytestream -16
+[h264 @ 0000025c1ea18f80] error while decoding MB 7 48, bytestream -7
+[h264 @ 0000025c1ea19400] error while decoding MB 49 56, bytestream -7
+[h264 @ 0000025c1ea198c0] error while decoding MB 108 62, bytestream -9
+[h264 @ 0000025c1ea16f80] error while decoding MB 79 64, bytestream -5
+[h264 @ 0000025c1ea138c0] error while decoding MB 107 57, bytestream -11
+[h264 @ 0000025c5d5a7e80] error while decoding MB 31 34, bytestream -5
+[h264 @ 0000025c1ea14200] error while decoding MB 29 67, bytestream -9
+[h264 @ 0000025c5d5a8c40] error while decoding MB 29 20, bytestream -9
+[h264 @ 0000025c5d5aa7c0] error while decoding MB 23 26, bytestream -17
+[h264 @ 0000025c5d5a9e80] error while decoding MB 19 26, bytestream -17
+[h264 @ 0000025c5d5a90c0] error while decoding MB 17 26, bytestream -17
+[h264 @ 0000025c5d5ab0c0] error while decoding MB 23 19, bytestream -19
+[h264 @ 0000025c5805c540] error while decoding MB 10 38, bytestream -5
+[h264 @ 0000025c5805e080] error while decoding MB 23 20, bytestream -5
+[h264 @ 0000025c5d5a9a00] error while decoding MB 74 16, bytestream -13
+[h264 @ 0000025c5d5a7100] error while decoding MB 25 20, bytestream -7
+[h264 @ 0000025c5d5a8c40] error while decoding MB 26 2, bytestream -16
+[h264 @ 0000025c5d5aa7c0] error while decoding MB 64 18, bytestream -17
+[h264 @ 0000025c5d5ab0c0] error while decoding MB 20 25, bytestream -18
+[h264 @ 0000025c5805c9c0] error while decoding MB 26 24, bytestream -7
+[h264 @ 0000025c5805d2c0] error while decoding MB 41 23, bytestream -7
+[h264 @ 0000025c5805e9c0] error while decoding MB 26 24, bytestream -16
+[h264 @ 0000025c5d5a9a00] error while decoding MB 15 33, bytestream -9
+[h264 @ 0000025c5d5aa300] error while decoding MB 22 24, bytestream -18
+[h264 @ 0000025c5d5a7e80] error while decoding MB 22 24, bytestream -18
+[h264 @ 0000025c1ea198c0] error while decoding MB 74 42, bytestream -18
+[h264 @ 0000025c1ea19d40] top block unavailable for requested intra mode -1
+[h264 @ 0000025c1ea19d40] error while decoding MB 46 0, bytestream 4244
+[h264 @ 0000025c5805c540] error while decoding MB 26 40, bytestream -32
+[h264 @ 0000025c5805c9c0] error while decoding MB 30 28, bytestream -18
+[h264 @ 0000025c5805d2c0] error while decoding MB 17 28, bytestream -18
+[h264 @ 0000025c5805e080] error while decoding MB 15 27, bytestream -9
+[h264 @ 0000025c5805e9c0] cabac decode of qscale diff failed at 21 28
+[h264 @ 0000025c5805e9c0] error while decoding MB 21 28, bytestream -9
+[h264 @ 0000025c5d5a9a00] error while decoding MB 25 27, bytestream -7
+[h264 @ 0000025c5d5aa300] error while decoding MB 31 27, bytestream -14
+[h264 @ 0000025c5d5a7100] error while decoding MB 18 23, bytestream -11
+[h264 @ 0000025c5d5aa7c0] error while decoding MB 21 25, bytestream -15
+[h264 @ 0000025c5d5a90c0] error while decoding MB 25 32, bytestream -21
+[h264 @ 0000025c5805c9c0] error while decoding MB 17 24, bytestream -11
+[h264 @ 0000025c5805e9c0] error while decoding MB 18 25, bytestream -14
+[h264 @ 0000025c5d5a9580] error while decoding MB 28 43, bytestream -8
+[h264 @ 0000025c5d5aa300] error while decoding MB 24 36, bytestream -15
+[h264 @ 0000025c5d5a7e80] error while decoding MB 9 28, bytestream -5
+[h264 @ 0000025c57df7580] error while decoding MB 80 7, bytestream -27
+[h264 @ 0000025c5805d780] error while decoding MB 16 2, bytestream -15
+[h264 @ 0000025c1ea16680] error while decoding MB 117 51, bytestream -22
+[h264 @ 0000025c1ea14200] error while decoding MB 38 67, bytestream -5
+[h264 @ 0000025c5d5a7e80] error while decoding MB 10 38, bytestream -23
+[h264 @ 0000025c5d5a7100] error while decoding MB 13 30, bytestream -5
+[h264 @ 0000025c5866e4c0] error while decoding MB 5 31, bytestream -17
+[h264 @ 0000025c5d5a8c40] error while decoding MB 22 23, bytestream -11
+[h264 @ 0000025c5d5aa7c0] error while decoding MB 20 25, bytestream -17
+[h264 @ 0000025c5d5a9e80] error while decoding MB 25 26, bytestream -11
+[h264 @ 0000025c5d5a90c0] error while decoding MB 26 25, bytestream -11
+[h264 @ 0000025c5d5ab0c0] error while decoding MB 14 34, bytestream -13
+[h264 @ 0000025c5805e500] error while decoding MB 24 38, bytestream -15
+[h264 @ 0000025c5805c540] error while decoding MB 25 40, bytestream -15
+[h264 @ 0000025c5805c9c0] error while decoding MB 14 2, bytestream -20
+[h264 @ 0000025c57df7fc0] error while decoding MB 1 2, bytestream -33
+[h264 @ 0000025c5805e080] error while decoding MB 62 13, bytestream -13
+[h264 @ 0000025c1ea16680] error while decoding MB 37 67, bytestream -5
+[h264 @ 0000025c1ea14200] error while decoding MB 97 63, bytestream -7
+[h264 @ 0000025c1ea14680] error while decoding MB 45 67, bytestream -5
+[h264 @ 0000025c5d5a9580] error while decoding MB 23 36, bytestream -15
+[h264 @ 0000025c1ea17d40] error while decoding MB 75 67, bytestream -5
+[h264 @ 0000025c1ea18b00] error while decoding MB 114 67, bytestream -7
+[h264 @ 0000025c1ea18f80] error while decoding MB 45 67, bytestream -7
+[h264 @ 0000025c1ea19400] error while decoding MB 102 67, bytestream -5
+[h264 @ 0000025c1ea158c0] error while decoding MB 72 67, bytestream -7
+[h264 @ 0000025c1ea16f80] error while decoding MB 118 67, bytestream -9
+[h264 @ 0000025c1ea178c0] error while decoding MB 102 67, bytestream -5
+[h264 @ 0000025c1ea16680] top block unavailable for requested intra mode
+[h264 @ 0000025c1ea16680] error while decoding MB 42 0, bytestream 1398
+[h264 @ 0000025c1ea14200] error while decoding MB 68 62, bytestream -5
+[h264 @ 0000025c1ea14680] error while decoding MB 61 61, bytestream -5
+[h264 @ 0000025c1ea17d40] error while decoding MB 72 67, bytestream -7
+[h264 @ 0000025c1ea17440] error while decoding MB 56 67, bytestream -7
+[h264 @ 0000025c5d5a8c40] error while decoding MB 1 30, bytestream -26
+[h264 @ 0000025c1ea181c0] error while decoding MB 5 65, bytestream -5
+[h264 @ 0000025c5d5aa7c0] error while decoding MB 19 22, bytestream -9
+[h264 @ 0000025c5d5a9e80] error while decoding MB 44 44, bytestream -5
+[h264 @ 0000025c1ea18b00] error while decoding MB 4 67, bytestream -7
+[h264 @ 0000025c5d5a90c0] error while decoding MB 22 35, bytestream -9
+[h264 @ 0000025c1ea18f80] error while decoding MB 103 67, bytestream -11
+[h264 @ 0000025c5d5ab0c0] error while decoding MB 26 39, bytestream -11
+[h264 @ 0000025c1ea19400] error while decoding MB 106 67, bytestream -5
+[h264 @ 0000025c5805c540] error while decoding MB 28 32, bytestream -23
+[h264 @ 0000025c5805c9c0] error while decoding MB 13 37, bytestream -17
+[h264 @ 0000025c5805d2c0] error while decoding MB 20 24, bytestream -10
+[h264 @ 0000025c5805e080] error while decoding MB 14 35, bytestream -10
+[h264 @ 0000025c5d5a9a00] error while decoding MB 13 26, bytestream -8
+[h264 @ 0000025c5d5aa300] error while decoding MB 21 38, bytestream -21
+[h264 @ 0000025c5d5a7e80] error while decoding MB 13 41, bytestream -5
+[h264 @ 0000025c5d5a7100] error while decoding MB 4 40, bytestream -22
+[h264 @ 0000025c5d5aa7c0] error while decoding MB 27 44, bytestream -9
+[h264 @ 0000025c5805e500] error while decoding MB 6 37, bytestream -5
+[h264 @ 0000025c5805c540] error while decoding MB 22 36, bytestream -9
+[h264 @ 0000025c5805d2c0] error while decoding MB 12 34, bytestream -6
+[h264 @ 0000025c5805e9c0] error while decoding MB 26 24, bytestream -35
+127.0.0.1 - - [06/Mar/2025 15:28:06] "GET /html/settings.html HTTP/1.1" 304 -
+[h264 @ 0000025c5d5a9a00] error while decoding MB 7 32, bytestream -7
+127.0.0.1 - - [06/Mar/2025 15:28:06] "GET /css/font.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:06] "GET /css/settings.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:06] "GET /css/sidebar.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:06] "GET /img/luka-placeholder-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:06] "GET /images/profile.png HTTP/1.1" 404 -
+127.0.0.1 - - [06/Mar/2025 15:28:06] "GET /img/logo-no-name.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:06] "GET /img/default.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:07] "GET /js/tab.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:07] "GET /js/settings.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:07] "GET /js/sidebar.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:10] "POST /toggle_model HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:10] "POST /toggle_bounding_box HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:10] "POST /toggle_performance_metrics HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:10] "POST /set_confidence_level HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:10] "POST /set_max_frame_rate HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:10] "POST /set_update_metric_interval HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:10] "POST /set_metric_font_size HTTP/1.1" 200 -
+Target object set to: car
+127.0.0.1 - - [06/Mar/2025 15:28:10] "POST /set_target_object HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /html/home.html HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /css/font.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /css/sidebar.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /css/home.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /css/tab.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /css/upload.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /img/luka-placeholder-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /images/profile.png HTTP/1.1" 404 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /img/logo-no-name.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /img/delete.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /js/live-feed.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /js/sidebar.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /js/tab.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /js/upload.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /js/full-screen.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:12] "GET /get_devices HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:15] "GET /stream?stream_url=rtsp://kaabii2:p@ssw0rLd@192.168.68.129:554/stream1 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:17] "GET /stream?stream_url=rtsp://kaabii1:p@ssw0rLd@192.168.68.124:554/stream1 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:17] "GET /stream?stream_url=https://192.168.68.119:8080/video HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:17] "GET /stream?stream_url=http://192.168.68.100:8080/video HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:20] "GET /stream?stream_url=rtsp://kaabii3:p@ssw0rLd@192.168.68.103:554/stream1 HTTP/1.1" 200 -
+[mjpeg @ 0000025c86dad3c0] overread 8
+[h264 @ 0000025c89b24bc0] error while decoding MB 27 43, bytestream -8
+[h264 @ 0000025c89b21080] error while decoding MB 23 22, bytestream -5
+[h264 @ 0000025c89b25040] error while decoding MB 12 37, bytestream -7
+[h264 @ 0000025c89b25e00] error while decoding MB 5 29, bytestream -5
+[h264 @ 0000025c89b26280] error while decoding MB 23 34, bytestream -8
+[h264 @ 0000025c89b25500] error while decoding MB 72 17, bytestream -9
+[h264 @ 0000025c86e91040] left block unavailable for requested intra mode
+[h264 @ 0000025c86e91040] error while decoding MB 0 47, bytestream 31966
+127.0.0.1 - - [06/Mar/2025 15:28:31] "GET /html/settings.html HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:31] "GET /css/font.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:31] "GET /css/settings.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:31] "GET /css/sidebar.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:31] "GET /img/luka-placeholder-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:31] "GET /images/profile.png HTTP/1.1" 404 -
+127.0.0.1 - - [06/Mar/2025 15:28:31] "GET /img/logo-no-name.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:31] "GET /img/default.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:31] "GET /js/tab.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:31] "GET /js/settings.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:31] "GET /js/sidebar.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:36] "POST /toggle_model HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:36] "POST /toggle_bounding_box HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:36] "POST /toggle_performance_metrics HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:36] "POST /set_confidence_level HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:36] "POST /set_max_frame_rate HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:36] "POST /set_update_metric_interval HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:36] "POST /set_metric_font_size HTTP/1.1" 200 -
+Target object set to: car
+127.0.0.1 - - [06/Mar/2025 15:28:36] "POST /set_target_object HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /html/home.html HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /css/font.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /css/sidebar.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /css/home.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /css/tab.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /img/luka-placeholder-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /css/upload.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /images/profile.png HTTP/1.1" 404 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /img/logo-no-name.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /img/delete.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /js/live-feed.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /js/sidebar.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /js/tab.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /js/upload.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /js/full-screen.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:37] "GET /get_devices HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:40] "GET /stream?stream_url=rtsp://kaabii2:p@ssw0rLd@192.168.68.129:554/stream1 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:42] "GET /stream?stream_url=rtsp://kaabii1:p@ssw0rLd@192.168.68.124:554/stream1 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:42] "GET /stream?stream_url=https://192.168.68.119:8080/video HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:42] "GET /stream?stream_url=http://192.168.68.100:8080/video HTTP/1.1" 200 -
+[h264 @ 0000025c80194340] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000025c80194340] error while decoding MB 0 5, bytestream 124940
+[h264 @ 0000025c80197580] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000025c80197580] error while decoding MB 0 5, bytestream 124940
+127.0.0.1 - - [06/Mar/2025 15:28:45] "GET /stream?stream_url=rtsp://kaabii3:p@ssw0rLd@192.168.68.103:554/stream1 HTTP/1.1" 200 -
+[h264 @ 0000025c87f24980] cabac decode of qscale diff failed at 19 21
+[h264 @ 0000025c87f24980] error while decoding MB 19 21, bytestream 43281
+127.0.0.1 - - [06/Mar/2025 15:28:48] "GET /html/settings.html HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:48] "GET /css/font.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:48] "GET /images/profile.png HTTP/1.1" 404 -
+127.0.0.1 - - [06/Mar/2025 15:28:48] "GET /css/settings.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:48] "GET /css/sidebar.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:48] "GET /img/luka-placeholder-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:48] "GET /img/logo-no-name.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:48] "GET /img/default.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:48] "GET /js/tab.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:48] "GET /js/settings.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:48] "GET /js/sidebar.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:54] "POST /toggle_model HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:54] "POST /toggle_bounding_box HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:54] "POST /toggle_performance_metrics HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:54] "POST /set_confidence_level HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:54] "POST /set_max_frame_rate HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:54] "POST /set_update_metric_interval HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:54] "POST /set_metric_font_size HTTP/1.1" 200 -
+Target object set to: car
+127.0.0.1 - - [06/Mar/2025 15:28:54] "POST /set_target_object HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /html/home.html HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /css/font.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /css/sidebar.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /css/tab.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /css/home.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /css/upload.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /img/luka-placeholder-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /images/profile.png HTTP/1.1" 404 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /img/logo-no-name.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /img/delete.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /js/live-feed.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /js/sidebar.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /js/tab.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /js/upload.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /js/full-screen.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Mar/2025 15:28:55] "GET /get_devices HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:58] "GET /stream?stream_url=rtsp://kaabii2:p@ssw0rLd@192.168.68.129:554/stream1 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:28:58] "GET /stream?stream_url=https://192.168.68.119:8080/video HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:29:00] "GET /stream?stream_url=rtsp://kaabii1:p@ssw0rLd@192.168.68.124:554/stream1 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:29:03] "GET /stream?stream_url=rtsp://kaabii3:p@ssw0rLd@192.168.68.103:554/stream1 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Mar/2025 15:29:03] "GET /stream?stream_url=http://192.168.68.100:8080/video HTTP/1.1" 200 -
+[h264 @ 0000025c80317640] error while decoding MB 91 56, bytestream -20
+[h264 @ 0000025c0cec2680] error while decoding MB 66 54, bytestream -5
+[h264 @ 0000025c0cec58c0] error while decoding MB 94 52, bytestream -7
+[h264 @ 0000025c80317f40] error while decoding MB 72 53, bytestream -7
+[h264 @ 0000025c80315ac0] error while decoding MB 47 67, bytestream -9
+[h264 @ 0000025c0cec4f80] error while decoding MB 96 56, bytestream -14
+[h264 @ 0000025c0cec3440] error while decoding MB 113 51, bytestream -7
+[h264 @ 0000025c0cec38c0] error while decoding MB 43 67, bytestream -5
+[h264 @ 0000025c80315640] error while decoding MB 67 67, bytestream -5
+[h264 @ 0000025c80317f40] error while decoding MB 116 63, bytestream -5
+[h264 @ 0000025c80315ac0] error while decoding MB 17 64, bytestream -5
+[h264 @ 0000025c80317ac0] error while decoding MB 67 62, bytestream -5
+[h264 @ 0000025c5d08c540] error while decoding MB 75 38, bytestream -7
+[h264 @ 0000025c80316400] error while decoding MB 30 67, bytestream -5
+[h264 @ 0000025c80318880] error while decoding MB 81 66, bytestream -7
+[h264 @ 0000025c80318400] error while decoding MB 20 53, bytestream -5
+[h264 @ 0000025c80316880] error while decoding MB 74 67, bytestream -5
+[h264 @ 0000025c80316d00] error while decoding MB 87 67, bytestream -9
+[h264 @ 0000025c803171c0] error while decoding MB 81 67, bytestream -5
+[h264 @ 0000025c80317640] error while decoding MB 74 67, bytestream -5
+[h264 @ 0000025c57e6b440] error while decoding MB 23 19, bytestream -7
+[h264 @ 0000025c0cec4f80] error while decoding MB 60 67, bytestream -7
+[h264 @ 0000025c57e6b8c0] error while decoding MB 12 24, bytestream -11
+[h264 @ 0000025c0cec38c0] left block unavailable for requested intra mode
+[h264 @ 0000025c0cec38c0] error while decoding MB 0 2, bytestream 98274
+[h264 @ 0000025c5d08c0c0] error while decoding MB 99 19, bytestream -17
+[h264 @ 0000025c5d0909c0] left block unavailable for requested intra4x4 mode -1
+[h264 @ 0000025c5d0909c0] error while decoding MB 0 3, bytestream 2258
+[h264 @ 0000025c0cedd8c0] error while decoding MB 40 39, bytestream -7
+[h264 @ 0000025c0cedbd80] error while decoding MB 72 17, bytestream -11
+[h264 @ 0000025c0cedb8c0] error while decoding MB 9 16, bytestream -7
+[h264 @ 0000025c0ceddd40] error while decoding MB 31 36, bytestream -7
+[h264 @ 0000025c57e6b8c0] error while decoding MB 55 40, bytestream -24
+[h264 @ 0000025c0cedd8c0] error while decoding MB 49 24, bytestream -7
+[h264 @ 0000025c5d089c40] error while decoding MB 28 2, bytestream -41
+[h264 @ 0000025c0cedb440] error while decoding MB 19 39, bytestream -11
+[h264 @ 0000025c0cedbd80] error while decoding MB 21 40, bytestream -7
+[h264 @ 0000025c0ceddd40] error while decoding MB 75 18, bytestream -7
+[h264 @ 0000025c0cedab40] cabac decode of qscale diff failed at 66 16
+[h264 @ 0000025c0cedab40] error while decoding MB 66 16, bytestream -5
+[h264 @ 0000025c5d090540] error while decoding MB 75 19, bytestream -17
+[h264 @ 0000025c5d090e40] error while decoding MB 21 26, bytestream -7
+[h264 @ 0000025c0cedab40] cabac decode of qscale diff failed at 24 15
+[h264 @ 0000025c0cedab40] error while decoding MB 24 15, bytestream 3218
+[h264 @ 0000025c0cedc680] error while decoding MB 27 37, bytestream -7
+[h264 @ 0000025c5d090e40] error while decoding MB 21 25, bytestream -7
+[h264 @ 0000025c5d08c540] error while decoding MB 81 57, bytestream -5
+[h264 @ 0000025c0cec2680] error while decoding MB 12 6, bytestream -10
