@@ -22,11 +22,12 @@ models = [YOLO(path) for path in MODEL_PATHS] # Load multiple YOLO models
 #Modifications
 detection_mode = True  # Toggle for enabling/disabling model inference
 show_bounding_box = True  # Toggle model bounding Box
+performance_metrics_toggle = True # Toggle for displaying performance metrics
 confidence_level = 0.7  # Model's confidence level
 max_frame_rate = 60 #60fps. Provide maximum frame that the feed can stream.
-performance_metrics_toggle = True # Toggle for displaying performance metrics
 update_metric_interval = 1 # Update text every # second instead of every frame
 metric_font_size = 24 #24px. font size for metric values
+target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect objects for yolo
 
 # Global variables
 frame_queue = queue.Queue(maxsize=5)  # Limit queue size to prevent memory overload
@@ -313,7 +314,7 @@ if __name__ == "__main__":
     flask_thread.start()
     
     # Wait for Flask to initialize
-    time.sleep(3)   
+    time.sleep(5)   
     
     # Open the default page in a browser
     webbrowser.open_new_tab(f"http://127.0.0.1:{FLASK_PORT}/html/home.html")

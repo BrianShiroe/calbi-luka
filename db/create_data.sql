@@ -3,60 +3,64 @@ CREATE TABLE user (
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    role TEXT CHECK(role IN ('admin', 'user', 'viewer')) NULL,
+    role TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE access_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    action TEXT NULL,
+    action TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
 CREATE TABLE settings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    detection_mode INTEGER NULL CHECK(detection_mode IN (0, 1)),
-    show_bounding_box INTEGER NULL CHECK(show_bounding_box IN (0, 1)),
-    detection_confidence FLOAT NULL,
-    frame_rate INTEGER NULL,
-    target_objects TEXT CHECK(target_objects IN ('car_accident', 'fire_accident', 
-    'flood_accident', 'landslide_accident', 'earthquake_accident')) NULL
+    detection_mode INTEGER,
+    show_bounding_box INTEGER,
+    performance_metrics_toggle INTEGER,
+    confidence_level FLOAT,
+    max_frame_rate INTEGER,
+    update_metric_interval INTEGER,
+    metric_font_size INTEGER,
+    target_objects TEXT
 );
 
 CREATE TABLE camera (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NULL,
-    ip_address TEXT NULL,
-    location TEXT NULL,
-    status TEXT CHECK(status IN ('active', 'inactive', 'maintenance')) NULL,
+    title TEXT,
+    ip_address TEXT,
+    location TEXT,
+    status TEXT,
     installed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE recording (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     camera_id INTEGER NOT NULL,
-    file_path TEXT NULL,
+    file_path TEXT,
     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    duration INTEGER NULL,
+    duration INTEGER,
     FOREIGN KEY (camera_id) REFERENCES camera(id) ON DELETE CASCADE
 );
 
 CREATE TABLE report (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     camera_id INTEGER NOT NULL,
-    description TEXT NULL,
-    report_level TEXT CHECK(report_level IN ('low', 'medium', 'high')) NULL,
+    report_level TEXT,
+    description TEXT,
     FOREIGN KEY (camera_id) REFERENCES camera(id) ON DELETE CASCADE
 );
 
 CREATE TABLE alert (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     camera_id INTEGER NOT NULL,
-    event_type TEXT CHECK(event_type IN ('car_accident', 'fire_accident', 'flood_accident', 'landslide_accident', 'earthquake_accident')) NULL,
-    alert_level TEXT CHECK(alert_level IN ('low', 'medium', 'high')) NULL,
+    camera_title TEXT,
+    event_type TEXT,
+    alert_level TEXT,
+    location TEXT,
     detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    resolved INTEGER DEFAULT 0 CHECK(resolved IN (0, 1)),
+    resolved INTEGER,
     FOREIGN KEY (camera_id) REFERENCES camera(id) ON DELETE CASCADE
 );
