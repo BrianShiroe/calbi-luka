@@ -68,12 +68,21 @@
         </ul>
     </div>
     
-    <!-- Notification Icon -->
-    <div notification-section>
+    <!-- Notification Section -->
+    <div class="notification-section">
         <div type="button" id="notification-icon" class="notification-icon">
             <i class="fas fa-bullhorn"></i>
+            <span id="notification-count" class="notification-count">0</span>
         </div>
-        <!-- Dynamically populated notification cards will appear here -->
+        <div id="notification-box" class="notification-box">
+            <div class="notification-header">
+                <h3>Notifications</h3>
+                <button id="clear-notifications">Clear All</button>
+            </div>
+            <ul id="notification-list">
+                <!-- Notifications will be dynamically added here -->
+            </ul>
+        </div>
     </div>
 
     <div class="header">

@@ -19,7 +19,11 @@ body {
     background-color: #fff !important;
 }
 
-/* Notification Icon Style */
+/* Notification section */
+.notification-section {
+    position: relative;
+}
+
 .notification-icon {
     position: fixed;
     top: 20px;
@@ -31,7 +35,10 @@ body {
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000; /* Ensure it stays on top of other elements */
-    display: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
     transition: transform 0.3s ease-in-out;
 }
 
@@ -39,8 +46,76 @@ body {
     transform: scale(1.1);
 }
 
-.notification-icon.show {
+.notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+}
+
+.notification-box {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    width: 300px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    display: none;
+    z-index: 999;
+}
+
+.notification-box.show {
     display: block;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.notification-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+#clear-notifications {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#clear-notifications:hover {
+    text-decoration: underline;
+}
+
+#notification-list {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    height: min(70vh, 500px); /* Uses 70% of viewport height but doesn't exceed 400px */
+    overflow-y: auto;
+}
+
+#notification-list li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
+
+#notification-list li:last-child {
+    border-bottom: none;
 }
 
 /* Grid layout for devices */
