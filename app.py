@@ -2,17 +2,14 @@ import time
 import webbrowser
 import threading
 import sqlite3
-# import psutil
 import cv2
+import yt_dlp
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from flask import Flask, Response, request, jsonify, g, send_from_directory
 from flask_cors import CORS
 from ultralytics import YOLO
 from concurrent.futures import ThreadPoolExecutor
-import torch
-
-import yt_dlp
 
 # Configuration
 FLASK_PORT = 5500  # Flask serves as the main server
@@ -30,14 +27,13 @@ confidence_level = 0.7  # Model's confidence level
 max_frame_rate = 60 #60fps. Provide maximum frame that the feed can stream.
 update_metric_interval = 1 # Update text every # second instead of every frame
 metric_font_size = 24 #24px. font size for metric values
+
+# This feature is currently under development.
 target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect objects for yolo
+FRAME_SKIP = 1  # Only process 1 out of every 2 frames (adjust as needed)
 
 app = Flask(__name__, static_folder=".") # Initialize Flask application
 CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
-
-executor = ThreadPoolExecutor(max_workers=5)  # Adjust based on your CPU/GPU power
-FRAME_SKIP = 2  # Only process 1 out of every 2 frames (adjust as needed)
-print(torch.cuda.is_available())  # Should print True if GPU is available
 
 # Database helper function
 def get_db():
@@ -73,7 +69,6 @@ def start_file_watcher():
 
 # SECTION: generate_frames
 def get_youtube_stream_url(youtube_url):
-    """Extracts the direct video stream URL from a YouTube live link."""
     ydl_opts = {'format': 'best', 'quiet': True}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
@@ -83,24 +78,19 @@ def get_youtube_stream_url(youtube_url):
             print(f"Failed to fetch YouTube stream: {e}")
             return None
         
+def get_fresh_stream(stream_url):
+    if "youtube.com" in stream_url or "youtu.be" in stream_url:
+        new_url = get_youtube_stream_url(stream_url)
+        print(f"Refreshing YouTube stream URL: {new_url}")
+        return new_url
+    return stream_url
+
 def initialize_stream(stream_url):
     cap = cv2.VideoCapture(stream_url)
     if not cap.isOpened():
         print(f"Failed to open stream: {stream_url}")
         return None
     return cap
-
-def initialize_metrics():
-    return {
-        "frame_count": 0,
-        "start_time": time.time(),
-        "last_frame_time": None,
-        "last_update_time": time.time(),  # Controls metric update frequency
-        "displayed_fps": 0,
-        "displayed_frame_rate": 0,
-        "displayed_processing_time": 0,
-        "displayed_real_time_lag": 0
-    }
 
 def process_frame(frame):
     process_start = time.time()
@@ -116,6 +106,28 @@ def process_frame(frame):
 
     processing_time = time.time() - process_start
     return frame, processing_time, model_status_text
+
+def encode_frame(frame):
+    _, buffer = cv2.imencode('.jpg', frame)
+    return buffer.tobytes()
+
+def enforce_frame_rate(frame_start_time):
+    if max_frame_rate > 0:
+        time_to_wait = 1.0 / max_frame_rate - (time.time() - frame_start_time)
+        if time_to_wait > 0:
+            time.sleep(time_to_wait)
+
+def initialize_metrics():
+    return {
+        "frame_count": 0,
+        "start_time": time.time(),
+        "last_frame_time": None,
+        "last_update_time": time.time(),
+        "displayed_fps": 0,
+        "displayed_frame_rate": 0,
+        "displayed_processing_time": 0,
+        "displayed_real_time_lag": 0
+    }
 
 def update_metrics(metrics, frame_start_time, processing_time):
     metrics["frame_count"] += 1
@@ -135,10 +147,6 @@ def update_metrics(metrics, frame_start_time, processing_time):
         metrics["displayed_processing_time"] = processing_time
         metrics["displayed_real_time_lag"] = real_time_lag
 
-# def get_memory_usage():
-#     process = psutil.Process()
-#     return process.memory_info().rss / (1024 * 1024)
-
 def overlay_metrics(frame, metrics, model_status_text):
     font_scale = metric_font_size / 10
     font_thickness = 6
@@ -156,38 +164,15 @@ def overlay_metrics(frame, metrics, model_status_text):
         cv2.putText(frame, f"Frame Rate: {metrics['displayed_frame_rate']:.2f} FPS", (30, 300), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Frame Rate"], font_thickness)
         cv2.putText(frame, f"Processing Time: {metrics['displayed_processing_time']:.3f}s", (30, 400), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Processing Time"], font_thickness)
         cv2.putText(frame, f"Streaming Delay: {metrics['displayed_real_time_lag']:.3f}s", (30, 500), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Streaming Delay"], font_thickness)
-        # memory_usage = get_memory_usage()
-        # cv2.putText(frame, f"Memory: {memory_usage:.2f} MB", (30, 600), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
 
     return frame
 
-def encode_frame(frame):
-    _, buffer = cv2.imencode('.jpg', frame)
-    return buffer.tobytes()
-
-def enforce_frame_rate(frame_start_time):
-    if max_frame_rate > 0:
-        time_to_wait = 1.0 / max_frame_rate - (time.time() - frame_start_time)
-        if time_to_wait > 0:
-            time.sleep(time_to_wait)
-
 def generate_frames(stream_url):
-    """Generates video frames from a given stream URL with error handling and automatic reconnection."""
-    
-    def get_fresh_stream():
-        """Fetch a fresh YouTube stream URL if the current one expires."""
-        if "youtube.com" in stream_url or "youtu.be" in stream_url:
-            new_url = get_youtube_stream_url(stream_url)
-            print(f"Refreshing YouTube stream URL: {new_url}")
-            return new_url
-        return stream_url
-
-    cap = initialize_stream(get_fresh_stream())
+    cap = initialize_stream(get_fresh_stream(stream_url))
     if cap is None:
         return
 
     metrics = initialize_metrics()
-    FRAME_SKIP = 2  # Process 1 out of every 2 frames (adjust as needed)
     frame_count = 0
 
     try:
@@ -198,7 +183,7 @@ def generate_frames(stream_url):
             if not success:
                 print(f"Stream disconnected: {stream_url}. Attempting to refresh URL...")
                 cap.release()
-                cap = initialize_stream(get_fresh_stream())  # Reconnect with new YouTube URL
+                cap = initialize_stream(get_fresh_stream(stream_url))  # Reconnect with new YouTube URL
                 if cap is None:
                     print("Failed to reconnect. Stopping stream.")
                     break
@@ -225,18 +210,15 @@ def generate_frames(stream_url):
 # stream handler
 @app.route('/stream')
 def stream():
-    """Handles video streaming from RTSP, HTTP, or YouTube live URLs."""
     stream_url = request.args.get('stream_url')
     if not stream_url:
         return "Stream URL is missing", 400
 
-    # Handle YouTube live stream URLs
     if "youtube.com" in stream_url or "youtu.be" in stream_url:
         stream_url = get_youtube_stream_url(stream_url)
         if not stream_url:
             return "Could not fetch YouTube stream", 400
 
-    # Validate stream URL
     if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
         return "Invalid stream URL", 400
 
@@ -255,7 +237,7 @@ def serve_html(filename):
 def serve_static(filename):
     if filename.startswith(("css/", "js/", "img/", "json/", "model/")):
         return send_from_directory(".", filename)
-    return send_from_directory("html", filename)  # Default to HTML folder
+    return send_from_directory("html", filename)
 
 # SECTION: device configuration API
 @app.route('/get_devices', methods=['GET'])
@@ -329,7 +311,7 @@ def set_confidence_level():
     global confidence_level
     data = request.get_json()
     if 'confidence' in data:
-        confidence_level = float(data['confidence'])  # The value from frontend is in 0-1 range now
+        confidence_level = float(data['confidence'])  # The value from frontend is in 0-1 range
     return jsonify({"confidence_level": confidence_level})
 
 @app.route('/set_update_metric_interval', methods=['POST'])
