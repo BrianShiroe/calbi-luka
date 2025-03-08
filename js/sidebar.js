@@ -14,9 +14,9 @@ searchBtn.addEventListener("click", () => {
 
 function menuBtnChange() {
     if (sidebar.classList.contains("open")) {
-        closeBtn.classList.replace("bx-menu", "bx-menu-alt-right");
+        closeBtn.classList.replace("bx-chevron-right", "bx-chevron-left");
     } else {
-        closeBtn.classList.replace("bx-menu-alt-right", "bx-menu");
+        closeBtn.classList.replace("bx-chevron-left", "bx-chevron-right");
     }
 }
 
