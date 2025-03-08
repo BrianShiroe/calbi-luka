@@ -4,6 +4,8 @@ import threading
 import sqlite3
 import cv2
 import yt_dlp
+import numpy as np
+import ffmpeg
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from flask import Flask, Response, request, jsonify, g, send_from_directory
