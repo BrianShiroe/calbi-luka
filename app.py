@@ -3,15 +3,13 @@ import webbrowser
 import threading
 import sqlite3
 import cv2
+import yt_dlp
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from flask import Flask, Response, request, jsonify, g, send_from_directory
 from flask_cors import CORS
 from ultralytics import YOLO
 from concurrent.futures import ThreadPoolExecutor
-import torch
-
-import yt_dlp
 
 # Configuration
 FLASK_PORT = 5500  # Flask serves as the main server
@@ -29,14 +27,13 @@ confidence_level = 0.7  # Model's confidence level
 max_frame_rate = 60 #60fps. Provide maximum frame that the feed can stream.
 update_metric_interval = 1 # Update text every # second instead of every frame
 metric_font_size = 24 #24px. font size for metric values
+
+# This feature is currently under development.
 target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect objects for yolo
+FRAME_SKIP = 1  # Only process 1 out of every 2 frames (adjust as needed)
 
 app = Flask(__name__, static_folder=".") # Initialize Flask application
 CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
-
-executor = ThreadPoolExecutor(max_workers=5)  # Adjust based on your CPU/GPU power
-FRAME_SKIP = 1  # Only process 1 out of every 2 frames (adjust as needed)
-print(torch.cuda.is_available())  # Should print True if GPU is available
 
 # Database helper function
 def get_db():
