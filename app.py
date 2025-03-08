@@ -72,7 +72,6 @@ def start_file_watcher():
 
 # SECTION: generate_frames
 def get_youtube_stream_url(youtube_url):
-    """Extracts the direct video stream URL from a YouTube live link."""
     ydl_opts = {'format': 'best', 'quiet': True}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
@@ -82,24 +81,19 @@ def get_youtube_stream_url(youtube_url):
             print(f"Failed to fetch YouTube stream: {e}")
             return None
         
+def get_fresh_stream(stream_url):
+    if "youtube.com" in stream_url or "youtu.be" in stream_url:
+        new_url = get_youtube_stream_url(stream_url)
+        print(f"Refreshing YouTube stream URL: {new_url}")
+        return new_url
+    return stream_url
+
 def initialize_stream(stream_url):
     cap = cv2.VideoCapture(stream_url)
     if not cap.isOpened():
         print(f"Failed to open stream: {stream_url}")
         return None
     return cap
-
-def initialize_metrics():
-    return {
-        "frame_count": 0,
-        "start_time": time.time(),
-        "last_frame_time": None,
-        "last_update_time": time.time(),  # Controls metric update frequency
-        "displayed_fps": 0,
-        "displayed_frame_rate": 0,
-        "displayed_processing_time": 0,
-        "displayed_real_time_lag": 0
-    }
 
 def process_frame(frame):
     process_start = time.time()
@@ -115,6 +109,28 @@ def process_frame(frame):
 
     processing_time = time.time() - process_start
     return frame, processing_time, model_status_text
+
+def encode_frame(frame):
+    _, buffer = cv2.imencode('.jpg', frame)
+    return buffer.tobytes()
+
+def enforce_frame_rate(frame_start_time):
+    if max_frame_rate > 0:
+        time_to_wait = 1.0 / max_frame_rate - (time.time() - frame_start_time)
+        if time_to_wait > 0:
+            time.sleep(time_to_wait)
+
+def initialize_metrics():
+    return {
+        "frame_count": 0,
+        "start_time": time.time(),
+        "last_frame_time": None,
+        "last_update_time": time.time(),
+        "displayed_fps": 0,
+        "displayed_frame_rate": 0,
+        "displayed_processing_time": 0,
+        "displayed_real_time_lag": 0
+    }
 
 def update_metrics(metrics, frame_start_time, processing_time):
     metrics["frame_count"] += 1
@@ -153,23 +169,6 @@ def overlay_metrics(frame, metrics, model_status_text):
         cv2.putText(frame, f"Streaming Delay: {metrics['displayed_real_time_lag']:.3f}s", (30, 500), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Streaming Delay"], font_thickness)
 
     return frame
-
-def encode_frame(frame):
-    _, buffer = cv2.imencode('.jpg', frame)
-    return buffer.tobytes()
-
-def enforce_frame_rate(frame_start_time):
-    if max_frame_rate > 0:
-        time_to_wait = 1.0 / max_frame_rate - (time.time() - frame_start_time)
-        if time_to_wait > 0:
-            time.sleep(time_to_wait)
-
-def get_fresh_stream(stream_url):
-    if "youtube.com" in stream_url or "youtu.be" in stream_url:
-        new_url = get_youtube_stream_url(stream_url)
-        print(f"Refreshing YouTube stream URL: {new_url}")
-        return new_url
-    return stream_url
 
 def generate_frames(stream_url):
     cap = initialize_stream(get_fresh_stream(stream_url))
@@ -218,13 +217,11 @@ def stream():
     if not stream_url:
         return "Stream URL is missing", 400
 
-    # Handle YouTube live stream URLs
     if "youtube.com" in stream_url or "youtu.be" in stream_url:
         stream_url = get_youtube_stream_url(stream_url)
         if not stream_url:
             return "Could not fetch YouTube stream", 400
 
-    # Validate stream URL
     if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
         return "Invalid stream URL", 400
 
