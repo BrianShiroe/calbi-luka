@@ -63,111 +63,118 @@ def start_file_watcher():
         observer.stop()
     observer.join()
 
+# SECTION: generate_frames
+def initialize_stream(stream_url):
+    cap = cv2.VideoCapture(stream_url)
+    if not cap.isOpened():
+        print(f"Failed to open stream: {stream_url}")
+        return None
+    return cap
+
+def initialize_metrics():
+    return {
+        "frame_count": 0,
+        "start_time": time.time(),
+        "last_frame_time": None,
+        "last_update_time": time.time(),  # Controls metric update frequency
+        "displayed_fps": 0,
+        "displayed_frame_rate": 0,
+        "displayed_processing_time": 0,
+        "displayed_real_time_lag": 0
+    }
+
+def process_frame(frame):
+    process_start = time.time()
+    model_status_text = "Model: OFF"
+
+    if detection_mode:
+        model_status_text = "Model: ON"
+        for model in models:
+            results = model(frame, verbose=False, conf=confidence_level)
+            if show_bounding_box:
+                for result in results:
+                    frame = result.plot()
+
+    processing_time = time.time() - process_start
+    return frame, processing_time, model_status_text
+
+def update_metrics(metrics, frame_start_time, processing_time):
+    metrics["frame_count"] += 1
+    elapsed_time = time.time() - metrics["start_time"]
+
+    fps = metrics["frame_count"] / elapsed_time if elapsed_time > 0 else 0
+    frame_rate = 1 / (frame_start_time - metrics["last_frame_time"]) if metrics["last_frame_time"] else 0
+    real_time_lag = time.time() - frame_start_time  
+
+    metrics["last_frame_time"] = frame_start_time  
+
+    # Update only if interval has passed
+    if time.time() - metrics["last_update_time"] > update_metric_interval:
+        metrics["last_update_time"] = time.time()
+        metrics["displayed_fps"] = fps
+        metrics["displayed_frame_rate"] = frame_rate
+        metrics["displayed_processing_time"] = processing_time
+        metrics["displayed_real_time_lag"] = real_time_lag
+
 def get_memory_usage():
     process = psutil.Process()
     return process.memory_info().rss / (1024 * 1024)  # Convert to MB
 
-# streaming, model, and metric functionality
-def generate_frames(stream_url):
-    cap = cv2.VideoCapture(stream_url)
-    if not cap.isOpened():
-        print(f"Failed to open stream: {stream_url}")
-        return
-    
-    frame_count = 0
-    start_time = time.time()
-    last_frame_time = None
-    last_update_time = time.time() # Controls how often metrics are updated
+def overlay_metrics(frame, metrics, model_status_text):
+    font_scale = metric_font_size / 10
+    font_thickness = 6
+    colors = {
+        "Model Status": (0, 0, 255),
+        "FPS": (0, 255, 0),
+        "Frame Rate": (255, 255, 0),
+        "Processing Time": (255, 0, 255),
+        "Streaming Delay": (0, 165, 255)
+    }
 
-    # Cached values for smoother updates
-    displayed_fps = 0
-    displayed_frame_rate = 0
-    displayed_processing_time = 0
-    displayed_real_time_lag = 0
+    if performance_metrics_toggle:
+        cv2.putText(frame, model_status_text, (30, 100), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Model Status"], font_thickness)
+        cv2.putText(frame, f"FPS: {metrics['displayed_fps']:.2f}", (30, 200), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["FPS"], font_thickness)
+        cv2.putText(frame, f"Frame Rate: {metrics['displayed_frame_rate']:.2f} FPS", (30, 300), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Frame Rate"], font_thickness)
+        cv2.putText(frame, f"Processing Time: {metrics['displayed_processing_time']:.3f}s", (30, 400), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Processing Time"], font_thickness)
+        cv2.putText(frame, f"Streaming Delay: {metrics['displayed_real_time_lag']:.3f}s", (30, 500), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Streaming Delay"], font_thickness)
+        memory_usage = get_memory_usage()
+        cv2.putText(frame, f"Memory: {memory_usage:.2f} MB", (30, 600), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
+
+    return frame
+
+def encode_frame(frame):
+    _, buffer = cv2.imencode('.jpg', frame)
+    return buffer.tobytes()
+
+def enforce_frame_rate(frame_start_time):
+    if max_frame_rate > 0:
+        time_to_wait = 1.0 / max_frame_rate - (time.time() - frame_start_time)
+        if time_to_wait > 0:
+            time.sleep(time_to_wait)
+
+def generate_frames(stream_url):
+    cap = initialize_stream(stream_url)
+    if cap is None:
+        return
+
+    metrics = initialize_metrics()
 
     while True:
-        frame_start_time = time.time()  
+        frame_start_time = time.time()
         success, frame = cap.read()
         if not success:
             print(f"Stream disconnected: {stream_url}")
             break
 
-        # Calculate frame rate and timing
-        if last_frame_time:
-            frame_interval = frame_start_time - last_frame_time  
-            frame_rate = 1 / frame_interval if frame_interval > 0 else 0
-        else:
-            frame_rate = 0  
+        frame, processing_time, model_status_text = process_frame(frame)
+        update_metrics(metrics, frame_start_time, processing_time)
+        frame = overlay_metrics(frame, metrics, model_status_text)
+        encoded_frame = encode_frame(frame)
 
-        last_frame_time = frame_start_time 
-
-        # Measure processing time
-        process_start = time.time()
-
-        model_status_text = "Model: OFF"
-        if detection_mode:
-            model_status_text = "Model: ON"
-            for model in models:
-                results = model(frame, verbose=False, conf=confidence_level)
-                for result in results:
-                    if show_bounding_box:
-                        frame = result.plot()
-
-        process_end = time.time()
-        processing_time = process_end - process_start  
-
-        # FPS Calculation
-        frame_count += 1
-        elapsed_time = time.time() - start_time
-        fps = frame_count / elapsed_time if elapsed_time > 0 else 0
-
-        # Real-Time Lag (Streaming Delay)
-        real_time_lag = time.time() - frame_start_time  
-
-        # Only update displayed values every `update_metric_interval` seconds
-        if time.time() - last_update_time > update_metric_interval:
-            last_update_time = time.time()
-            displayed_fps = fps
-            displayed_frame_rate = frame_rate
-            displayed_processing_time = processing_time
-            displayed_real_time_lag = real_time_lag
-
-        # Text properties
-        font_scale = metric_font_size / 10  # Adjust font scale based on metric_font_size
-        font_thickness = 6  
-        colors = {
-            "Model Status": (0, 0, 255),  # Red
-            "FPS": (0, 255, 0),       # Green
-            "Frame Rate": (255, 255, 0),  # Yellow
-            "Processing Time": (255, 0, 255),  # Magenta
-            "Streaming Delay": (0, 165, 255)  # Orange
-        }
-
-        if performance_metrics_toggle:
-            cv2.putText(frame, model_status_text, (30, 100),
-                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Model Status"], font_thickness)
-            cv2.putText(frame, f"FPS: {displayed_fps:.2f}", (30, 200),
-                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["FPS"], font_thickness)
-            cv2.putText(frame, f"Frame Rate: {displayed_frame_rate:.2f} FPS", (30, 300),
-                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Frame Rate"], font_thickness)
-            cv2.putText(frame, f"Processing Time: {displayed_processing_time:.3f}s", (30, 400),
-                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Processing Time"], font_thickness)
-            cv2.putText(frame, f"Streaming Delay: {displayed_real_time_lag:.3f}s", (30, 500),
-                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Streaming Delay"], font_thickness)
-            memory_usage = get_memory_usage()
-            cv2.putText(frame, f"Memory: {memory_usage:.2f} MB", (30, 600),
-                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
-
-        # Encode frame
-        _, buffer = cv2.imencode('.jpg', frame)
         yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+               b'Content-Type: image/jpeg\r\n\r\n' + encoded_frame + b'\r\n')
 
-        # Enforce max frame rate for streaming only
-        if max_frame_rate > 0:
-            time_to_wait = 1.0 / max_frame_rate - (time.time() - frame_start_time)
-            if time_to_wait > 0:
-                time.sleep(time_to_wait)
+        enforce_frame_rate(frame_start_time)
 
     cap.release()
 
@@ -181,7 +188,7 @@ def stream():
         return "Invalid stream URL", 400
     return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# Start of flask route handlers
+# SECTION: Start of flask route handlers
 @app.route("/")
 def serve_home():
     return send_from_directory("html", "home.html")
@@ -196,6 +203,7 @@ def serve_static(filename):
         return send_from_directory(".", filename)
     return send_from_directory("html", filename)  # Default to HTML folder
 
+# SECTION: device configuration API
 @app.route('/get_devices', methods=['GET'])
 def get_devices():
     db = get_db()
@@ -204,7 +212,6 @@ def get_devices():
     devices = cursor.fetchall()
     return jsonify([dict(device) for device in devices])
 
-# Start of device configuration API
 @app.route('/add_device', methods=['POST'])
 def add_device():
     data = request.get_json()
@@ -238,7 +245,7 @@ def delete_device():
     db.commit()
     return jsonify({"success": True})
 
-# Start of feature toggle API
+# SECTION: feature toggle API
 @app.route('/toggle_model', methods=['POST'])
 def toggle_model():
     global detection_mode

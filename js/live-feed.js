@@ -59,8 +59,6 @@ function addDevice() {
     }
 }
 
-
-
 // Render the devices on the UI
 function renderDevices() {
     const gridContainer = document.getElementById("grid-container");
@@ -85,39 +83,49 @@ function renderDevices() {
     gridContainer.appendChild(addDeviceCard);
 }
 
-function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceIndex) {
+// SECTION: createDeviceCard
+function createDeviceCardContainer() {
     const deviceCard = document.createElement("div");
     deviceCard.className = "device-card";
+    return deviceCard;
+}
 
-    const mediaContainer = document.createElement("div");
-    mediaContainer.style.position = "relative";
-    mediaContainer.style.width = "100%";
-    mediaContainer.style.borderRadius = "10px";
-    mediaContainer.style.cursor = "pointer";
-
+function createMediaElement(videoFeedURL) {
     let mediaElement;
-
+    
     if (videoFeedURL.match(/\.(mp4|webm|ogg)$/i)) {
-        // If it's a video file, use the <video> element
         mediaElement = document.createElement("video");
         mediaElement.src = videoFeedURL;
-        mediaElement.style.width = "100%";
-        mediaElement.style.borderRadius = "10px";
         mediaElement.controls = true;
     } else {
-        // Fallback to image if it's not a recognized video format
         mediaElement = document.createElement("img");
         mediaElement.src = videoFeedURL;
-        mediaElement.style.width = "100%";
-        mediaElement.style.borderRadius = "10px";
     }
+
+    mediaElement.style.width = "100%";
+    mediaElement.style.borderRadius = "10px";
+    mediaElement.style.cursor = "pointer";
 
     mediaElement.onclick = function () {
         openFullscreen(videoFeedURL);
     };
 
+    return mediaElement;
+}
+
+function createMediaContainer(videoFeedURL) {
+    const mediaContainer = document.createElement("div");
+    mediaContainer.style.position = "relative";
+    mediaContainer.style.width = "100%";
+    mediaContainer.style.borderRadius = "10px";
+    
+    const mediaElement = createMediaElement(videoFeedURL);
     mediaContainer.appendChild(mediaElement);
 
+    return mediaContainer;
+}
+
+function createDeviceInfo(deviceName, deviceLocation) {
     const nameElement = document.createElement("h3");
     nameElement.textContent = deviceName;
 
@@ -126,23 +134,40 @@ function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceIndex)
     locationElement.style.fontSize = "12px";
     locationElement.style.color = "grey";
 
-    // Kebab menu for options
+    return { nameElement, locationElement };
+}
+
+function createMenuOptions(deviceIndex) {
     const menuContainer = document.createElement("div");
     menuContainer.className = "menu-container";
 
     const menuIcon = document.createElement("i");
     menuIcon.className = "fas fa-ellipsis-v kebab-menu";
-    menuIcon.onclick = () => toggleMenu(menuOptions);
-
+    
     const menuOptions = document.createElement("div");
     menuOptions.className = "menu-options";
     menuOptions.innerHTML = `
-        <p onclick="openEditNamePopup(${deviceIndex})"><span><i class="fa-solid fa-pen-to-square"></i></span> Edit</p>
-        <p onclick="showDeletePopup(${deviceIndex})"><span><i class="fa-solid fa-trash"></i></span> Delete</p>
+        <p onclick="openEditNamePopup(${deviceIndex})">
+            <span><i class="fa-solid fa-pen-to-square"></i></span> Edit
+        </p>
+        <p onclick="showDeletePopup(${deviceIndex})">
+            <span><i class="fa-solid fa-trash"></i></span> Delete
+        </p>
     `;
+
+    menuIcon.onclick = () => toggleMenu(menuOptions);
 
     menuContainer.appendChild(menuIcon);
     menuContainer.appendChild(menuOptions);
+
+    return menuContainer;
+}
+
+function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceIndex) {
+    const deviceCard = createDeviceCardContainer();
+    const mediaContainer = createMediaContainer(videoFeedURL);
+    const { nameElement, locationElement } = createDeviceInfo(deviceName, deviceLocation);
+    const menuContainer = createMenuOptions(deviceIndex);
 
     deviceCard.appendChild(mediaContainer);
     deviceCard.appendChild(nameElement);
@@ -152,40 +177,10 @@ function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceIndex)
     return deviceCard;
 }
 
-function openFullscreen(videoFeedURL) {
+// create fullsceen
+function createFullscreenContainer() {
     const videoContainer = document.createElement("div");
     videoContainer.className = "fullscreen-video";
-
-    let mediaElement;
-
-    if (videoFeedURL.match(/\.(mp4|webm|ogg)$/i)) {
-        mediaElement = document.createElement("video");
-        mediaElement.src = videoFeedURL;
-        mediaElement.style.width = "100%";
-        mediaElement.style.height = "100%";
-        mediaElement.controls = true;
-        mediaElement.autoplay = true;
-    } else {
-        mediaElement = document.createElement("img");
-        mediaElement.src = videoFeedURL;
-        mediaElement.style.width = "100%";
-        mediaElement.style.height = "100%";
-        mediaElement.style.objectFit = "contain";
-    }
-
-    const closeButton = document.createElement("button");
-    closeButton.textContent = "Close";
-    Object.assign(closeButton.style, {
-        position: "absolute",
-        top: "10px",
-        right: "10px",
-        background: "black",
-        color: "white",
-        padding: "5px 10px",
-        border: "none",
-        cursor: "pointer",
-    });
-    closeButton.onclick = closeFullscreen;
 
     Object.assign(videoContainer.style, {
         position: "fixed",
@@ -200,9 +195,7 @@ function openFullscreen(videoFeedURL) {
         zIndex: "1000",
     });
 
-    videoContainer.appendChild(mediaElement);
-    videoContainer.appendChild(closeButton);
-    document.body.appendChild(videoContainer);
+    return videoContainer;
 }
 
 function closeFullscreen() {
@@ -280,6 +273,7 @@ function closeEditNamePopup() {
     document.getElementById("edit-location").value = "";
 }
 
+// saves device's details
 function saveDeviceDetails() {
     let newTitle = document.getElementById("edit-title").value.trim();
     let newIpAddress = document.getElementById("edit-ip_address").value.trim();
