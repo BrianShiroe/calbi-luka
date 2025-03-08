@@ -36,7 +36,7 @@ app = Flask(__name__, static_folder=".") # Initialize Flask application
 CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
 
 executor = ThreadPoolExecutor(max_workers=5)  # Adjust based on your CPU/GPU power
-FRAME_SKIP = 0  # Only process 1 out of every 2 frames (adjust as needed)
+FRAME_SKIP = 1  # Only process 1 out of every 2 frames (adjust as needed)
 print(torch.cuda.is_available())  # Should print True if GPU is available
 
 # Database helper function
