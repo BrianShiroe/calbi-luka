@@ -2,13 +2,15 @@ import time
 import webbrowser
 import threading
 import sqlite3
-import psutil
+# import psutil
 import cv2
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from flask import Flask, Response, request, jsonify, g, send_from_directory
 from flask_cors import CORS
 from ultralytics import YOLO
+from concurrent.futures import ThreadPoolExecutor
+import torch
 
 import yt_dlp
 
@@ -18,7 +20,7 @@ DIRECTORY = "html"  # Directory to serve static files from
 DEFAULT_FILE = "home.html"
 MODEL_PATHS = ["model/yolo11n.pt"]
 DB_PATH = "db/luka.db"
-models = [YOLO(path) for path in MODEL_PATHS] # Load multiple YOLO models
+models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Use GPU if available
 
 #Modifications
 detection_mode = True  # Toggle for enabling/disabling model inference
@@ -32,6 +34,10 @@ target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect obj
 
 app = Flask(__name__, static_folder=".") # Initialize Flask application
 CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
+
+executor = ThreadPoolExecutor(max_workers=5)  # Adjust based on your CPU/GPU power
+FRAME_SKIP = 2  # Only process 1 out of every 2 frames (adjust as needed)
+print(torch.cuda.is_available())  # Should print True if GPU is available
 
 # Database helper function
 def get_db():
@@ -129,9 +135,9 @@ def update_metrics(metrics, frame_start_time, processing_time):
         metrics["displayed_processing_time"] = processing_time
         metrics["displayed_real_time_lag"] = real_time_lag
 
-def get_memory_usage():
-    process = psutil.Process()
-    return process.memory_info().rss / (1024 * 1024)  # Convert to MB
+# def get_memory_usage():
+#     process = psutil.Process()
+#     return process.memory_info().rss / (1024 * 1024)
 
 def overlay_metrics(frame, metrics, model_status_text):
     font_scale = metric_font_size / 10
@@ -150,8 +156,8 @@ def overlay_metrics(frame, metrics, model_status_text):
         cv2.putText(frame, f"Frame Rate: {metrics['displayed_frame_rate']:.2f} FPS", (30, 300), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Frame Rate"], font_thickness)
         cv2.putText(frame, f"Processing Time: {metrics['displayed_processing_time']:.3f}s", (30, 400), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Processing Time"], font_thickness)
         cv2.putText(frame, f"Streaming Delay: {metrics['displayed_real_time_lag']:.3f}s", (30, 500), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Streaming Delay"], font_thickness)
-        memory_usage = get_memory_usage()
-        cv2.putText(frame, f"Memory: {memory_usage:.2f} MB", (30, 600), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
+        # memory_usage = get_memory_usage()
+        # cv2.putText(frame, f"Memory: {memory_usage:.2f} MB", (30, 600), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
 
     return frame
 
@@ -166,31 +172,55 @@ def enforce_frame_rate(frame_start_time):
             time.sleep(time_to_wait)
 
 def generate_frames(stream_url):
-    """Generates video frames from a given stream URL with processing and metrics."""
-    cap = initialize_stream(stream_url)
+    """Generates video frames from a given stream URL with error handling and automatic reconnection."""
+    
+    def get_fresh_stream():
+        """Fetch a fresh YouTube stream URL if the current one expires."""
+        if "youtube.com" in stream_url or "youtu.be" in stream_url:
+            new_url = get_youtube_stream_url(stream_url)
+            print(f"Refreshing YouTube stream URL: {new_url}")
+            return new_url
+        return stream_url
+
+    cap = initialize_stream(get_fresh_stream())
     if cap is None:
         return
 
     metrics = initialize_metrics()
+    FRAME_SKIP = 2  # Process 1 out of every 2 frames (adjust as needed)
+    frame_count = 0
 
-    while True:
-        frame_start_time = time.time()
-        success, frame = cap.read()
-        if not success:
-            print(f"Stream disconnected: {stream_url}")
-            break
+    try:
+        while True:
+            frame_start_time = time.time()
 
-        frame, processing_time, model_status_text = process_frame(frame)
-        update_metrics(metrics, frame_start_time, processing_time)
-        frame = overlay_metrics(frame, metrics, model_status_text)
-        encoded_frame = encode_frame(frame)
+            success, frame = cap.read()
+            if not success:
+                print(f"Stream disconnected: {stream_url}. Attempting to refresh URL...")
+                cap.release()
+                cap = initialize_stream(get_fresh_stream())  # Reconnect with new YouTube URL
+                if cap is None:
+                    print("Failed to reconnect. Stopping stream.")
+                    break
+                continue  # Skip this iteration and retry
 
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + encoded_frame + b'\r\n')
+            frame_count += 1
+            if frame_count % FRAME_SKIP != 0:
+                continue  # Skip this frame to reduce processing load
 
-        enforce_frame_rate(frame_start_time)
+            # Process the frame only when not skipped
+            frame, processing_time, model_status_text = process_frame(frame)
+            update_metrics(metrics, frame_start_time, processing_time)
+            frame = overlay_metrics(frame, metrics, model_status_text)
+            encoded_frame = encode_frame(frame)
 
-    cap.release()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + encoded_frame + b'\r\n')
+
+            enforce_frame_rate(frame_start_time)  # Ensure FPS limit is respected
+    finally:
+        cap.release()
+        cv2.destroyAllWindows()
 
 # stream handler
 @app.route('/stream')
