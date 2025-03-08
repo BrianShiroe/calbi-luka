@@ -1,35 +1,35 @@
+// Apply sidebar state before rendering
+let isSidebarClosed = localStorage.getItem("sidebarClosed") === "true";
+if (isSidebarClosed) {
+    document.body.classList.add("sidebar-closed");
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     let sidebar = document.querySelector(".sidebar");
-    let closeBtn = document.querySelector("#btn");
+    let toggleBtn = document.querySelector("#btn");
     let body = document.body;
 
-    let isSidebarOpen = localStorage.getItem("sidebarOpen") === "true";
+    if (isSidebarClosed) {
+        sidebar.classList.add("closed");
+    }
 
-    sidebar.classList.remove("transition");
-
-    if (isSidebarOpen) {
-        sidebar.classList.add("open");
-        body.style.marginLeft = "120px";
-    } else {
-        sidebar.classList.remove("open");
-        body.style.marginLeft = "0";
+    function updateBodyPadding() {
+        body.style.paddingLeft = sidebar.classList.contains("closed") ? "100px" : "220px";
     }
 
     function toggleSidebar() {
-        let isOpen = sidebar.classList.toggle("open");
-        menuBtnChange();
-
-        body.style.marginLeft = isOpen ? "120px" : "0";
-        localStorage.setItem("sidebarOpen", isOpen);
+        let isClosed = sidebar.classList.toggle("closed");
+        body.classList.toggle("sidebar-closed", isClosed);
+        updateBodyPadding();
+        updateButtonIcon(isClosed);
+        localStorage.setItem("sidebarClosed", isClosed);
     }
 
-    function menuBtnChange() {
-        if (sidebar.classList.contains("open")) {
-            closeBtn.classList.replace("bx-chevron-right", "bx-chevron-left");
-        } else {
-            closeBtn.classList.replace("bx-chevron-left", "bx-chevron-right");
-        }
+    function updateButtonIcon(isClosed) {
+        toggleBtn.classList.replace(isClosed ? "bx-chevron-left" : "bx-chevron-right", isClosed ? "bx-chevron-right" : "bx-chevron-left");
     }
 
-    closeBtn.addEventListener("click", toggleSidebar);
+    updateBodyPadding();
+    updateButtonIcon(isSidebarClosed);
+    toggleBtn.addEventListener("click", toggleSidebar);
 });
