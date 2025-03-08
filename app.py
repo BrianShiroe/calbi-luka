@@ -164,18 +164,15 @@ def enforce_frame_rate(frame_start_time):
         if time_to_wait > 0:
             time.sleep(time_to_wait)
 
-def generate_frames(stream_url):
-    """Generates video frames from a given stream URL with error handling and automatic reconnection."""
-    
-    def get_fresh_stream():
-        """Fetch a fresh YouTube stream URL if the current one expires."""
-        if "youtube.com" in stream_url or "youtu.be" in stream_url:
-            new_url = get_youtube_stream_url(stream_url)
-            print(f"Refreshing YouTube stream URL: {new_url}")
-            return new_url
-        return stream_url
+def get_fresh_stream(stream_url):
+    if "youtube.com" in stream_url or "youtu.be" in stream_url:
+        new_url = get_youtube_stream_url(stream_url)
+        print(f"Refreshing YouTube stream URL: {new_url}")
+        return new_url
+    return stream_url
 
-    cap = initialize_stream(get_fresh_stream())
+def generate_frames(stream_url):
+    cap = initialize_stream(get_fresh_stream(stream_url))
     if cap is None:
         return
 
@@ -190,7 +187,7 @@ def generate_frames(stream_url):
             if not success:
                 print(f"Stream disconnected: {stream_url}. Attempting to refresh URL...")
                 cap.release()
-                cap = initialize_stream(get_fresh_stream())  # Reconnect with new YouTube URL
+                cap = initialize_stream(get_fresh_stream(stream_url))  # Reconnect with new YouTube URL
                 if cap is None:
                     print("Failed to reconnect. Stopping stream.")
                     break
