@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setInterval(() => {
         const randomCamera = cameraLocations[Math.floor(Math.random() * cameraLocations.length)];
         addAccidentNotification(randomCamera);
-    }, 10000); // Add a notification every 10 seconds
+    }, 60000); // Add a notification every 60 seconds
 
     // Load notifications when the page loads
     updateNotificationUI();

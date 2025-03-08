@@ -59,6 +59,8 @@ function addDevice() {
     }
 }
 
+
+
 // Render the devices on the UI
 function renderDevices() {
     const gridContainer = document.getElementById("grid-container");
@@ -84,33 +86,17 @@ function renderDevices() {
 }
 
 // SECTION: createDeviceCard
-function createDeviceCardContainer() {
+function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceIndex) {
     const deviceCard = document.createElement("div");
     deviceCard.className = "device-card";
+
+    const mediaContainer = createMediaContainer(videoFeedURL);
+    const nameElement = createTextElement("h3", deviceName);
+    const locationElement = createTextElement("p", `Location: ${deviceLocation}`, { fontSize: "12px", color: "grey" });
+    const menuContainer = createMenuContainer(deviceIndex);
+
+    deviceCard.append(mediaContainer, nameElement, locationElement, menuContainer);
     return deviceCard;
-}
-
-function createMediaElement(videoFeedURL) {
-    let mediaElement;
-    
-    if (videoFeedURL.match(/\.(mp4|webm|ogg)$/i)) {
-        mediaElement = document.createElement("video");
-        mediaElement.src = videoFeedURL;
-        mediaElement.controls = true;
-    } else {
-        mediaElement = document.createElement("img");
-        mediaElement.src = videoFeedURL;
-    }
-
-    mediaElement.style.width = "100%";
-    mediaElement.style.borderRadius = "10px";
-    mediaElement.style.cursor = "pointer";
-
-    mediaElement.onclick = function () {
-        openFullscreen(videoFeedURL);
-    };
-
-    return mediaElement;
 }
 
 function createMediaContainer(videoFeedURL) {
@@ -118,32 +104,49 @@ function createMediaContainer(videoFeedURL) {
     mediaContainer.style.position = "relative";
     mediaContainer.style.width = "100%";
     mediaContainer.style.borderRadius = "10px";
-    
+    mediaContainer.style.cursor = "pointer";
+
     const mediaElement = createMediaElement(videoFeedURL);
     mediaContainer.appendChild(mediaElement);
-
     return mediaContainer;
 }
 
-function createDeviceInfo(deviceName, deviceLocation) {
-    const nameElement = document.createElement("h3");
-    nameElement.textContent = deviceName;
-
-    const locationElement = document.createElement("p");
-    locationElement.textContent = `Location: ${deviceLocation}`;
-    locationElement.style.fontSize = "12px";
-    locationElement.style.color = "grey";
-
-    return { nameElement, locationElement };
+function createMediaElement(videoFeedURL) {
+    let mediaElement;
+    if (videoFeedURL.match(/\.(mp4|webm|ogg)$/i)) {
+        mediaElement = document.createElement("video");
+        mediaElement.controls = true;
+    } else {
+        mediaElement = document.createElement("img");
+    }
+    mediaElement.src = videoFeedURL;
+    mediaElement.style.width = "100%";
+    mediaElement.style.borderRadius = "10px";
+    mediaElement.onclick = () => openFullscreen(videoFeedURL);
+    return mediaElement;
 }
 
-function createMenuOptions(deviceIndex) {
+function createTextElement(tag, textContent, styles = {}) {
+    const element = document.createElement(tag);
+    element.textContent = textContent;
+    Object.assign(element.style, styles);
+    return element;
+}
+
+function createMenuContainer(deviceIndex) {
     const menuContainer = document.createElement("div");
     menuContainer.className = "menu-container";
 
     const menuIcon = document.createElement("i");
     menuIcon.className = "fas fa-ellipsis-v kebab-menu";
+    const menuOptions = createMenuOptions(deviceIndex);
     
+    menuIcon.onclick = () => toggleMenu(menuOptions);
+    menuContainer.append(menuIcon, menuOptions);
+    return menuContainer;
+}
+
+function createMenuOptions(deviceIndex) {
     const menuOptions = document.createElement("div");
     menuOptions.className = "menu-options";
     menuOptions.innerHTML = `
@@ -154,34 +157,17 @@ function createMenuOptions(deviceIndex) {
             <span><i class="fa-solid fa-trash"></i></span> Delete
         </p>
     `;
-
-    menuIcon.onclick = () => toggleMenu(menuOptions);
-
-    menuContainer.appendChild(menuIcon);
-    menuContainer.appendChild(menuOptions);
-
-    return menuContainer;
+    return menuOptions;
 }
 
-function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceIndex) {
-    const deviceCard = createDeviceCardContainer();
-    const mediaContainer = createMediaContainer(videoFeedURL);
-    const { nameElement, locationElement } = createDeviceInfo(deviceName, deviceLocation);
-    const menuContainer = createMenuOptions(deviceIndex);
-
-    deviceCard.appendChild(mediaContainer);
-    deviceCard.appendChild(nameElement);
-    deviceCard.appendChild(locationElement);
-    deviceCard.appendChild(menuContainer);
-
-    return deviceCard;
-}
-
-// create fullsceen
-function createFullscreenContainer() {
+// SECTION: Fullscreen
+function openFullscreen(videoFeedURL) {
     const videoContainer = document.createElement("div");
     videoContainer.className = "fullscreen-video";
-
+    
+    const mediaElement = createFullscreenMediaElement(videoFeedURL);
+    const closeButton = createCloseButton();
+    
     Object.assign(videoContainer.style, {
         position: "fixed",
         top: "0",
@@ -195,7 +181,41 @@ function createFullscreenContainer() {
         zIndex: "1000",
     });
 
-    return videoContainer;
+    videoContainer.append(mediaElement, closeButton);
+    document.body.appendChild(videoContainer);
+}
+
+function createFullscreenMediaElement(videoFeedURL) {
+    let mediaElement;
+    if (videoFeedURL.match(/\.(mp4|webm|ogg)$/i)) {
+        mediaElement = document.createElement("video");
+        mediaElement.controls = true;
+        mediaElement.autoplay = true;
+    } else {
+        mediaElement = document.createElement("img");
+        mediaElement.style.objectFit = "contain";
+    }
+    mediaElement.src = videoFeedURL;
+    mediaElement.style.width = "100%";
+    mediaElement.style.height = "100%";
+    return mediaElement;
+}
+
+function createCloseButton() {
+    const closeButton = document.createElement("button");
+    closeButton.textContent = "Close";
+    Object.assign(closeButton.style, {
+        position: "absolute",
+        top: "10px",
+        right: "10px",
+        background: "black",
+        color: "white",
+        padding: "5px 10px",
+        border: "none",
+        cursor: "pointer",
+    });
+    closeButton.onclick = closeFullscreen;
+    return closeButton;
 }
 
 function closeFullscreen() {
@@ -273,7 +293,6 @@ function closeEditNamePopup() {
     document.getElementById("edit-location").value = "";
 }
 
-// saves device's details
 function saveDeviceDetails() {
     let newTitle = document.getElementById("edit-title").value.trim();
     let newIpAddress = document.getElementById("edit-ip_address").value.trim();

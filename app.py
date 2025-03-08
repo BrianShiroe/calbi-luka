@@ -10,6 +10,8 @@ from flask import Flask, Response, request, jsonify, g, send_from_directory
 from flask_cors import CORS
 from ultralytics import YOLO
 
+import yt_dlp
+
 # Configuration
 FLASK_PORT = 5500  # Flask serves as the main server
 DIRECTORY = "html"  # Directory to serve static files from
@@ -64,6 +66,17 @@ def start_file_watcher():
     observer.join()
 
 # SECTION: generate_frames
+def get_youtube_stream_url(youtube_url):
+    """Extracts the direct video stream URL from a YouTube live link."""
+    ydl_opts = {'format': 'best', 'quiet': True}
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        try:
+            info = ydl.extract_info(youtube_url, download=False)
+            return info['url'] if 'url' in info else None
+        except Exception as e:
+            print(f"Failed to fetch YouTube stream: {e}")
+            return None
+        
 def initialize_stream(stream_url):
     cap = cv2.VideoCapture(stream_url)
     if not cap.isOpened():
@@ -153,6 +166,7 @@ def enforce_frame_rate(frame_start_time):
             time.sleep(time_to_wait)
 
 def generate_frames(stream_url):
+    """Generates video frames from a given stream URL with processing and metrics."""
     cap = initialize_stream(stream_url)
     if cap is None:
         return
@@ -181,11 +195,21 @@ def generate_frames(stream_url):
 # stream handler
 @app.route('/stream')
 def stream():
+    """Handles video streaming from RTSP, HTTP, or YouTube live URLs."""
     stream_url = request.args.get('stream_url')
     if not stream_url:
         return "Stream URL is missing", 400
+
+    # Handle YouTube live stream URLs
+    if "youtube.com" in stream_url or "youtu.be" in stream_url:
+        stream_url = get_youtube_stream_url(stream_url)
+        if not stream_url:
+            return "Could not fetch YouTube stream", 400
+
+    # Validate stream URL
     if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
         return "Invalid stream URL", 400
+
     return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # SECTION: Start of flask route handlers
