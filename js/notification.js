@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
     clearNotificationsButton.addEventListener('click', clearNotifications);
 
     // Simulate accident notifications for specific cameras
-    const cameraLocations = ["Main Street", "Highway 101", "Downtown Intersection", "Airport Road"];
+    const cameraLocations = ["Bonifacio St", "Perimeter Road", "Burgos St", "Gladiola St"];
     setInterval(() => {
         const randomCamera = cameraLocations[Math.floor(Math.random() * cameraLocations.length)];
         addAccidentNotification(randomCamera);
