@@ -1,9 +1,3 @@
-// Apply sidebar state before rendering
-let isSidebarClosed = localStorage.getItem("sidebarClosed") === "true";
-if (isSidebarClosed) {
-    document.body.classList.add("sidebar-closed");
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     let sidebar = document.querySelector(".sidebar");
     let toggleBtn = document.querySelector("#btn");
@@ -32,4 +26,23 @@ document.addEventListener("DOMContentLoaded", () => {
     updateBodyPadding();
     updateButtonIcon(isSidebarClosed);
     toggleBtn.addEventListener("click", toggleSidebar);
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        document.querySelectorAll("style, link[rel='stylesheet']").forEach((styleSheet) => {
+            if (styleSheet.sheet) {
+                try {
+                    for (let i = styleSheet.sheet.cssRules.length - 1; i >= 0; i--) {
+                        let rule = styleSheet.sheet.cssRules[i];
+                        if (rule.style && rule.style.transition === "none") {
+                            rule.style.transition = ""; // Remove the "none" value
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Could not modify stylesheet:", e);
+                }
+            }
+        });
+    }, 200); // Delay for 0.2 seconds
 });

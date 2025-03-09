@@ -2,6 +2,11 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    transition: none !important;
+}
+
+body {
+    transition: padding-left 0.3s ease;
 }
 
 .sidebar {
@@ -13,6 +18,7 @@
     padding: 6px 14px;
     z-index: 100;
     background: #eeeeee;
+    transition: width 0.3s ease, left 0.3s ease;
 }
 
 .sidebar.closed {
@@ -29,8 +35,12 @@
 }
 
 .sidebar.closed li.profile{
-    /* opacity: 0; */
+    opacity: 0;
     /* pointer-events: none; */
+}
+
+.sidebar .profile{
+    transition: width 0.3s ease, left 0.3s ease;
 }
 
 .sidebar .logo-details {

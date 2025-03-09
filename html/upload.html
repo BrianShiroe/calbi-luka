@@ -13,6 +13,13 @@
 </head>
 
 <body>
+    <script>
+    // Apply sidebar state before rendering
+    let isSidebarClosed = localStorage.getItem("sidebarClosed") === "true";
+    if (isSidebarClosed) {
+        document.body.classList.add("sidebar-closed");
+    }
+    </script>  
     <div class="sidebar" id="sidebar-container">
         <div class="logo-details">
             <img class="logo_name" src="../img/luka-placeholder-logo.png" style="height: 100%;">

@@ -1,0 +1,13 @@
+body {
+    margin: 0;
+    padding: 20px;
+    padding-left: 100px;
+    background-color: #fff;
+}
+
+.header img{
+    height:35px;
+}
+.about-sb{
+    background-color: #fff !important;
+}

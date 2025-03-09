@@ -14,6 +14,13 @@
 </head>
 <head>
 <body>
+    <script>
+        // Apply sidebar state before rendering
+        let isSidebarClosed = localStorage.getItem("sidebarClosed") === "true";
+        if (isSidebarClosed) {
+            document.body.classList.add("sidebar-closed");
+        }
+    </script>
     <div class="sidebar" id="sidebar-container">
         <div class="logo-details">
             <i class='bx bx-chevron-left' id="btn"></i>
@@ -58,6 +65,12 @@
         </ul>
     </div>
     
+    <div class="header">
+        <a href="../html/home.html">
+            <img src="../img/logo-no-name.png" alt="logoImg">
+        </a>
+    </div>
+    
     <!-- Notification Section -->
     <div class="notification-section">
         <div type="button" id="notification-icon" class="notification-icon">
@@ -74,13 +87,7 @@
             </ul>
         </div>
     </div>
-
-    <div class="header">
-        <a href="../html/home.html">
-        <img src="../img/logo-no-name.png" alt="logoImg">
-        </a>
-    </div>
-
+    
     <!-- Tab navigation -->
     <div class="tabs">
         <div class="tab active" id="live-feed-tab" onclick="changeTab('live-feed')">Live Feed</div>
@@ -159,8 +166,8 @@
         </div>
     </form>
 
-    <script src="../js/live-feed.js"></script>
     <script src="../js/sidebar.js"></script>
+    <script src="../js/live-feed.js"></script>
     <script src="../js/tab.js"></script>
     <script src="../js/upload.js"></script>
     <script src="../js/full-screen.js"></script>

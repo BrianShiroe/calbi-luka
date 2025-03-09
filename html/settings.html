@@ -11,6 +11,13 @@
     <title>Setting | Luka</title>
 </head>
 <body>
+    <script>
+    // Apply sidebar state before rendering
+    let isSidebarClosed = localStorage.getItem("sidebarClosed") === "true";
+    if (isSidebarClosed) {
+        document.body.classList.add("sidebar-closed");
+    }
+    </script>  
     <div class="sidebar" id="sidebar-container">
         <div class="logo-details">
             <i class='bx bx-chevron-left' id="btn"></i>
@@ -186,8 +193,8 @@
         </div>
     </div>
 
+    <script src="../js/sidebar.js"></script>
     <script src="../js/tab.js"></script>
     <script src="../js/settings.js"></script>
-    <script src="../js/sidebar.js"></script>
 </body>
 </html>
