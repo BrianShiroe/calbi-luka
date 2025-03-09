@@ -6,6 +6,8 @@ import cv2
 import yt_dlp
 import numpy as np
 import ffmpeg
+import os
+import re
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from flask import Flask, Response, request, jsonify, g, send_from_directory
@@ -20,6 +22,10 @@ DEFAULT_FILE = "home.html"
 MODEL_PATHS = ["model/yolo11n.pt"]
 DB_PATH = "db/luka.db"
 models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Use GPU if available
+detected_records_path = "records"
+os.makedirs(detected_records_path, exist_ok=True)
+obj_recording_delay = 5  # Save detected frames every 5 seconds
+last_record_times = {}  # Dictionary to store last save time per stream
 
 #Modifications
 detection_mode = True  # Toggle for enabling/disabling model inference
@@ -36,19 +42,6 @@ FRAME_SKIP = 1  # Only process 1 out of every 2 frames (adjust as needed)
 
 app = Flask(__name__, static_folder=".") # Initialize Flask application
 CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
-
-# Database helper function
-def get_db():
-    if 'db' not in g:
-        g.db = sqlite3.connect(DB_PATH)
-        g.db.row_factory = sqlite3.Row
-    return g.db
-
-# Close the database connection when the app context ends
-@app.teardown_appcontext
-def close_db(error):
-    if 'db' in g:
-        g.db.close()
 
 # Watchdog event handler to detect file changes
 class ReloadHandler(FileSystemEventHandler):
@@ -94,7 +87,8 @@ def initialize_stream(stream_url):
         return None
     return cap
 
-def process_frame(frame):
+def process_frame(frame, stream_url):
+    global last_record_times
     process_start = time.time()
     model_status_text = "Model: OFF"
 
@@ -106,8 +100,26 @@ def process_frame(frame):
                 for result in results:
                     frame = result.plot()
 
+            # Save the frame if objects are detected and delay has passed
+            current_time = time.time()
+            last_record_time = last_record_times.get(stream_url, 0)  # Get last record time for this stream
+
+            if any(len(result.boxes) > 0 for result in results) and (current_time - last_record_time > obj_recording_delay):
+                last_record_times[stream_url] = current_time  # Update last recorded time
+                timestamp = time.strftime("%Y%m%d-%H%M%S")
+
+                # Save directly in the records/ folder
+                filename = os.path.join(detected_records_path, f"detection_{timestamp}.jpg")
+                cv2.imwrite(filename, frame)
+                print(f"Object Detected! Saved as {filename}")
+
     processing_time = time.time() - process_start
     return frame, processing_time, model_status_text
+
+def sanitize_filename(url):
+    """Sanitize stream URL to create a safe directory name."""
+    sanitized = re.sub(r'[^\w\-_.]', '_', url)  # Replace unsafe characters with '_'
+    return sanitized[:50]  # Limit length to avoid filesystem issues
 
 def encode_frame(frame):
     _, buffer = cv2.imencode('.jpg', frame)
@@ -196,7 +208,7 @@ def generate_frames(stream_url):
                 continue  # Skip this frame to reduce processing load
 
             # Process the frame only when not skipped
-            frame, processing_time, model_status_text = process_frame(frame)
+            frame, processing_time, model_status_text = process_frame(frame, stream_url)
             update_metrics(metrics, frame_start_time, processing_time)
             frame = overlay_metrics(frame, metrics, model_status_text)
             encoded_frame = encode_frame(frame)
@@ -242,6 +254,17 @@ def serve_static(filename):
     return send_from_directory("html", filename)
 
 # SECTION: device configuration API
+def get_db(): # Database helper function
+    if 'db' not in g:
+        g.db = sqlite3.connect(DB_PATH)
+        g.db.row_factory = sqlite3.Row
+    return g.db
+
+@app.teardown_appcontext # Close the database connection when the app context ends
+def close_db(error):
+    if 'db' in g:
+        g.db.close()
+
 @app.route('/get_devices', methods=['GET'])
 def get_devices():
     db = get_db()
@@ -279,7 +302,10 @@ def delete_device():
     data = request.get_json()
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("UPDATE camera SET status = 'inactive' WHERE id = ?", (data['id'],))
+    
+    # Permanently delete the device from the database
+    cursor.execute("DELETE FROM camera WHERE id = ?", (data['id'],))
+    
     db.commit()
     return jsonify({"success": True})
 
