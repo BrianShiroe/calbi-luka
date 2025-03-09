@@ -87,7 +87,7 @@ def initialize_stream(stream_url):
         return None
     return cap
 
-def process_frame(frame, stream_url):
+def process_frame(frame, stream_url, device_title, device_location):
     global last_record_times
     process_start = time.time()
     model_status_text = "Model: OFF"
@@ -100,24 +100,45 @@ def process_frame(frame, stream_url):
                 for result in results:
                     frame = result.plot()
 
+            # Add timestamp stamp to the frame
+            timestamp_text = time.strftime("%Y-%m-%d %H:%M:%S")
+            cv2.putText(frame, timestamp_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
             # Save the frame if objects are detected and delay has passed
             current_time = time.time()
             last_record_time = last_record_times.get(stream_url, 0)  # Get last record time for this stream
 
             if any(len(result.boxes) > 0 for result in results) and (current_time - last_record_time > obj_recording_delay):
                 last_record_times[stream_url] = current_time  # Update last recorded time
-                timestamp = time.strftime("%Y%m%d-%H%M%S")
 
-                # Save directly in the records/ folder
-                filename = os.path.join(detected_records_path, f"detection_{timestamp}.jpg")
+                # Extract detected object names
+                detected_objects = set()
+                for result in results:
+                    for box in result.boxes:
+                        class_id = int(box.cls)
+                        class_name = model.names[class_id]  # Get the class name from the model
+                        detected_objects.add(class_name)
+
+                # Join detected objects into a string
+                detected_objects_str = "_".join(sorted(detected_objects)) if detected_objects else "no_object"
+
+                # Format the timestamp as YYMMDD_HHMMSS
+                timestamp = time.strftime("%y%m%d_%H%M%S")
+
+                # Construct the filename in the format: accident_YYMMDD_HHMMSS_detected-obj_device_title_device_location.jpg
+                filename = os.path.join(
+                    detected_records_path,
+                    f"detected_{timestamp}_{detected_objects_str}_{device_title}_{device_location}.jpg"
+                )
+
+                # Save the frame as an image
                 cv2.imwrite(filename, frame)
-                print(f"Object Detected! Saved as {filename}")
+                print(f"Object Detected! Image saved as {filename}")
 
     processing_time = time.time() - process_start
     return frame, processing_time, model_status_text
 
 def sanitize_filename(url):
-    """Sanitize stream URL to create a safe directory name."""
     sanitized = re.sub(r'[^\w\-_.]', '_', url)  # Replace unsafe characters with '_'
     return sanitized[:50]  # Limit length to avoid filesystem issues
 
@@ -181,7 +202,7 @@ def overlay_metrics(frame, metrics, model_status_text):
 
     return frame
 
-def generate_frames(stream_url):
+def generate_frames(stream_url, device_title, device_location):
     cap = initialize_stream(get_fresh_stream(stream_url))
     if cap is None:
         return
@@ -208,7 +229,7 @@ def generate_frames(stream_url):
                 continue  # Skip this frame to reduce processing load
 
             # Process the frame only when not skipped
-            frame, processing_time, model_status_text = process_frame(frame, stream_url)
+            frame, processing_time, model_status_text = process_frame(frame, stream_url, device_title, device_location)
             update_metrics(metrics, frame_start_time, processing_time)
             frame = overlay_metrics(frame, metrics, model_status_text)
             encoded_frame = encode_frame(frame)
@@ -225,6 +246,9 @@ def generate_frames(stream_url):
 @app.route('/stream')
 def stream():
     stream_url = request.args.get('stream_url')
+    device_title = request.args.get('device_title', 'Unknown')
+    device_location = request.args.get('device_location', 'Unknown')
+
     if not stream_url:
         return "Stream URL is missing", 400
 
@@ -236,7 +260,7 @@ def stream():
     if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
         return "Invalid stream URL", 400
 
-    return Response(generate_frames(stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_frames(stream_url, device_title, device_location), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # SECTION: Start of flask route handlers
 @app.route("/")
