@@ -133,21 +133,6 @@ def save_detected_frame(frame, stream_url, detected_objects, device_title, devic
             )
             db.commit()
 
-            # Trigger notification
-            trigger_notification(device_title, detected_objects_str, device_location, timestamp)
-
-def trigger_notification(device_title, detected_objects_str, device_location, timestamp):
-    notification_data = {
-        "device_title": device_title,
-        "detected_objects": detected_objects_str,
-        "location": device_location,
-        "timestamp": timestamp
-    }
-    
-    # Here, you can send the notification data to the frontend via WebSocket or API
-    # For simplicity, we'll print the notification data
-    print(f"Notification Triggered: {notification_data}")
-
 def process_frame(frame, stream_url, device_title, device_location, device_id):
     process_start = time.time()
     model_status_text = "Model: OFF"
