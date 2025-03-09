@@ -65,8 +65,8 @@ function renderDevices() {
     gridContainer.innerHTML = ""; // Clear the grid before rendering
 
     devices.forEach((device, index) => {
-        const videoFeedURL = `http://localhost:5500/stream?stream_url=${encodeURIComponent(device.ip_address)}&device_title=${encodeURIComponent(device.title)}&device_location=${encodeURIComponent(device.location)}`;
-        const deviceCard = createDeviceCard(videoFeedURL, device.title, device.location, index);
+        const videoFeedURL = `http://localhost:5500/stream?stream_url=${encodeURIComponent(device.ip_address)}&device_title=${encodeURIComponent(device.title)}&device_location=${encodeURIComponent(device.location)}&device_id=${device.id}`;
+        const deviceCard = createDeviceCard(videoFeedURL, device.title, device.location, device.id, index);
         gridContainer.appendChild(deviceCard);
     });
 

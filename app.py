@@ -104,7 +104,7 @@ def detect_objects(frame):
     
     return frame, detected_objects
 
-def save_detected_frame(frame, stream_url, detected_objects, device_title, device_location):
+def save_detected_frame(frame, stream_url, detected_objects, device_title, device_location, device_id):
     global last_record_times
     current_time = time.time()
     last_record_time = last_record_times.get(stream_url, 0)
@@ -115,19 +115,32 @@ def save_detected_frame(frame, stream_url, detected_objects, device_title, devic
         timestamp = time.strftime("%y%m%d_%H%M%S")
         filename = os.path.join(
             detected_records_path,
-            f"detected_{timestamp}_{detected_objects_str}_{device_title}_{device_location}.jpg"
+            f"detected_{timestamp}_{detected_objects_str}_{device_title}_{device_location}_ID{device_id}.jpg"
         )
         cv2.imwrite(filename, frame)
         print(f"Object Detected! Image saved as {filename}")
+        
+        # Ensure database operations are executed inside the Flask app context
+        with app.app_context():
+            db = get_db()
+            cursor = db.cursor()
+            cursor.execute(
+                """
+                INSERT INTO alert (camera_id, camera_title, event_type, location, detected_at)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (device_id, device_title, detected_objects_str, device_location, timestamp)
+            )
+            db.commit()
 
-def process_frame(frame, stream_url, device_title, device_location):
+def process_frame(frame, stream_url, device_title, device_location, device_id):
     process_start = time.time()
     model_status_text = "Model: OFF"
     
     if detection_mode:
         model_status_text = "Model: ON"
         frame, detected_objects = detect_objects(frame)
-        save_detected_frame(frame, stream_url, detected_objects, device_title, device_location)
+        save_detected_frame(frame, stream_url, detected_objects, device_title, device_location, device_id)
     
     timestamp_text = time.strftime("%Y-%m-%d %H:%M:%S")
     cv2.putText(frame, timestamp_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -198,7 +211,7 @@ def overlay_metrics(frame, metrics, model_status_text):
 
     return frame
 
-def generate_frames(stream_url, device_title, device_location):
+def generate_frames(stream_url, device_title, device_location, device_id):
     cap = initialize_stream(get_fresh_stream(stream_url))
     if cap is None:
         return
@@ -225,7 +238,7 @@ def generate_frames(stream_url, device_title, device_location):
                 continue  # Skip this frame to reduce processing load
 
             # Process the frame only when not skipped
-            frame, processing_time, model_status_text = process_frame(frame, stream_url, device_title, device_location)
+            frame, processing_time, model_status_text = process_frame(frame, stream_url, device_title, device_location, device_id)
             update_metrics(metrics, frame_start_time, processing_time)
             frame = overlay_metrics(frame, metrics, model_status_text)
             encoded_frame = encode_frame(frame)
@@ -244,6 +257,7 @@ def stream():
     stream_url = request.args.get('stream_url')
     device_title = request.args.get('device_title', 'Unknown')
     device_location = request.args.get('device_location', 'Unknown')
+    device_id = request.args.get('device_id', 'Unknown')  # Get the device ID from the request
 
     if not stream_url:
         return "Stream URL is missing", 400
@@ -256,7 +270,7 @@ def stream():
     if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
         return "Invalid stream URL", 400
 
-    return Response(generate_frames(stream_url, device_title, device_location), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_frames(stream_url, device_title, device_location, device_id), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # SECTION: Start of flask route handlers
 @app.route("/")
