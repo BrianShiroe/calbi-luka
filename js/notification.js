@@ -5,29 +5,25 @@ document.addEventListener('DOMContentLoaded', function () {
     const notificationCount = document.getElementById('notification-count');
     const clearNotificationsButton = document.getElementById('clear-notifications');
 
-    // Load notifications from localStorage
-    let notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+    let notifications = [];
 
-    // Function to save notifications to localStorage
-    function saveNotifications() {
-        localStorage.setItem('notifications', JSON.stringify(notifications));
-    }
-
-    // Function to add a new accident notification
-    function addAccidentNotification(cameraLocation) {
-        const timestamp = new Date().toLocaleTimeString();
-        const message = `Accident detected on CAM1 ${cameraLocation} at ${timestamp}`;
-        notifications.push(message);
-        saveNotifications(); // Save to localStorage
-        updateNotificationUI();
+    // Function to fetch new alerts from the database
+    function fetchAlerts() {
+        fetch('/get_alerts')
+            .then(response => response.json())
+            .then(data => {
+                notifications = data;
+                updateNotificationUI();
+            })
+            .catch(error => console.error('Error fetching alerts:', error));
     }
 
     // Function to update the notification UI
     function updateNotificationUI() {
         notificationList.innerHTML = '';
-        notifications.forEach((message, index) => {
+        notifications.forEach((alert, index) => {
             const li = document.createElement('li');
-            li.textContent = message;
+            li.textContent = `Alert: ${alert.event_type} detected at ${alert.location} by ${alert.camera_title} on ${alert.detected_at}`;
             notificationList.appendChild(li);
         });
         notificationCount.textContent = notifications.length;
@@ -36,9 +32,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to clear all notifications
     function clearNotifications() {
-        notifications = [];
-        saveNotifications(); // Clear from localStorage
-        updateNotificationUI();
+        fetch('/clear_alerts', { method: 'POST' })
+            .then(() => {
+                notifications = [];
+                updateNotificationUI();
+            })
+            .catch(error => console.error('Error clearing alerts:', error));
     }
 
     // Toggle notification box visibility
@@ -49,13 +48,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Clear all notifications
     clearNotificationsButton.addEventListener('click', clearNotifications);
 
-    // Simulate accident notifications for specific cameras
-    const cameraLocations = ["Bonifacio St", "Perimeter Road", "Burgos St", "Gladiola St"];
-    setInterval(() => {
-        const randomCamera = cameraLocations[Math.floor(Math.random() * cameraLocations.length)];
-        addAccidentNotification(randomCamera);
-    }, 60000); // Add a notification every 60 seconds
+    // Fetch alerts every 10 seconds
+    setInterval(fetchAlerts, 10000);
 
-    // Load notifications when the page loads
-    updateNotificationUI();
+    // Initial fetch
+    fetchAlerts();
 });

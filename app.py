@@ -103,7 +103,7 @@ def detect_objects(frame):
                 detected_objects.add(class_name)
     
     return frame, detected_objects
-
+    
 def save_detected_frame(frame, stream_url, detected_objects, device_title, device_location, device_id):
     global last_record_times
     current_time = time.time()
@@ -132,6 +132,21 @@ def save_detected_frame(frame, stream_url, detected_objects, device_title, devic
                 (device_id, device_title, detected_objects_str, device_location, timestamp)
             )
             db.commit()
+
+            # Trigger notification
+            trigger_notification(device_title, detected_objects_str, device_location, timestamp)
+
+def trigger_notification(device_title, detected_objects_str, device_location, timestamp):
+    notification_data = {
+        "device_title": device_title,
+        "detected_objects": detected_objects_str,
+        "location": device_location,
+        "timestamp": timestamp
+    }
+    
+    # Here, you can send the notification data to the frontend via WebSocket or API
+    # For simplicity, we'll print the notification data
+    print(f"Notification Triggered: {notification_data}")
 
 def process_frame(frame, stream_url, device_title, device_location, device_id):
     process_start = time.time()
@@ -293,6 +308,22 @@ def get_db(): # Database helper function
         g.db = sqlite3.connect(DB_PATH)
         g.db.row_factory = sqlite3.Row
     return g.db
+
+@app.route('/get_alerts', methods=['GET'])
+def get_alerts():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM alert ORDER BY detected_at DESC")
+    alerts = cursor.fetchall()
+    return jsonify([dict(alert) for alert in alerts])
+
+@app.route('/clear_alerts', methods=['POST'])
+def clear_alerts():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM alert")
+    db.commit()
+    return jsonify({"success": True})
 
 @app.teardown_appcontext # Close the database connection when the app context ends
 def close_db(error):
