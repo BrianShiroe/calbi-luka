@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/home.css">
     <link rel="stylesheet" href="../css/tab.css">
-    <link rel="stylesheet" href="../css/upload.css">
+    <link rel="stylesheet" href="../css/record-log.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <title>Home | Luka</title>
 </head>
@@ -91,7 +91,7 @@
     <!-- Tab navigation -->
     <div class="tabs">
         <div class="tab active" id="live-feed-tab" onclick="changeTab('live-feed')">Live Feed</div>
-        <div class="tab" id="video-uploads-tab" onclick="changeTab('video-uploads')">Video Uploads</div>
+        <div class="tab" id="record-log-tab" onclick="changeTab('record-log')">Record Log</div>
     </div>
     
     <!-- Tab content -->
@@ -102,18 +102,9 @@
             </div>
         </div>
 
-        <div class="tab-content" id="video-uploads">
-            <div class="upload-form">
-                <h2>Upload a Video</h2>
-                <input type="file" id="video-file" accept="video/*">
-                <button onclick="uploadVideo()">Upload Video</button>
-            </div>
-
-            <div class="uploaded-videos">
-                <h3>Uploaded Videos</h3>
-                <ul id="videos-list">
-                    <!-- List of uploaded videos will appear here -->
-                </ul>
+        <div class="tab-content active" id="record-log">
+            <div class="grid-container" id="record-log-grid">
+                <!-- Dynamically populated record cards will appear here -->
             </div>
         </div>
     </div>
@@ -169,7 +160,7 @@
     <script src="../js/sidebar.js"></script>
     <script src="../js/live-feed.js"></script>
     <script src="../js/tab.js"></script>
-    <script src="../js/upload.js"></script>
+    <script src="../js/record-log.js"></script>
     <script src="../js/full-screen.js"></script>
     <script src="../js/notification.js"></script>
 </body>

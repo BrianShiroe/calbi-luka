@@ -87,54 +87,50 @@ def initialize_stream(stream_url):
         return None
     return cap
 
-def process_frame(frame, stream_url, device_title, device_location):
+# Subsection: process_frame
+def detect_objects(frame):
+    detected_objects = set()
+    for model in models:
+        results = model(frame, verbose=False, conf=confidence_level)
+        if show_bounding_box:
+            for result in results:
+                frame = result.plot()
+        
+        for result in results:
+            for box in result.boxes:
+                class_id = int(box.cls)
+                class_name = model.names[class_id]  # Get the class name from the model
+                detected_objects.add(class_name)
+    
+    return frame, detected_objects
+
+def save_detected_frame(frame, stream_url, detected_objects, device_title, device_location):
     global last_record_times
+    current_time = time.time()
+    last_record_time = last_record_times.get(stream_url, 0)
+    
+    if detected_objects and (current_time - last_record_time > obj_recording_delay):
+        last_record_times[stream_url] = current_time
+        detected_objects_str = "_".join(sorted(detected_objects)) if detected_objects else "no_object"
+        timestamp = time.strftime("%y%m%d_%H%M%S")
+        filename = os.path.join(
+            detected_records_path,
+            f"detected_{timestamp}_{detected_objects_str}_{device_title}_{device_location}.jpg"
+        )
+        cv2.imwrite(filename, frame)
+        print(f"Object Detected! Image saved as {filename}")
+
+def process_frame(frame, stream_url, device_title, device_location):
     process_start = time.time()
     model_status_text = "Model: OFF"
-
+    
     if detection_mode:
         model_status_text = "Model: ON"
-        for model in models:
-            results = model(frame, verbose=False, conf=confidence_level)
-            if show_bounding_box:
-                for result in results:
-                    frame = result.plot()
-
-            # Add timestamp stamp to the frame
-            timestamp_text = time.strftime("%Y-%m-%d %H:%M:%S")
-            cv2.putText(frame, timestamp_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-            # Save the frame if objects are detected and delay has passed
-            current_time = time.time()
-            last_record_time = last_record_times.get(stream_url, 0)  # Get last record time for this stream
-
-            if any(len(result.boxes) > 0 for result in results) and (current_time - last_record_time > obj_recording_delay):
-                last_record_times[stream_url] = current_time  # Update last recorded time
-
-                # Extract detected object names
-                detected_objects = set()
-                for result in results:
-                    for box in result.boxes:
-                        class_id = int(box.cls)
-                        class_name = model.names[class_id]  # Get the class name from the model
-                        detected_objects.add(class_name)
-
-                # Join detected objects into a string
-                detected_objects_str = "_".join(sorted(detected_objects)) if detected_objects else "no_object"
-
-                # Format the timestamp as YYMMDD_HHMMSS
-                timestamp = time.strftime("%y%m%d_%H%M%S")
-
-                # Construct the filename in the format: accident_YYMMDD_HHMMSS_detected-obj_device_title_device_location.jpg
-                filename = os.path.join(
-                    detected_records_path,
-                    f"detected_{timestamp}_{detected_objects_str}_{device_title}_{device_location}.jpg"
-                )
-
-                # Save the frame as an image
-                cv2.imwrite(filename, frame)
-                print(f"Object Detected! Image saved as {filename}")
-
+        frame, detected_objects = detect_objects(frame)
+        save_detected_frame(frame, stream_url, detected_objects, device_title, device_location)
+    
+    timestamp_text = time.strftime("%Y-%m-%d %H:%M:%S")
+    cv2.putText(frame, timestamp_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     processing_time = time.time() - process_start
     return frame, processing_time, model_status_text
 
@@ -332,6 +328,24 @@ def delete_device():
     
     db.commit()
     return jsonify({"success": True})
+
+# SECTION: record logs
+@app.route('/get_recorded_files', methods=['GET'])
+def get_recorded_files():
+    try:
+        # Get the list of files in the detected_records_path directory
+        files = os.listdir(detected_records_path)
+        # Filter out only image and video files (you can add more extensions if needed)
+        valid_extensions = ['.jpg', '.jpeg', '.png', '.mp4', '.avi']
+        files = [file for file in files if os.path.splitext(file)[1].lower() in valid_extensions]
+        # Return the list of files as JSON
+        return jsonify(files)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/records/<path:filename>')
+def serve_recorded_file(filename):
+    return send_from_directory(detected_records_path, filename)
 
 # SECTION: feature toggle API
 @app.route('/toggle_model', methods=['POST'])
