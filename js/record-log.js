@@ -1,50 +1,55 @@
-function isRecordLogTabActive() {
-    const recordLogTab = document.getElementById('record-log-tab');
-    return recordLogTab.classList.contains('active');
-}
-
-async function fetchAndDisplayRecordedFiles() {
-    // Only proceed if the "Record Log" tab is active
-    if (!isRecordLogTabActive()) {
-        return;
+document.addEventListener('DOMContentLoaded', function () {
+    function isRecordLogTabActive() {
+        const recordLogTab = document.getElementById('record-log-tab');
+        return recordLogTab.classList.contains('active');
     }
 
-    try {
-        const response = await fetch('/get_recorded_files');
-        const files = await response.json();
+    async function fetchAndDisplayRecordedFiles() {
+        // Only proceed if the "Record Log" tab is active
+        if (!isRecordLogTabActive()) {
+            return;
+        }
 
-        const gridContainer = document.getElementById('record-log-grid');
-        gridContainer.innerHTML = ''; // Clear existing content
+        try {
+            const response = await fetch('/get_recorded_files');
+            let files = await response.json();
+            
+            // Reverse order to show newest first
+            files = files.reverse();
 
-        files.forEach(file => {
-            const fileExtension = file.split('.').pop().toLowerCase();
-            const card = document.createElement('div');
-            card.className = 'record-card';
+            const gridContainer = document.getElementById('record-log-grid');
+            gridContainer.innerHTML = ''; // Clear existing content
 
-            if (['jpg', 'jpeg', 'png'].includes(fileExtension)) {
-                // Display image files
-                card.innerHTML = `
-                    <img src="/records/${file}" alt="${file}">
-                    <p>${file}</p>
-                `;
-            } else if (['mp4', 'avi'].includes(fileExtension)) {
-                // Display video files
-                card.innerHTML = `
-                    <video controls>
-                        <source src="/records/${file}" type="video/${fileExtension}">
-                        Your browser does not support the video tag.
-                    </video>
-                    <p>${file}</p>
-                `;
-            }
+            files.forEach(file => {
+                const fileExtension = file.split('.').pop().toLowerCase();
+                const card = document.createElement('div');
+                card.className = 'record-card';
 
-            gridContainer.appendChild(card);
-        });
-    } catch (error) {
-        console.error('Error fetching recorded files:', error);
+                if (['jpg', 'jpeg', 'png'].includes(fileExtension)) {
+                    // Display image files
+                    card.innerHTML = `
+                        <img src="/records/${file}" alt="${file}">
+                        <p>${file}</p>
+                    `;
+                } else if (['mp4', 'avi'].includes(fileExtension)) {
+                    // Display video files
+                    card.innerHTML = `
+                        <video controls>
+                            <source src="/records/${file}" type="video/${fileExtension}">
+                            Your browser does not support the video tag.
+                        </video>
+                        <p>${file}</p>
+                    `;
+                }
+
+                gridContainer.appendChild(card);
+            });
+        } catch (error) {
+            console.error('Error fetching recorded files:', error);
+        }
     }
-}
 
-// Call the function when the page loads or when the "Record Log" tab is clicked
-document.addEventListener('DOMContentLoaded', fetchAndDisplayRecordedFiles);
-document.getElementById('record-log-tab').addEventListener('click', fetchAndDisplayRecordedFiles);
+    // Call the function when the page loads or when the "Record Log" tab is clicked
+    document.addEventListener('DOMContentLoaded', fetchAndDisplayRecordedFiles);
+    document.getElementById('record-log-tab').addEventListener('click', fetchAndDisplayRecordedFiles);
+});

@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
         confidence_level: 70, // 0.7 * 100
         frame_rate: 60, // max_frame_rate default
         update_metric_interval: 1,
-        metric_font_size: 24,
+        metric_font_size: 8,
         target_object: "car"
     };
 

@@ -8,6 +8,7 @@ import numpy as np
 import ffmpeg
 import os
 import re
+import psutil
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from flask import Flask, Response, request, jsonify, g, send_from_directory
@@ -24,21 +25,35 @@ DB_PATH = "db/luka.db"
 models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Use GPU if available
 detected_records_path = "records"
 os.makedirs(detected_records_path, exist_ok=True)
-obj_recording_delay = 5  # Save detected frames every 5 seconds
 last_record_times = {}  # Dictionary to store last save time per stream
 
 #Modifications
-detection_mode = True  # Toggle for enabling/disabling model inference
-show_bounding_box = True  # Toggle model bounding Box
-performance_metrics_toggle = True # Toggle for displaying performance metrics
-confidence_level = 0.7  # Model's confidence level
-max_frame_rate = 60 #60fps. Provide maximum frame that the feed can stream.
-update_metric_interval = 1 # Update text every # second instead of every frame
-metric_font_size = 24 #24px. font size for metric values
+detection_mode = True
+show_bounding_box = True
+show_confidence_value = False
+performance_metrics_toggle = True
+confidence_level = 0.7
+max_frame_rate = 60
+update_metric_interval = 1
+metric_font_size = 8
+delay_for_record_logging = 5
+stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
+stream_frame_skip = 1  # Only process 1 out of every 2 frames (adjust as needed)
 
-# This feature is currently under development.
+#resolution options
+resolutions = {
+    "144p": (176, 144),
+    "160p": (288, 160),
+    "180p": (320, 180),
+    "240p": (320, 240),
+    "360p": (480, 360),
+    "480p": (640, 480),
+    "720p": (1280, 720),
+    "1080p": (1920, 1080)
+}
+
+#DONT TOUCH (TO INCLUDE)
 target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect objects for yolo
-FRAME_SKIP = 1  # Only process 1 out of every 2 frames (adjust as needed)
 
 app = Flask(__name__, static_folder=".") # Initialize Flask application
 CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
@@ -90,18 +105,36 @@ def initialize_stream(stream_url):
 # Subsection: process_frame
 def detect_objects(frame):
     detected_objects = set()
+    
     for model in models:
         results = model(frame, verbose=False, conf=confidence_level)
-        if show_bounding_box:
-            for result in results:
-                frame = result.plot()
         
         for result in results:
             for box in result.boxes:
                 class_id = int(box.cls)
                 class_name = model.names[class_id]  # Get the class name from the model
                 detected_objects.add(class_name)
-    
+
+                if show_bounding_box:
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])  # Get bounding box coordinates
+                    color = (0, 255, 0)  # Green color for the bounding box
+                    thickness = 5
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)  # Draw bounding box
+
+                    if show_confidence_value:
+                        confidence = box.conf[0].item()  # Get confidence value
+                        label = f"{class_name} {confidence:.2f}"
+                        font = cv2.FONT_HERSHEY_SIMPLEX
+                        font_scale = 2
+                        font_thickness = 5
+                        text_color = (0, 255, 0)  # Green text
+
+                        # Put text slightly above the bounding box
+                        text_size = cv2.getTextSize(label, font, font_scale, font_thickness)[0]
+                        text_x = x1
+                        text_y = max(y1 - 5, text_size[1] + 5)  # Ensure text is inside the frame
+                        cv2.putText(frame, label, (text_x, text_y), font, font_scale, text_color, font_thickness)
+
     return frame, detected_objects
     
 def save_detected_frame(frame, stream_url, detected_objects, device_title, device_location, device_id):
@@ -109,7 +142,7 @@ def save_detected_frame(frame, stream_url, detected_objects, device_title, devic
     current_time = time.time()
     last_record_time = last_record_times.get(stream_url, 0)
     
-    if detected_objects and (current_time - last_record_time > obj_recording_delay):
+    if detected_objects and (current_time - last_record_time > delay_for_record_logging):
         last_record_times[stream_url] = current_time
         detected_objects_str = "_".join(sorted(detected_objects)) if detected_objects else "no_object"
         timestamp = time.strftime("%y%m%d_%H%M%S")
@@ -143,7 +176,7 @@ def process_frame(frame, stream_url, device_title, device_location, device_id):
         save_detected_frame(frame, stream_url, detected_objects, device_title, device_location, device_id)
     
     timestamp_text = time.strftime("%Y-%m-%d %H:%M:%S")
-    cv2.putText(frame, timestamp_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    # cv2.putText(frame, timestamp_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     processing_time = time.time() - process_start
     return frame, processing_time, model_status_text
 
@@ -170,7 +203,8 @@ def initialize_metrics():
         "displayed_fps": 0,
         "displayed_frame_rate": 0,
         "displayed_processing_time": 0,
-        "displayed_real_time_lag": 0
+        "displayed_real_time_lag": 0,
+        "displayed_cpu_usage": 0.0  # Ensure this key exists
     }
 
 def update_metrics(metrics, frame_start_time, processing_time):
@@ -180,6 +214,7 @@ def update_metrics(metrics, frame_start_time, processing_time):
     fps = metrics["frame_count"] / elapsed_time if elapsed_time > 0 else 0
     frame_rate = 1 / (frame_start_time - metrics["last_frame_time"]) if metrics["last_frame_time"] else 0
     real_time_lag = time.time() - frame_start_time  
+    cpu_usage = psutil.cpu_percent()  # Get current CPU usage
 
     metrics["last_frame_time"] = frame_start_time  
 
@@ -190,32 +225,64 @@ def update_metrics(metrics, frame_start_time, processing_time):
         metrics["displayed_frame_rate"] = frame_rate
         metrics["displayed_processing_time"] = processing_time
         metrics["displayed_real_time_lag"] = real_time_lag
+        metrics["displayed_cpu_usage"] = cpu_usage  # Store CPU usage
 
 def overlay_metrics(frame, metrics, model_status_text):
-    font_scale = metric_font_size / 10
-    font_thickness = 6
+    height, width, _ = frame.shape  # Get current frame dimensions
+    font_scale = (height / 480) * (metric_font_size / 10)  # Scale font size dynamically
+    font_thickness = max(1, int(height / 240))  # Adjust thickness based on resolution
+    line_spacing = int(40 * font_scale)  # Adjust vertical spacing dynamically
+    start_x = int(0.05 * width)  # Adjust left margin based on frame width
+    start_y = int(0.10 * height)  # Starting position for text
+
     colors = {
+        "Timestamp": (173, 216, 230),
         "Model Status": (0, 0, 255),
         "FPS": (0, 255, 0),
         "Frame Rate": (255, 255, 0),
         "Processing Time": (255, 0, 255),
-        "Streaming Delay": (0, 165, 255)
+        "Streaming Delay": (0, 165, 255),
+        "Resolution": (255, 255, 255),
+        "CPU Usage": (255, 140, 0)  # Orange color for CPU usage
     }
 
-    if performance_metrics_toggle:
-        cv2.putText(frame, model_status_text, (30, 100), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Model Status"], font_thickness)
-        cv2.putText(frame, f"FPS: {metrics['displayed_fps']:.2f}", (30, 200), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["FPS"], font_thickness)
-        cv2.putText(frame, f"Frame Rate: {metrics['displayed_frame_rate']:.2f} FPS", (30, 300), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Frame Rate"], font_thickness)
-        cv2.putText(frame, f"Processing Time: {metrics['displayed_processing_time']:.3f}s", (30, 400), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Processing Time"], font_thickness)
-        cv2.putText(frame, f"Streaming Delay: {metrics['displayed_real_time_lag']:.3f}s", (30, 500), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors["Streaming Delay"], font_thickness)
+    current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
+    if performance_metrics_toggle:
+        metrics_text = [
+            (f"Timestamp: {current_time}", "Timestamp"),
+            (model_status_text, "Model Status"),
+            (f"FPS: {metrics['displayed_fps']:.2f}", "FPS"),
+            (f"Frame Rate: {metrics['displayed_frame_rate']:.2f} FPS", "Frame Rate"),
+            (f"Processing Time: {metrics['displayed_processing_time']:.3f}s", "Processing Time"),
+            (f"Streaming Delay: {metrics['displayed_real_time_lag']:.3f}s", "Streaming Delay"),
+            (f"Resolution: {stream_resolution}", "Resolution"),
+            (f"CPU Usage: {metrics['displayed_cpu_usage']:.2f}%", "CPU Usage")  # Display CPU usage
+        ]
+        
+        for i, (text, key) in enumerate(metrics_text):
+            y_position = start_y + (i * line_spacing)
+            cv2.putText(frame, text, (start_x, y_position), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors[key], font_thickness)
+    
     return frame
 
+def set_stream_resolution(cap):
+    if stream_resolution in resolutions:
+        width, height = resolutions[stream_resolution]
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        print(f"Stream resolution set to {stream_resolution} ({width}x{height})")
+    else:
+        print(f"Invalid resolution: {stream_resolution}. Keeping default.")
+
 def generate_frames(stream_url, device_title, device_location, device_id):
+    global stream_resolution
+
     cap = initialize_stream(get_fresh_stream(stream_url))
     if cap is None:
         return
 
+    set_stream_resolution(cap)  # Apply resolution
     metrics = initialize_metrics()
     frame_count = 0
 
@@ -227,17 +294,23 @@ def generate_frames(stream_url, device_title, device_location, device_id):
             if not success:
                 print(f"Stream disconnected: {stream_url}. Attempting to refresh URL...")
                 cap.release()
-                cap = initialize_stream(get_fresh_stream(stream_url))  # Reconnect with new YouTube URL
+                cap = initialize_stream(get_fresh_stream(stream_url))  
                 if cap is None:
                     print("Failed to reconnect. Stopping stream.")
                     break
-                continue  # Skip this iteration and retry
+                set_stream_resolution(cap)  # Reapply resolution
+                continue  
 
             frame_count += 1
-            if frame_count % FRAME_SKIP != 0:
-                continue  # Skip this frame to reduce processing load
+            if frame_count % stream_frame_skip != 0:
+                continue  
 
-            # Process the frame only when not skipped
+            # Manually resize frame (since OpenCV may ignore cap.set())
+            if stream_resolution in resolutions:
+                width, height = resolutions[stream_resolution]
+                frame = cv2.resize(frame, (width, height))
+
+            # Process frame
             frame, processing_time, model_status_text = process_frame(frame, stream_url, device_title, device_location, device_id)
             update_metrics(metrics, frame_start_time, processing_time)
             frame = overlay_metrics(frame, metrics, model_status_text)
@@ -246,7 +319,7 @@ def generate_frames(stream_url, device_title, device_location, device_id):
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + encoded_frame + b'\r\n')
 
-            enforce_frame_rate(frame_start_time)  # Ensure FPS limit is respected
+            enforce_frame_rate(frame_start_time)
     finally:
         cap.release()
         cv2.destroyAllWindows()
