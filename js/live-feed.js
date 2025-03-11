@@ -66,7 +66,7 @@ function renderDevices() {
 
     devices.forEach((device, index) => {
         const videoFeedURL = `http://localhost:5500/stream?stream_url=${encodeURIComponent(device.ip_address)}&device_title=${encodeURIComponent(device.title)}&device_location=${encodeURIComponent(device.location)}&device_id=${device.id}`;
-        const deviceCard = createDeviceCard(videoFeedURL, device.title, device.location, device.id, index);
+        const deviceCard = createDeviceCard(videoFeedURL, device.title, device.location, device.id, index); // Pass device.id
         gridContainer.appendChild(deviceCard);
     });
 
@@ -84,14 +84,14 @@ function renderDevices() {
 }
 
 // SECTION: createDeviceCard
-function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceIndex) {
+function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceId, deviceIndex) {
     const deviceCard = document.createElement("div");
     deviceCard.className = "device-card";
 
     const mediaContainer = createMediaContainer(videoFeedURL);
     const nameElement = createTextElement("h3", deviceName);
     const locationElement = createTextElement("p", `Location: ${deviceLocation}`, { fontSize: "12px", color: "grey" });
-    const menuContainer = createMenuContainer(deviceIndex);
+    const menuContainer = createMenuContainer(deviceIndex, deviceId); // Pass deviceId to menu container
 
     deviceCard.append(mediaContainer, nameElement, locationElement, menuContainer);
     return deviceCard;
@@ -131,27 +131,27 @@ function createTextElement(tag, textContent, styles = {}) {
     return element;
 }
 
-function createMenuContainer(deviceIndex) {
+function createMenuContainer(deviceIndex, deviceId) {
     const menuContainer = document.createElement("div");
     menuContainer.className = "menu-container";
 
     const menuIcon = document.createElement("i");
     menuIcon.className = "fas fa-ellipsis-v kebab-menu";
-    const menuOptions = createMenuOptions(deviceIndex);
+    const menuOptions = createMenuOptions(deviceIndex, deviceId); // Pass deviceId to menu options
     
     menuIcon.onclick = () => toggleMenu(menuOptions);
     menuContainer.append(menuIcon, menuOptions);
     return menuContainer;
 }
 
-function createMenuOptions(deviceIndex) {
+function createMenuOptions(deviceIndex, deviceId) {
     const menuOptions = document.createElement("div");
     menuOptions.className = "menu-options";
     menuOptions.innerHTML = `
-        <p onclick="openEditNamePopup(${deviceIndex})">
+        <p onclick="openEditNamePopup(${deviceIndex}, '${deviceId}')">
             <span><i class="fa-solid fa-pen-to-square"></i></span> Edit
         </p>
-        <p onclick="showDeletePopup(${deviceIndex})">
+        <p onclick="showDeletePopup(${deviceIndex}, '${deviceId}')">
             <span><i class="fa-solid fa-trash"></i></span> Delete
         </p>
     `;
@@ -238,12 +238,12 @@ document.addEventListener("click", function (event) {
 });
 
 // Show confirmation popup for deleting a device
-function showDeletePopup(deviceIndex) {
+function showDeletePopup(deviceIndex, deviceId) {
     const deletePopup = document.getElementById("delete-form");
     deletePopup.style.display = "flex"; // Show the delete confirmation popup
 
     document.getElementById("confirm-delete").onclick = () => {
-        deleteDevice(deviceIndex); // Call the deleteDevice function
+        deleteDevice(deviceIndex, deviceId); // Pass deviceId to deleteDevice
         deletePopup.style.display = "none"; // Hide the popup after deletion
     };
 
@@ -253,13 +253,11 @@ function showDeletePopup(deviceIndex) {
 }
 
 // Delete a device from the list
-function deleteDevice(deviceIndex) {
-    const deviceId = devices[deviceIndex].id; // Get the device ID
-
+function deleteDevice(deviceIndex, deviceId) {
     fetch("http://localhost:5500/delete_device", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: deviceId }) // Send the device ID to the backend
+        body: JSON.stringify({ id: deviceId }) // Use the passed deviceId
     })
     .then(response => response.json())
     .then(data => {
@@ -274,13 +272,14 @@ function deleteDevice(deviceIndex) {
 }
 
 // Open the edit name popup for a specific device
-function openEditNamePopup(deviceIndex) {
+function openEditNamePopup(deviceIndex, deviceId) {
     const device = devices[deviceIndex]; // Get the device data
     document.getElementById("edit-title").value = device.title || "";
     document.getElementById("edit-ip_address").value = device.ip_address || "";
     document.getElementById("edit-location").value = device.location || ""; // Populate location
     document.getElementById("edit-name-form").style.display = "flex"; // Show the edit form
     currentEditDeviceIndex = deviceIndex; // Store the index of the device being edited
+    currentEditDeviceId = deviceId; // Store the ID of the device being edited
 }
 
 // Close the edit name popup
@@ -295,7 +294,6 @@ function saveDeviceDetails() {
     let newTitle = document.getElementById("edit-title").value.trim();
     let newIpAddress = document.getElementById("edit-ip_address").value.trim();
     let newLocation = document.getElementById("edit-location").value.trim();
-    const deviceId = devices[currentEditDeviceIndex].id;
 
     if (newIpAddress && (newIpAddress.startsWith("rtsp://") || newIpAddress.startsWith("http://") || newIpAddress.startsWith("https://"))) {
         newTitle = newTitle || `CAM${currentEditDeviceIndex + 1}`; // Default to CAM# if empty
@@ -305,7 +303,7 @@ function saveDeviceDetails() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                id: deviceId,
+                id: currentEditDeviceId, // Use the stored device ID
                 title: newTitle,
                 ip_address: newIpAddress,
                 location: newLocation

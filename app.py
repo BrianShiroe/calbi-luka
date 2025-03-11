@@ -5,7 +5,6 @@ import sqlite3
 import cv2
 import yt_dlp
 import numpy as np
-import ffmpeg
 import os
 import re
 import psutil
@@ -36,9 +35,11 @@ confidence_level = 0.7
 max_frame_rate = 60
 update_metric_interval = 1
 metric_font_size = 8
-delay_for_record_logging = 5
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
 stream_frame_skip = 1  # Only process 1 out of every 2 frames (adjust as needed)
+plotting_method = "mark_object"  # mark_object, mark_screen
+alert_and_record_logging = True
+delay_for_alert_and_record_logging = 5
 
 #resolution options
 resolutions = {
@@ -51,6 +52,9 @@ resolutions = {
     "720p": (1280, 720),
     "1080p": (1920, 1080)
 }
+# Global variables
+active_streams = 0
+active_streams_dict = {}  # Track active streams by device ID
 
 #DONT TOUCH (TO INCLUDE)
 target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect objects for yolo
@@ -104,7 +108,9 @@ def initialize_stream(stream_url):
 
 # Subsection: process_frame
 def detect_objects(frame):
+    global mark_screen_duration
     detected_objects = set()
+    object_detected = False  # Track if an object was detected in this frame
     
     for model in models:
         results = model(frame, verbose=False, conf=confidence_level)
@@ -114,45 +120,61 @@ def detect_objects(frame):
                 class_id = int(box.cls)
                 class_name = model.names[class_id]  # Get the class name from the model
                 detected_objects.add(class_name)
+                object_detected = True  # Mark that an object is detected
 
                 if show_bounding_box:
-                    x1, y1, x2, y2 = map(int, box.xyxy[0])  # Get bounding box coordinates
-                    color = (0, 255, 0)  # Green color for the bounding box
-                    thickness = 5
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)  # Draw bounding box
+                    if plotting_method == "mark_object":
+                        # Draw bounding box around detected objects
+                        x1, y1, x2, y2 = map(int, box.xyxy[0])
+                        color = (0, 255, 0)  # Green color for the bounding box
+                        thickness = 5
+                        cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
 
-                    if show_confidence_value:
-                        confidence = box.conf[0].item()  # Get confidence value
-                        label = f"{class_name} {confidence:.2f}"
-                        font = cv2.FONT_HERSHEY_SIMPLEX
-                        font_scale = 2
-                        font_thickness = 5
-                        text_color = (0, 255, 0)  # Green text
+                        if show_confidence_value:
+                            confidence = box.conf[0].item()  # Get confidence value
+                            label = f"{class_name} {confidence:.2f}"
+                            font = cv2.FONT_HERSHEY_SIMPLEX
+                            font_scale = 2
+                            font_thickness = 5
+                            text_color = (0, 255, 0)  # Green text
 
-                        # Put text slightly above the bounding box
-                        text_size = cv2.getTextSize(label, font, font_scale, font_thickness)[0]
-                        text_x = x1
-                        text_y = max(y1 - 5, text_size[1] + 5)  # Ensure text is inside the frame
-                        cv2.putText(frame, label, (text_x, text_y), font, font_scale, text_color, font_thickness)
-
+                            # Put text slightly above the bounding box
+                            text_size = cv2.getTextSize(label, font, font_scale, font_thickness)[0]
+                            text_x = x1
+                            text_y = max(y1 - 5, text_size[1] + 5)  # Ensure text is inside the frame
+                            cv2.putText(frame, label, (text_x, text_y), font, font_scale, text_color, font_thickness)
+    
+                    # Handle mark_screen logic
+                    elif plotting_method == "mark_screen":
+                        if object_detected:
+                            screen_color = (0, 0, 255)  # Red color for screen marking
+                            thickness = 50
+                            height, width, _ = frame.shape
+                            cv2.rectangle(frame, (0, 0), (width, height), screen_color, thickness)
+                            
     return frame, detected_objects
     
 def save_detected_frame(frame, stream_url, detected_objects, device_title, device_location, device_id):
     global last_record_times
+    
+    if not alert_and_record_logging:  # Skip recording if logging is disabled
+        return
+    
     current_time = time.time()
     last_record_time = last_record_times.get(stream_url, 0)
-    
-    if detected_objects and (current_time - last_record_time > delay_for_record_logging):
+
+    if detected_objects and (current_time - last_record_time > delay_for_alert_and_record_logging):
         last_record_times[stream_url] = current_time
         detected_objects_str = "_".join(sorted(detected_objects)) if detected_objects else "no_object"
         timestamp = time.strftime("%y%m%d_%H%M%S")
+        
         filename = os.path.join(
             detected_records_path,
             f"detected_{timestamp}_{detected_objects_str}_{device_title}_{device_location}_ID{device_id}.jpg"
         )
         cv2.imwrite(filename, frame)
         print(f"Object Detected! Image saved as {filename}")
-        
+
         # Ensure database operations are executed inside the Flask app context
         with app.app_context():
             db = get_db()
@@ -204,10 +226,11 @@ def initialize_metrics():
         "displayed_frame_rate": 0,
         "displayed_processing_time": 0,
         "displayed_real_time_lag": 0,
-        "displayed_cpu_usage": 0.0  # Ensure this key exists
+        "displayed_cpu_usage": 0.0,
+        "displayed_active_streams": 0  # Track active streams
     }
 
-def update_metrics(metrics, frame_start_time, processing_time):
+def update_metrics(metrics, frame_start_time, processing_time, active_streams):
     metrics["frame_count"] += 1
     elapsed_time = time.time() - metrics["start_time"]
 
@@ -226,6 +249,7 @@ def update_metrics(metrics, frame_start_time, processing_time):
         metrics["displayed_processing_time"] = processing_time
         metrics["displayed_real_time_lag"] = real_time_lag
         metrics["displayed_cpu_usage"] = cpu_usage  # Store CPU usage
+        metrics["displayed_active_streams"] = active_streams  # Store active stream count
 
 def overlay_metrics(frame, metrics, model_status_text):
     height, width, _ = frame.shape  # Get current frame dimensions
@@ -243,7 +267,8 @@ def overlay_metrics(frame, metrics, model_status_text):
         "Processing Time": (255, 0, 255),
         "Streaming Delay": (0, 165, 255),
         "Resolution": (255, 255, 255),
-        "CPU Usage": (255, 140, 0)  # Orange color for CPU usage
+        "CPU Usage": (255, 140, 0),  # Orange color for CPU usage
+        "Active Streams": (0, 255, 255)  # Cyan color for active streams
     }
 
     current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
@@ -257,7 +282,8 @@ def overlay_metrics(frame, metrics, model_status_text):
             (f"Processing Time: {metrics['displayed_processing_time']:.3f}s", "Processing Time"),
             (f"Streaming Delay: {metrics['displayed_real_time_lag']:.3f}s", "Streaming Delay"),
             (f"Resolution: {stream_resolution}", "Resolution"),
-            (f"CPU Usage: {metrics['displayed_cpu_usage']:.2f}%", "CPU Usage")  # Display CPU usage
+            (f"CPU Usage: {metrics['displayed_cpu_usage']:.2f}%", "CPU Usage"),
+            (f"Active Streams: {metrics['displayed_active_streams']}", "Active Streams")  # Display active streams
         ]
         
         for i, (text, key) in enumerate(metrics_text):
@@ -276,18 +302,22 @@ def set_stream_resolution(cap):
         print(f"Invalid resolution: {stream_resolution}. Keeping default.")
 
 def generate_frames(stream_url, device_title, device_location, device_id):
-    global stream_resolution
+    global stream_resolution, active_streams  
+
+    # Register the stream as active
+    active_streams_dict[device_id] = True  
 
     cap = initialize_stream(get_fresh_stream(stream_url))
     if cap is None:
         return
 
-    set_stream_resolution(cap)  # Apply resolution
+    set_stream_resolution(cap)
     metrics = initialize_metrics()
     frame_count = 0
+    active_streams += 1  
 
     try:
-        while True:
+        while active_streams_dict.get(device_id, False):  # Check if stream is still allowed
             frame_start_time = time.time()
 
             success, frame = cap.read()
@@ -298,21 +328,19 @@ def generate_frames(stream_url, device_title, device_location, device_id):
                 if cap is None:
                     print("Failed to reconnect. Stopping stream.")
                     break
-                set_stream_resolution(cap)  # Reapply resolution
+                set_stream_resolution(cap)
                 continue  
 
             frame_count += 1
             if frame_count % stream_frame_skip != 0:
                 continue  
 
-            # Manually resize frame (since OpenCV may ignore cap.set())
             if stream_resolution in resolutions:
                 width, height = resolutions[stream_resolution]
                 frame = cv2.resize(frame, (width, height))
 
-            # Process frame
             frame, processing_time, model_status_text = process_frame(frame, stream_url, device_title, device_location, device_id)
-            update_metrics(metrics, frame_start_time, processing_time)
+            update_metrics(metrics, frame_start_time, processing_time, active_streams)
             frame = overlay_metrics(frame, metrics, model_status_text)
             encoded_frame = encode_frame(frame)
 
@@ -320,9 +348,12 @@ def generate_frames(stream_url, device_title, device_location, device_id):
                    b'Content-Type: image/jpeg\r\n\r\n' + encoded_frame + b'\r\n')
 
             enforce_frame_rate(frame_start_time)
+
     finally:
+        active_streams -= 1  
         cap.release()
         cv2.destroyAllWindows()
+        active_streams_dict.pop(device_id, None)  # Remove from active tracking
 
 # stream handler
 @app.route('/stream')
@@ -411,6 +442,13 @@ def add_device():
 @app.route('/update_device', methods=['POST'])
 def update_device():
     data = request.get_json()
+    device_id = data['id']
+
+    # Stop the stream if it's running
+    if device_id in active_streams_dict:
+        active_streams_dict[device_id] = False  # Signal stream to stop
+        time.sleep(1)  # Give time for the stream to properly stop
+
     db = get_db()
     cursor = db.cursor()
     cursor.execute(
@@ -418,16 +456,25 @@ def update_device():
         (data['title'], data['ip_address'], data['location'], data['id'])
     )
     db.commit()
+
+    # Ensure the stream restarts when next requested
+    active_streams_dict.pop(device_id, None)
+
     return jsonify({"success": True})
 
 @app.route('/delete_device', methods=['POST'])
 def delete_device():
     data = request.get_json()
+    device_id = data['id']
+
+    # Stop the stream if it's running
+    if device_id in active_streams_dict:
+        active_streams_dict[device_id] = False  # Signal stream to stop
+
     db = get_db()
     cursor = db.cursor()
     
-    # Permanently delete the device from the database
-    cursor.execute("DELETE FROM camera WHERE id = ?", (data['id'],))
+    cursor.execute("DELETE FROM camera WHERE id = ?", (device_id,))
     
     db.commit()
     return jsonify({"success": True})
