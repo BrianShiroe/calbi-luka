@@ -42,6 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const alertLoggingToggle = document.getElementById("toggle-alert-logging");
     const alertLoggingDelay = document.getElementById("alert-logging-delay");
     const alertLoggingDelayValue = document.getElementById("alert-logging-delay-value");
+    const modelVersion = document.getElementById("model-version");
     const saveBtn = document.querySelector(".save-btn");
     const cancelBtn = document.querySelector(".cancel-btn");
     const resetBtn = document.querySelector(".reset-btn");
@@ -53,8 +54,9 @@ document.addEventListener("DOMContentLoaded", function () {
         update_metric_interval: 1,
         metric_font_size: 8,
         stream_resolution: "720p",
-        stream_frame_skip: 1,
+        stream_frame_skip: 0,
         max_frame_rate: 60,
+        model_version: "yolo11n",
         show_bounding_box: true,
         show_confidence_value: false,
         confidence_level: 0.7,
@@ -98,6 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
         alertLoggingToggle.checked = settings.alert_and_record_logging;
         alertLoggingDelay.value = settings.delay_for_alert_and_record_logging;
         alertLoggingDelayValue.textContent = `${alertLoggingDelay.value}s`;
+        modelVersion.value = settings.model_version;
     }
 
     loadSettings();
@@ -119,6 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
             plotting_method: plottingMethod.value,
             alert_and_record_logging: alertLoggingToggle.checked,
             delay_for_alert_and_record_logging: alertLoggingDelay.value,
+            model_version: modelVersion.value,
         };
 
         localStorage.setItem("settings", JSON.stringify(settings));
@@ -136,6 +140,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch("/set_plotting_method", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ method: settings.plotting_method }) });
         fetch("/toggle_alert_and_record_logging", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: settings.alert_and_record_logging }) });
         fetch("/set_delay_for_alert_and_record_logging", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ delay: settings.delay_for_alert_and_record_logging }) });
+        fetch("/set_model_version", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ version: settings.model_version }) });
 
         alert("Settings saved successfully!");
     }

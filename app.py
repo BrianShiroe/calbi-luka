@@ -19,12 +19,9 @@ from concurrent.futures import ThreadPoolExecutor
 FLASK_PORT = 5500  # Flask serves as the main server
 DIRECTORY = "html"  # Directory to serve static files from
 DEFAULT_FILE = "home.html"
-MODEL_PATHS = ["model/yolo11n.pt"]
 DB_PATH = "db/luka.db"
-models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Use GPU if available
 detected_records_path = "records"
 os.makedirs(detected_records_path, exist_ok=True)
-last_record_times = {}  # Dictionary to store last save time per stream
 
 #General Settings
 detection_mode = False
@@ -32,16 +29,25 @@ performance_metrics_toggle = False
 update_metric_interval = 1
 metric_font_size = 8
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
-stream_frame_skip = 1  # Only process 1 out of every 2 frames (adjust as needed)
+stream_frame_skip = 0  # Only process 1 out of every 2 frames (adjust as needed)
 max_frame_rate = 60
 
 #Detection Settings
+model_version = "yolo11n"
 show_bounding_box = True
 show_confidence_value = False
 confidence_level = 0.7
 plotting_method = "mark_object"  # mark_object, mark_screen
 alert_and_record_logging = True
 delay_for_alert_and_record_logging = 10
+
+MODEL_PATHS = [f"model/{model_version}.pt"]
+models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Use GPU if available
+
+# Global variables
+active_streams = 0
+active_streams_dict = {}  # Track active streams by device ID
+last_record_times = {}  # Dictionary to store last save time per stream
 
 #resolution options
 resolutions = {
@@ -54,9 +60,6 @@ resolutions = {
     "720p": (1280, 720),
     "1080p": (1920, 1080)
 }
-# Global variables
-active_streams = 0
-active_streams_dict = {}  # Track active streams by device ID
 
 #DONT TOUCH (TO INCLUDE)
 target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect objects for yolo
@@ -168,11 +171,12 @@ def save_detected_frame(frame, stream_url, detected_objects, device_title, devic
     if detected_objects and (current_time - last_record_time > delay_for_alert_and_record_logging):
         last_record_times[stream_url] = current_time
         detected_objects_str = "_".join(sorted(detected_objects)) if detected_objects else "no_object"
-        timestamp = time.strftime("%y%m%d_%H%M%S")
+        timestamp = time.strftime("%m-%d-%y_%I.%M.%S%p")
+        formatted_timestamp = time.strftime("%m-%d-%y_%I.%M.%S%p")
         
         filename = os.path.join(
             detected_records_path,
-            f"detected_{timestamp}_{detected_objects_str}_{device_title}_{device_location}_ID{device_id}.jpg"
+            f"{timestamp}_{detected_objects_str}_detected_on_{device_title}_{device_location}.jpg"
         )
         cv2.imwrite(filename, frame)
         print(f"Object Detected! Image saved as {filename}")
@@ -186,7 +190,7 @@ def save_detected_frame(frame, stream_url, detected_objects, device_title, devic
                 INSERT INTO alert (camera_id, camera_title, event_type, location, detected_at)
                 VALUES (?, ?, ?, ?, ?)
                 """,
-                (device_id, device_title, detected_objects_str, device_location, timestamp)
+                (device_id, device_title, detected_objects_str, device_location, formatted_timestamp)
             )
             db.commit()
 
@@ -334,7 +338,7 @@ def generate_frames(stream_url, device_title, device_location, device_id):
                 continue  
 
             frame_count += 1
-            if frame_count % stream_frame_skip != 0:
+            if stream_frame_skip > 0 and frame_count % stream_frame_skip != 0:
                 continue  
 
             if stream_resolution in resolutions:
@@ -603,6 +607,18 @@ def set_delay_for_alert_and_record_logging():
     if 'delay' in data:
         delay_for_alert_and_record_logging = int(data['delay'])
     return jsonify({"delay_for_alert_and_record_logging": delay_for_alert_and_record_logging})
+
+@app.route('/set_model_version', methods=['POST'])
+def set_model_version():
+    global model_version, models
+    data = request.get_json()
+
+    if 'version' in data:
+        model_version = data['version']
+        MODEL_PATHS = [f"model/{model_version}.pt"]  # Update model paths
+        models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Reload models
+
+    return jsonify({"model_version": model_version})
 
 if __name__ == "__main__":
     # Start Flask server in a thread
