@@ -179,17 +179,14 @@ body {
 
 .small {
     --device-card-width: 40vh;
-    /* --device-card-min-height: 32vh; */
 }
 
 .regular {
     --device-card-width: 55vh;
-    /* --device-card-min-height: 40vh; */
 }
 
 .large {
     --device-card-width: 70vh;
-    /* --device-card-min-height: 55vh; */
 }
 
 .device-card:hover .menu-container {
