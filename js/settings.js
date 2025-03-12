@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
         update_metric_interval: 1,
         metric_font_size: 8,
         stream_resolution: "720p",
-        stream_frame_skip: 1,
+        stream_frame_skip: 0,
         max_frame_rate: 60,
         show_bounding_box: true,
         show_confidence_value: false,

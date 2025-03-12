@@ -12,24 +12,27 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/get_alerts')
             .then(response => response.json())
             .then(data => {
+                // Sort alerts in reverse order (newest first)
+                data.sort((a, b) => b.id - a.id);
+    
                 if (JSON.stringify(data) !== JSON.stringify(notifications)) {
                     notifications = data;
                     updateNotificationUI(true);
                 }
             })
             .catch(error => console.error('Error fetching alerts:', error));
-    }
+    }    
 
     // Function to update the notification UI
     function updateNotificationUI(showBox) {
         notificationList.innerHTML = '';
         notifications.forEach(alert => {
             const li = document.createElement('li');
-            li.textContent = `Alert: ${alert.event_type} detected at ${alert.location} by ${alert.camera_title} on ${alert.detected_at}`;
+            li.textContent = `${alert.event_type} detected on ${alert.camera_title}: ${alert.location} at ${alert.detected_at}`;
             notificationList.appendChild(li);
         });
         notificationCount.textContent = notifications.length;
-
+    
         if (showBox) {
             notificationBox.classList.add('show');
         }
