@@ -20,11 +20,8 @@ FLASK_PORT = 5500  # Flask serves as the main server
 DIRECTORY = "html"  # Directory to serve static files from
 DEFAULT_FILE = "home.html"
 DB_PATH = "db/luka.db"
-MODEL_PATHS = ["model/car-fire-5.1.11n.pt"]
-models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Use GPU if available
 detected_records_path = "records"
 os.makedirs(detected_records_path, exist_ok=True)
-last_record_times = {}  # Dictionary to store last save time per stream
 
 #General Settings
 detection_mode = False
@@ -36,12 +33,21 @@ stream_frame_skip = 0  # Only process 1 out of every 2 frames (adjust as needed)
 max_frame_rate = 60
 
 #Detection Settings
+model_version = "yolo11n"
 show_bounding_box = True
 show_confidence_value = False
 confidence_level = 0.7
 plotting_method = "mark_object"  # mark_object, mark_screen
 alert_and_record_logging = True
 delay_for_alert_and_record_logging = 10
+
+MODEL_PATHS = [f"model/{model_version}.pt"]
+models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Use GPU if available
+
+# Global variables
+active_streams = 0
+active_streams_dict = {}  # Track active streams by device ID
+last_record_times = {}  # Dictionary to store last save time per stream
 
 #resolution options
 resolutions = {
@@ -54,9 +60,6 @@ resolutions = {
     "720p": (1280, 720),
     "1080p": (1920, 1080)
 }
-# Global variables
-active_streams = 0
-active_streams_dict = {}  # Track active streams by device ID
 
 #DONT TOUCH (TO INCLUDE)
 target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect objects for yolo
@@ -604,6 +607,18 @@ def set_delay_for_alert_and_record_logging():
     if 'delay' in data:
         delay_for_alert_and_record_logging = int(data['delay'])
     return jsonify({"delay_for_alert_and_record_logging": delay_for_alert_and_record_logging})
+
+@app.route('/set_model_version', methods=['POST'])
+def set_model_version():
+    global model_version, models
+    data = request.get_json()
+
+    if 'version' in data:
+        model_version = data['version']
+        MODEL_PATHS = [f"model/{model_version}.pt"]  # Update model paths
+        models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Reload models
+
+    return jsonify({"model_version": model_version})
 
 if __name__ == "__main__":
     # Start Flask server in a thread
