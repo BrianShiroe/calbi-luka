@@ -61,6 +61,6 @@ CREATE TABLE alert (
     alert_level TEXT,
     location TEXT,
     detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    resolved INTEGER,
+    resolved INTEGER CHECK(resolved IN (0, 1)) DEFAULT 0,
     FOREIGN KEY (camera_id) REFERENCES camera(id) ON DELETE CASCADE
 );

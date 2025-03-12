@@ -405,8 +405,6 @@ def get_db(): # Database helper function
         g.db.row_factory = sqlite3.Row
     return g.db
 
-from flask import Response, stream_with_context
-
 @app.route('/stream_alerts', methods=['GET'])
 def stream_alerts():
     def event_stream():
@@ -415,8 +413,8 @@ def stream_alerts():
         last_id = 0  # Track the last alert ID sent to the client
 
         while True:
-            # Fetch new alerts (those with ID > last_id)
-            cursor.execute("SELECT * FROM alert WHERE id > ? ORDER BY detected_at DESC", (last_id,))
+            # Fetch new unresolved alerts (those with ID > last_id and resolved = 0)
+            cursor.execute("SELECT * FROM alert WHERE id > ? AND resolved = 0 ORDER BY detected_at DESC", (last_id,))
             alerts = cursor.fetchall()
 
             if alerts:
@@ -433,7 +431,7 @@ def stream_alerts():
 def get_alerts():
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM alert ORDER BY detected_at DESC")
+    cursor.execute("SELECT * FROM alert WHERE resolved = 0 ORDER BY detected_at DESC")
     alerts = cursor.fetchall()
     return jsonify([dict(alert) for alert in alerts])
 
@@ -441,7 +439,7 @@ def get_alerts():
 def clear_alerts():
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("DELETE FROM alert")
+    cursor.execute("UPDATE alert SET resolved = 1 WHERE resolved = 0")
     db.commit()
     return jsonify({"success": True})
 

@@ -11,12 +11,14 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateNotificationUI(showBox) {
         notificationList.innerHTML = '';
         notifications.forEach(alert => {
-            const li = document.createElement('li');
-            li.textContent = `${alert.event_type} detected on ${alert.camera_title}: ${alert.location} at ${alert.detected_at}`;
-            notificationList.appendChild(li);
+            if (!alert.resolved) {
+                const li = document.createElement('li');
+                li.textContent = `${alert.event_type} detected on ${alert.camera_title}: ${alert.location} at ${alert.detected_at}`;
+                notificationList.appendChild(li);
+            }
         });
-        notificationCount.textContent = notifications.length;
-
+        notificationCount.textContent = notifications.filter(alert => !alert.resolved).length;
+    
         if (showBox) {
             notificationBox.classList.add('show');
         }
@@ -28,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(() => {
                 notifications = [];
                 updateNotificationUI(false);
+                notificationBox.classList.remove('show'); // Close notification box
             })
             .catch(error => console.error('Error clearing alerts:', error));
     }

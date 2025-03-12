@@ -351,17 +351,25 @@ function applySavedDeviceSize() {
     setDeviceCardSize(savedSize);
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    const sizeSelector = document.getElementById("deviceSize");
+
+    // Apply the saved device size on page load
+    const savedSize = localStorage.getItem("deviceCardSize") || "regular";
+    sizeSelector.value = savedSize;
+    setDeviceCardSize(savedSize);
+
+    // Listen for dropdown changes
+    sizeSelector.addEventListener("change", (event) => {
+        const newSize = event.target.value;
+        setDeviceCardSize(newSize);
+        localStorage.setItem("deviceCardSize", newSize);
+    });
+});
+
 function setDeviceCardSize(size) {
-    const root = document.documentElement;
-    
-    if (size === "small") {
-        root.style.setProperty("--device-card-width", "40vh");
-        root.style.setProperty("--device-card-height", "30vh");
-    } else if (size === "large") {
-        root.style.setProperty("--device-card-width", "50vh");
-        root.style.setProperty("--device-card-height", "40vh");
-    } else {
-        root.style.setProperty("--device-card-width", "45vh");
-        root.style.setProperty("--device-card-height", "35vh");
-    }
+    const container = document.documentElement; // Apply the class to the root element
+    container.classList.remove("small", "regular", "large");
+    container.classList.add(size);
 }
+

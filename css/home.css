@@ -132,15 +132,11 @@ body {
     border-bottom: none;
 }
 
-:root {
-    --device-card-height: 35vh;
-}
-
 /* Grid layout for devices */
 .grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(var(--device-card-width), 1fr));
-    padding-top: 10px;
+    padding: 5px;
     gap: 5px;
     grid-auto-rows: minmax(var(--device-card-height), auto);
 }
@@ -159,19 +155,96 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    overflow: hidden;
+    min-height: 30vh;
+    height: auto;
     transition: transform 0.3s eased;
 }
 
+.add-device:hover {
+    background-color: #453cc6;
+    color: white;
+}
+
+.add-device {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+:root {
+    --device-card-width: 55vh;
+    --device-card-min-height: 40vh;
+}
+
 .small {
-    --device-card-height: 30vh;
+    --device-card-width: 40vh;
+    /* --device-card-min-height: 32vh; */
 }
 
 .regular {
-    --device-card-height: 35vh;
+    --device-card-width: 55vh;
+    /* --device-card-min-height: 40vh; */
 }
 
 .large {
-    --device-card-height: 55vh;
+    --device-card-width: 70vh;
+    /* --device-card-min-height: 55vh; */
+}
+
+.device-card:hover .menu-container {
+    display: block;
+}
+
+.device-card img, .device-card video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.device-card h3 {
+    margin-top: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #313131;
+    text-align: center;
+}
+
+.device-card .delete-icon,
+.device-card .edit-name {
+    position: absolute;
+    top: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Show icons on hover */
+.device-card:hover .delete-icon,
+.device-card:hover .edit-name{
+    opacity: 1;
+}
+
+.device-card .delete-icon {
+    top: 20px;
+    right: 30px;
+    color: #fff;
+}
+
+.device-card .delete-icon:hover {
+    color: red;
+}
+
+.device-card .edit-name {
+    top: 20px;
+    left: 30px;
+    color: #fff;
+}
+
+.device-card .edit-name:hover {
+    color: #3288ff;
 }
 
 .menu-container {
@@ -218,71 +291,6 @@ body {
 
 .menu-options p:hover {
     background: #f0f0f0;
-}
-
-.device-card:hover .menu-container {
-    display: block;
-}
-
-.device-card img, .device-card video {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-}
-
-.add-device:hover {
-    background-color: #453cc6;
-    color: white;
-}
-
-.add-device {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.device-card h3 {
-    margin-top: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #313131;
-    text-align: center;
-}
-
-.device-card .delete-icon,
-.device-card .edit-name {
-    position: absolute;
-    top: 10px;
-    font-size: 18px;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-/* Show icons on hover */
-.device-card:hover .delete-icon,
-.device-card:hover .edit-name{
-    opacity: 1;
-}
-
-.device-card .delete-icon {
-    top: 20px;
-    right: 30px;
-    color: #fff;
-}
-
-.device-card .delete-icon:hover {
-    color: red;
-}
-
-.device-card .edit-name {
-    top: 20px;
-    left: 30px;
-    color: #fff;
-}
-
-.device-card .edit-name:hover {
-    color: #3288ff;
 }
 
 /* Popup styling for adding devices */
