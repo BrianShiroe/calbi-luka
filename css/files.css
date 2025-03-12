@@ -21,7 +21,7 @@ body {
 
 .container {
     padding-top: 10px;
-    height: 83vh;
+    height: 78vh;
     margin: 15px auto;
 }
 
@@ -185,7 +185,7 @@ input {
 }
 
 .sort-button {
-    background: #453cc6;
+    background: #453cc6cb;
     color: white;
     border: none;
     border-radius: 5px;

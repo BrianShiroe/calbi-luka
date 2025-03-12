@@ -76,7 +76,7 @@
         <!-- Notification Section -->
         <div class="notification-section">
             <div type="button" id="notification-icon" class="notification-icon">
-                <i class="fas fa-bullhorn"></i>
+                <i class='bx bxs-megaphone' style="font-size: 20px;"></i>
                 <span id="notification-count" class="notification-count">0</span>
             </div>
             <div id="notification-box" class="notification-box">
@@ -106,20 +106,24 @@
         <div class="container">
 
             <div class="tab-content active" id="live-feed">
-                <div class="modes">
-                    <select id="deviceSize">
-                        <option value="small">Small</option>
-                        <option value="regular" selected>Regular</option>
-                        <option value="large">Large</option>
-                    </select>
-                    <div style="font-size: 12px;">
-                        <button class="monitoring-mode">
+                <div class="modes" style="font-size: 12px;">
+                    <div>
+                        <button class="monitoring-mode" id="monitorBtn">
                             <i class='bx bx-desktop' ></i>
                             Monitoring Mode
                         </button>
                     </div>
+                    <div>
+                        <label><i class='bx bx-grid' ></i>Select Grid Size</label>
+                        <select id="deviceSize">
+                            <option value="small">Small</option>
+                            <option value="regular" selected>Regular</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="grid-container" id="grid-container">
+                    <button class="close-btn">&times;</button>
                     <!-- Dynamically populated device cards will appear here -->
                 </div>
             </div>
@@ -186,5 +190,6 @@
     <script src="../js/record-log.js"></script>
     <script src="../js/full-screen.js"></script>
     <script src="../js/notification.js"></script>
+    <script src="../js/monitoring-mode.js"></script>
 </body>
 </html>

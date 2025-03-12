@@ -18,31 +18,58 @@
         document.body.classList.add("sidebar-closed");
     }
     </script>  
-    <div class="sidebar" id="sidebar-container">
-        <div class="logo-details">
-            <i class='bx bx-chevron-left' id="btn"></i>
+        <div class="sidebar" id="sidebar-container">
+            <div class="logo-details">
+                <i class='bx bx-chevron-left' id="btn"></i>
+            </div>
+            <ul class="nav-list">
+                <li>
+                    <a href="../html/home.html" class="home-sb">
+                        <i class='bx bx-grid-alt'></i>
+                        <span class='links_name'>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../html/analytics.html">
+                        <i class='bx bx-pie-chart-alt-2'></i>
+                        <span class="links_name">Analytics</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../html/files.html">
+                        <i class='bx bx-folder'></i>
+                        <span class="links_name">Files</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../html/settings.html" class="settings-sb">
+                        <i class='bx bx-cog' style="color: #fff !important;"></i>
+                        <span class="links_name" style="color: #fff !important;">Settings</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../html/about.html">
+                        <i class='bx bx-info-circle'></i>
+                        <span class="links_name">About</span>
+                    </a>
+                </li>
+    
+                <li>    
+                    <a href="../html/login.html">
+                        <i class='bx bx-log-out' id="log_out"></i>
+                        <span class="links_name">Logout</span>
+                    </a>
+                </li>
+            </ul>
         </div>
-        <ul class="nav-list">
-            <li><a href="../html/home.html"><i class='bx bx-grid-alt'></i><span class='links_name'>Home</span></a></li>
-            <li><a href="../html/analytics.html"><i class='bx bx-pie-chart-alt-2'></i><span class="links_name">Analytics</span></a></li>
-            <li><a href="../html/files.html"><i class='bx bx-folder'></i><span class="links_name">Files</span></a></li>
-            <li><a href="../html/settings.html" class="settings-sb"><i class='bx bx-cog' style="color: #453cc6 !important;"></i><span class="links_name" style="color: #453cc6 !important;">Settings</span></a></li>
-            <li><a href="../html/about.html"><i class='bx bx-info-circle'></i><span class="links_name">About</span></a></li>
-            <li class="profile">
-                
-                <a href="../html/login.html"><i class='bx bx-log-out' id="log_out"></i></a>
-            </li>
-        </ul>
-    </div>
+    <div class="content">
+        <div class="header">
+            <a href="../html/home.html">
+            <img src="../img/logo-no-name.png" alt="logoImg">
+            </a>
+        </div>
 
-    <div class="header">
-        <a href="../html/home.html">
-        <img src="../img/logo-no-name.png" alt="logoImg">
-        </a>
-    </div>
-
-    <div class="container">
-        <div class="tab-container">
+        <div class="tab-container" style="margin-top: 15px;">
             <input type="radio" name="tab" id="tab1" class="tab tab--1" checked>
             <label class="tab_label" for="tab1">General</label>
             
@@ -55,184 +82,187 @@
             <div class="indicator"></div>
         </div>
 
-        <div class="settings-content">
-            <!-- General Settings -->
-            <div class="settings-panel" id="general-settings">
-                <h4>Standard Settings</h4>
-                <div class="setting">
-                    <label for="deviceSize">Feed Size:</label>
-                    <select id="deviceSize">
-                        <option value="small">Small</option>
-                        <option value="regular" selected>Regular</option>
-                        <option value="large">Large</option>
-                    </select>
-                </div>
-                
-                <div class="backend-settings">
-                    <h4>General Settings</h4>
-                    <div class="setting">
-                        <label><input type="checkbox" id="toggle-performance-metrics" checked> Show Performance Metrics</label>
-                    </div>
-                    <div class="setting">
-                        <label>Metric Update Interval</label>
-                        <input type="range" id="update-metric-interval" min="0.1" max="5" step="0.1" value="1" oninput="document.getElementById('update-metric-interval-value').textContent = this.value + 's'">
-                        <span id="update-metric-interval-value">1s</span>
-                    </div>
-                    <div class="setting">
-                        <label>Metric Font Size</label>
-                        <input type="range" id="metric-font-size" min="1" max="50" value="8" oninput="document.getElementById('metric-font-size-value').textContent = this.value + 'px'">
-                        <span id="metric-font-size-value">8px</span>
-                    </div>
-                    <div class="setting">
-                        <label>Stream Resolution</label>
-                        <select id="stream-resolution">
-                            <option value="144p">144p</option>
-                            <option value="160p">160p</option>
-                            <option value="180p">180p</option>
-                            <option value="240p">240p</option>
-                            <option value="360p">360p</option>
-                            <option value="480p">480p</option>
-                            <option value="720p" selected>720p</option>
-                            <option value="1080p">1080p</option>
-                        </select>
-                    </div>
-                    <div class="setting">
-                        <label>Frame Skip</label>
-                        <input type="range" id="stream-frame-skip" min="0" max="10" value="1" oninput="document.getElementById('stream-frame-skip-value').textContent = this.value">
-                        <span id="stream-frame-skip-value">1</span>
-                    </div>
-                    <div class="setting">
-                        <label>Max Frame Rate</label>
-                        <input type="range" id="frame-rate" min="1" max="60" value="60" oninput="document.getElementById('frame-rate-value').textContent = this.value + ' FPS'">
-                        <span id="frame-rate-value">60 FPS</span>
-                    </div>
-                </div>
-                
-                <div class="backend-settings">
-                    <h4>Detection Settings</h4>
-                    <div class="setting">
-                        <label>Model Version</label>
-                        <select id="model-version">
-                            <option value="car-fire-5.1.11n">car-fire-5.1.11n</option>
-                            <option value="flood-5.1.11n">flood-5.1.11n</option>
-                            <option value="landslide-5.1.11n">landslide-5.1.11n</option>
-                            <option value="cidm-2.7.11n">cidm-2.7.11n</option>
-                            <option value="yolo11n" selected>yolo11n</option>
-                            <option value="yolov8n">yolov8n</option>
-                        </select>
-                    </div>                    
-                    <div class="setting">
-                        <label><input type="checkbox" id="toggle-detection" checked> Detection Mode</label>
-                    </div>
-                    <div class="setting">
-                        <label><input type="checkbox" id="toggle-bounding-box" checked> Show Bounding Box</label>
-                    </div>
-                    <div class="setting">
-                        <label><input type="checkbox" id="toggle-confidence-value"> Show Confidence Value</label>
-                    </div>
-                    <div class="setting">
-                        <label>Confidence</label>
-                        <input type="range" id="confidence-level" min="0" max="100" value="70" oninput="document.getElementById('confidence-level-value').textContent = this.value + '%'">
-                        <span id="confidence-level-value">70%</span>
-                    </div>
-                    <div class="setting">
-                        <label>Plotting Method</label>
-                        <select id="plotting-method">
-                            <option value="mark_object" selected>Mark Object</option>
-                            <option value="mark_screen">Mark Screen</option>
-                        </select>
-                    </div>
-                    <div class="setting">
-                        <label><input type="checkbox" id="toggle-alert-logging" checked> Enable Alert & Record Logging</label>
-                    </div>
-                    <div class="setting">
-                        <label>Alert Logging Delay</label>
-                        <input type="range" id="alert-logging-delay" min="1" max="100" value="10" oninput="document.getElementById('alert-logging-delay-value').textContent = this.value + 's'">
-                        <span id="alert-logging-delay-value">10s</span>
-                    </div>
-                </div>
-                
-                <div id="buttons">
-                    <button class="save-btn">Save Changes</button>
-                    <button class="cancel-btn">Cancel</button>
-                    <button class="reset-btn">Reset</button>
-                </div>
-            </div>
+        <div class="container">
 
-            <!-- Account Settings -->
-            <div class="settings-panel" id="account-settings" style="display: none;">
-                <h4>Account Settings <span class="tooltip">This feature is currently under development.</span></h4>
-                <div class="box">
-                    <div class="settings-label">Profile
-                        <button class="edit-btn">Edit</button>
-                    </div>
+            <div class="settings-content">
+                <!-- General Settings -->
+                <div class="settings-panel" id="general-settings">
+                    <h4>Standard Settings</h4>
                     <div class="setting">
-                        <div class="profile-container">
-                            <div class="profile-picture">
-                                <img id="profile-img" src="../img/default.png" alt="Profile Picture">
+                        <label for="deviceSize">Feed Size:</label>
+                        <select id="deviceSize">
+                            <option value="small">Small</option>
+                            <option value="regular" selected>Regular</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+                    
+                    <div class="backend-settings">
+                        <h4>General Settings</h4>
+                        <div class="setting">
+                            <label><input type="checkbox" id="toggle-performance-metrics" checked> Show Performance Metrics</label>
+                        </div>
+                        <div class="setting">
+                            <label>Metric Update Interval</label>
+                            <input type="range" id="update-metric-interval" min="0.1" max="5" step="0.1" value="1" oninput="document.getElementById('update-metric-interval-value').textContent = this.value + 's'">
+                            <span id="update-metric-interval-value">1s</span>
+                        </div>
+                        <div class="setting">
+                            <label>Metric Font Size</label>
+                            <input type="range" id="metric-font-size" min="1" max="50" value="8" oninput="document.getElementById('metric-font-size-value').textContent = this.value + 'px'">
+                            <span id="metric-font-size-value">8px</span>
+                        </div>
+                        <div class="setting">
+                            <label>Stream Resolution</label>
+                            <select id="stream-resolution">
+                                <option value="144p">144p</option>
+                                <option value="160p">160p</option>
+                                <option value="180p">180p</option>
+                                <option value="240p">240p</option>
+                                <option value="360p">360p</option>
+                                <option value="480p">480p</option>
+                                <option value="720p" selected>720p</option>
+                                <option value="1080p">1080p</option>
+                            </select>
+                        </div>
+                        <div class="setting">
+                            <label>Frame Skip</label>
+                            <input type="range" id="stream-frame-skip" min="0" max="10" value="1" oninput="document.getElementById('stream-frame-skip-value').textContent = this.value">
+                            <span id="stream-frame-skip-value">1</span>
+                        </div>
+                        <div class="setting">
+                            <label>Max Frame Rate</label>
+                            <input type="range" id="frame-rate" min="1" max="60" value="60" oninput="document.getElementById('frame-rate-value').textContent = this.value + ' FPS'">
+                            <span id="frame-rate-value">60 FPS</span>
+                        </div>
+                    </div>
+                    
+                    <div class="backend-settings">
+                        <h4>Detection Settings</h4>
+                        <div class="setting">
+                            <label>Model Version</label>
+                            <select id="model-version">
+                                <option value="car-fire-5.1.11n">car-fire-5.1.11n</option>
+                                <option value="flood-5.1.11n">flood-5.1.11n</option>
+                                <option value="landslide-5.1.11n">landslide-5.1.11n</option>
+                                <option value="cidm-2.7.11n">cidm-2.7.11n</option>
+                                <option value="yolo11n" selected>yolo11n</option>
+                                <option value="yolov8n">yolov8n</option>
+                            </select>
+                        </div>                    
+                        <div class="setting">
+                            <label><input type="checkbox" id="toggle-detection" checked> Detection Mode</label>
+                        </div>
+                        <div class="setting">
+                            <label><input type="checkbox" id="toggle-bounding-box" checked> Show Bounding Box</label>
+                        </div>
+                        <div class="setting">
+                            <label><input type="checkbox" id="toggle-confidence-value"> Show Confidence Value</label>
+                        </div>
+                        <div class="setting">
+                            <label>Confidence</label>
+                            <input type="range" id="confidence-level" min="0" max="100" value="70" oninput="document.getElementById('confidence-level-value').textContent = this.value + '%'">
+                            <span id="confidence-level-value">70%</span>
+                        </div>
+                        <div class="setting">
+                            <label>Plotting Method</label>
+                            <select id="plotting-method">
+                                <option value="mark_object" selected>Mark Object</option>
+                                <option value="mark_screen">Mark Screen</option>
+                            </select>
+                        </div>
+                        <div class="setting">
+                            <label><input type="checkbox" id="toggle-alert-logging" checked> Enable Alert & Record Logging</label>
+                        </div>
+                        <div class="setting">
+                            <label>Alert Logging Delay</label>
+                            <input type="range" id="alert-logging-delay" min="1" max="100" value="10" oninput="document.getElementById('alert-logging-delay-value').textContent = this.value + 's'">
+                            <span id="alert-logging-delay-value">10s</span>
+                        </div>
+                    </div>
+                    
+                    <div id="buttons">
+                        <button class="save-btn">Save Changes</button>
+                        <button class="cancel-btn">Cancel</button>
+                        <button class="reset-btn">Reset</button>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="settings-panel" id="account-settings" style="display: none;">
+                    <h4>Account Settings <span class="tooltip">This feature is currently under development.</span></h4>
+                    <div class="box">
+                        <div class="settings-label">Profile
+                            <button class="edit-btn">Edit</button>
+                        </div>
+                        <div class="setting">
+                            <div class="profile-container">
+                                <div class="profile-picture">
+                                    <img id="profile-img" src="../img/default.png" alt="Profile Picture">
+                                </div>
+                                <div class="profile-info">
+                                    <label for="profile-upload">John Dela Cruz</label>
+                                    <p>Admin</p>
+                                    <!-- <input type="file" id="profile-upload" accept="image/*"> -->
+                                </div>
                             </div>
-                            <div class="profile-info">
-                                <label for="profile-upload">John Dela Cruz</label>
-                                <p>Admin</p>
-                                <!-- <input type="file" id="profile-upload" accept="image/*"> -->
+                            
+                        </div>
+                    </div>
+                    <div class="box" id="account-box">
+                        <div class="settings-label">Personal Information
+                            <button class="edit-btn">Edit</button>
+                        </div>
+                        <div class="settings-row">
+                            <div class="setting">
+                                <label>First Name</label>
+                                <p>John</p>
+                            </div>
+                            <div class="setting">
+                                <label>Last Name</label>
+                                <p>Dela Cruz</p>
                             </div>
                         </div>
-                        
-                    </div>
-                </div>
-                <div class="box" id="account-box">
-                    <div class="settings-label">Personal Information
-                        <button class="edit-btn">Edit</button>
-                    </div>
-                    <div class="settings-row">
-                        <div class="setting">
-                            <label>First Name</label>
-                            <p>John</p>
-                        </div>
-                        <div class="setting">
-                            <label>Last Name</label>
-                            <p>Dela Cruz</p>
+                        <div class="settings-row">
+                            <div class="setting">
+                                <label>Email</label>
+                                <p>iamemail@gmail.com</p>
+                            </div>
+                            <div class="setting">
+                                <label>Phone</label>
+                                <p>+63 912 345 6789</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="settings-row">
-                        <div class="setting">
-                            <label>Email</label>
-                            <p>iamemail@gmail.com</p>
-                        </div>
-                        <div class="setting">
-                            <label>Phone</label>
-                            <p>+63 912 345 6789</p>
-                        </div>
+                    
+                    <div id="buttons">
+                        <button class="save-btn">Save Changes</button>
+                        <button class="cancel-btn">Cancel</button>
+                        <button class="reset-btn">Reset</button>
                     </div>
-                </div>
-                
-                <div id="buttons">
-                    <button class="save-btn">Save Changes</button>
-                    <button class="cancel-btn">Cancel</button>
-                    <button class="reset-btn">Reset</button>
-                </div>
-            </div>
-
-            <!-- Security Settings -->
-            <div class="settings-panel" id="security-settings" style="display: none;">
-                <h4>Security Settings <span class="tooltip">This feature is currently under development.</span></h4>
-                <div class="setting">
-                    <label>Change Password</label>
-                    <input type="password" placeholder="Enter new password">
-                </div>
-                <div class="setting">
-                    <label>Enable Two-Factor Authentication</label>
-                    <input type="checkbox">
-                </div>
-                <div class="setting">
-                    <label>Trusted Devices</label>
-                    <button class="manage-btn">Manage Devices</button>
                 </div>
 
-                <div id="buttons">
-                    <button class="save-btn">Save Changes</button>
-                    <button class="cancel-btn">Cancel</button>
-                    <button class="reset-btn">Reset</button>
+                <!-- Security Settings -->
+                <div class="settings-panel" id="security-settings" style="display: none;">
+                    <h4>Security Settings <span class="tooltip">This feature is currently under development.</span></h4>
+                    <div class="setting">
+                        <label>Change Password</label>
+                        <input type="password" placeholder="Enter new password">
+                    </div>
+                    <div class="setting">
+                        <label>Enable Two-Factor Authentication</label>
+                        <input type="checkbox">
+                    </div>
+                    <div class="setting">
+                        <label>Trusted Devices</label>
+                        <button class="manage-btn">Manage Devices</button>
+                    </div>
+
+                    <div id="buttons">
+                        <button class="save-btn">Save Changes</button>
+                        <button class="cancel-btn">Cancel</button>
+                        <button class="reset-btn">Reset</button>
+                    </div>
                 </div>
             </div>
         </div>

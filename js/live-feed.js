@@ -355,13 +355,13 @@ function setDeviceCardSize(size) {
     const root = document.documentElement;
     
     if (size === "small") {
-        root.style.setProperty("--device-card-width", "35vh");
+        root.style.setProperty("--device-card-width", "40vh");
         root.style.setProperty("--device-card-height", "30vh");
     } else if (size === "large") {
         root.style.setProperty("--device-card-width", "50vh");
-        root.style.setProperty("--device-card-height", "45vh");
+        root.style.setProperty("--device-card-height", "40vh");
     } else {
-        root.style.setProperty("--device-card-width", "40vh");
+        root.style.setProperty("--device-card-width", "45vh");
         root.style.setProperty("--device-card-height", "35vh");
     }
 }
