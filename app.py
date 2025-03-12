@@ -8,9 +8,10 @@ import numpy as np
 import os
 import re
 import psutil
+import json
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from flask import Flask, Response, request, jsonify, g, send_from_directory
+from flask import Flask, Response, request, jsonify, g, send_from_directory, stream_with_context
 from flask_cors import CORS
 from ultralytics import YOLO
 from concurrent.futures import ThreadPoolExecutor
@@ -203,7 +204,7 @@ def process_frame(frame, stream_url, device_title, device_location, device_id):
         frame, detected_objects = detect_objects(frame)
         save_detected_frame(frame, stream_url, detected_objects, device_title, device_location, device_id)
     
-    timestamp_text = time.strftime("%Y-%m-%d %H:%M:%S")
+    # timestamp_text = time.strftime("%Y-%m-%d %H:%M:%S")
     # cv2.putText(frame, timestamp_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     processing_time = time.time() - process_start
     return frame, processing_time, model_status_text
@@ -403,6 +404,30 @@ def get_db(): # Database helper function
         g.db = sqlite3.connect(DB_PATH)
         g.db.row_factory = sqlite3.Row
     return g.db
+
+from flask import Response, stream_with_context
+
+@app.route('/stream_alerts', methods=['GET'])
+def stream_alerts():
+    def event_stream():
+        db = get_db()
+        cursor = db.cursor()
+        last_id = 0  # Track the last alert ID sent to the client
+
+        while True:
+            # Fetch new alerts (those with ID > last_id)
+            cursor.execute("SELECT * FROM alert WHERE id > ? ORDER BY detected_at DESC", (last_id,))
+            alerts = cursor.fetchall()
+
+            if alerts:
+                for alert in alerts:
+                    last_id = alert['id']  # Update the last sent alert ID
+                    data = json.dumps(dict(alert))  # Convert alert to JSON
+                    yield f"data: {data}\n\n"  # SSE format
+
+            time.sleep(1)  # Polling interval (can be adjusted)
+
+    return Response(stream_with_context(event_stream()), content_type='text/event-stream')
 
 @app.route('/get_alerts', methods=['GET'])
 def get_alerts():

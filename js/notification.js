@@ -7,22 +7,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let notifications = [];
 
-    // Function to fetch new alerts from the database
-    function fetchAlerts() {
-        fetch('/get_alerts')
-            .then(response => response.json())
-            .then(data => {
-                // Sort alerts in reverse order (newest first)
-                data.sort((a, b) => b.id - a.id);
-    
-                if (JSON.stringify(data) !== JSON.stringify(notifications)) {
-                    notifications = data;
-                    updateNotificationUI(true);
-                }
-            })
-            .catch(error => console.error('Error fetching alerts:', error));
-    }    
-
     // Function to update the notification UI
     function updateNotificationUI(showBox) {
         notificationList.innerHTML = '';
@@ -32,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
             notificationList.appendChild(li);
         });
         notificationCount.textContent = notifications.length;
-    
+
         if (showBox) {
             notificationBox.classList.add('show');
         }
@@ -56,9 +40,28 @@ document.addEventListener('DOMContentLoaded', function () {
     // Clear all notifications
     clearNotificationsButton.addEventListener('click', clearNotifications);
 
-    // Fetch alerts every 2 seconds
-    setInterval(fetchAlerts, 2000);
+    // Establish SSE connection for real-time alerts
+    const eventSource = new EventSource('/stream_alerts');
 
-    // Initial fetch
-    fetchAlerts();
+    eventSource.onmessage = function (event) {
+        const newAlert = JSON.parse(event.data);
+
+        // Add the new alert to the notifications array
+        notifications.unshift(newAlert); // Add to the beginning of the array
+        updateNotificationUI(true); // Update the UI and show the notification box
+    };
+
+    eventSource.onerror = function (error) {
+        console.error('SSE error:', error);
+        eventSource.close(); // Close the connection on error
+    };
+
+    // Initial fetch (optional, if you want to load existing alerts on page load)
+    fetch('/get_alerts')
+        .then(response => response.json())
+        .then(data => {
+            notifications = data;
+            updateNotificationUI(false);
+        })
+        .catch(error => console.error('Error fetching initial alerts:', error));
 });
