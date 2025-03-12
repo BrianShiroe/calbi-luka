@@ -392,6 +392,7 @@ body {
 .modes{
     display: flex;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     width: 120vh;
     padding: 10px;
 }
@@ -401,11 +402,14 @@ body {
     font-size: 0.7rem;
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 }
 
 .monitoring-mode{
     padding: 5px;
     font-size: 0.7rem;
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     border-radius: 5px; 
     border-width: 0;
@@ -413,6 +417,10 @@ body {
 
 .monitoring-mode:hover{
     background-color: #0000001a;
+=======
+    border-radius: 10px; 
+    right: 0;
+>>>>>>> Stashed changes
 =======
     border-radius: 10px; 
     right: 0;
