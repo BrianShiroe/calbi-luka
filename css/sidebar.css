@@ -20,22 +20,7 @@ body {
     background: #eeeeee;
     transition: width 0.3s ease, left 0.3s ease;
     margin-left: 5px;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
     margin-top: 5px;
->>>>>>> Stashed changes
-=======
-    margin-top: 5px;
->>>>>>> Stashed changes
-=======
-    margin-top: 5px;
->>>>>>> Stashed changes
-=======
-    margin-top: 5px;
->>>>>>> Stashed changes
 }
 
 .sidebar.closed {
