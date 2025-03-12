@@ -7,6 +7,19 @@ document.querySelectorAll(".tab").forEach(tab => {
     });
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    const deviceSizeSelect = document.getElementById("deviceSize");
+
+    // Load saved preference
+    const savedSize = localStorage.getItem("deviceCardSize") || "regular";
+    deviceSizeSelect.value = savedSize;
+
+    // Save preference when changed
+    deviceSizeSelect.addEventListener("change", (event) => {
+        localStorage.setItem("deviceCardSize", event.target.value);
+    });
+});
+
 // General Settings
 document.addEventListener("DOMContentLoaded", function () {
     // Get elements
@@ -21,21 +34,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const updateMetricIntervalValue = document.getElementById("update-metric-interval-value");
     const metricFontSize = document.getElementById("metric-font-size");
     const metricFontSizeValue = document.getElementById("metric-font-size-value");
-    const targetObject = document.getElementById("target-object");
     const saveBtn = document.querySelector(".save-btn");
     const cancelBtn = document.querySelector(".cancel-btn");
     const resetBtn = document.querySelector(".reset-btn");
 
     // Default values (matching Python defaults)
     const defaultSettings = {
-        detection_mode: true,
+        detection_mode: False,
         show_bounding_box: true,
         performance_metrics_toggle: true,
         confidence_level: 70, // 0.7 * 100
         frame_rate: 60, // max_frame_rate default
         update_metric_interval: 1,
         metric_font_size: 8,
-        target_object: "car"
     };
 
     // Function to update range values dynamically
@@ -63,7 +74,6 @@ document.addEventListener("DOMContentLoaded", function () {
         updateMetricIntervalValue.textContent = `${updateMetricInterval.value}s`;
         metricFontSize.value = localStorage.getItem("metric_font_size") ?? defaultSettings.metric_font_size;
         metricFontSizeValue.textContent = `${metricFontSize.value}px`;
-        targetObject.value = localStorage.getItem("target_object") ?? defaultSettings.target_object;
     }
 
     loadSettings();
@@ -79,7 +89,6 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem("frame_rate", frameRate.value);
         localStorage.setItem("update_metric_interval", updateMetricInterval.value);
         localStorage.setItem("metric_font_size", metricFontSize.value);
-        localStorage.setItem("target_object", targetObject.value);
 
         fetch("/toggle_model", {
             method: "POST",
@@ -123,12 +132,6 @@ document.addEventListener("DOMContentLoaded", function () {
             body: JSON.stringify({ size: metricFontSize.value }),
         });
 
-        fetch("/set_target_object", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ target: targetObject.value }),
-        });
-
         alert("Settings saved successfully!");
     }
 
@@ -152,7 +155,6 @@ document.addEventListener("DOMContentLoaded", function () {
         updateMetricIntervalValue.textContent = `${defaultSettings.update_metric_interval}s`;
         metricFontSize.value = defaultSettings.metric_font_size;
         metricFontSizeValue.textContent = `${defaultSettings.metric_font_size}px`;
-        targetObject.value = defaultSettings.target_object;
 
         // Update localStorage with default values
         localStorage.setItem("detection_mode", defaultSettings.detection_mode);
@@ -162,7 +164,6 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem("frame_rate", defaultSettings.frame_rate);
         localStorage.setItem("update_metric_interval", defaultSettings.update_metric_interval);
         localStorage.setItem("metric_font_size", defaultSettings.metric_font_size);
-        localStorage.setItem("target_object", defaultSettings.target_object);
 
         alert("Settings reset to default.");
     }
@@ -171,17 +172,4 @@ document.addEventListener("DOMContentLoaded", function () {
     saveBtn.addEventListener("click", saveSettings);
     cancelBtn.addEventListener("click", cancelSettings);
     resetBtn.addEventListener("click", resetSettings);
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-    const deviceSizeSelect = document.getElementById("deviceSize");
-
-    // Load saved preference
-    const savedSize = localStorage.getItem("deviceCardSize") || "regular";
-    deviceSizeSelect.value = savedSize;
-
-    // Save preference when changed
-    deviceSizeSelect.addEventListener("change", (event) => {
-        localStorage.setItem("deviceCardSize", event.target.value);
-    });
 });

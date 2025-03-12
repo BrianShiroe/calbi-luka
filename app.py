@@ -26,17 +26,19 @@ detected_records_path = "records"
 os.makedirs(detected_records_path, exist_ok=True)
 last_record_times = {}  # Dictionary to store last save time per stream
 
-#Modifications
-detection_mode = True
-show_bounding_box = True
-show_confidence_value = False
+#General Settings
+detection_mode = False
 performance_metrics_toggle = True
-confidence_level = 0.7
-max_frame_rate = 60
 update_metric_interval = 1
 metric_font_size = 8
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
 stream_frame_skip = 1  # Only process 1 out of every 2 frames (adjust as needed)
+max_frame_rate = 60
+
+#Detection Settings
+show_bounding_box = True
+show_confidence_value = False
+confidence_level = 0.7
 plotting_method = "mark_object"  # mark_object, mark_screen
 alert_and_record_logging = True
 delay_for_alert_and_record_logging = 5
@@ -553,13 +555,6 @@ def set_max_frame_rate():
     if 'max_frame_rate' in data:
         max_frame_rate = int(data['max_frame_rate'])
     return jsonify({"max_frame_rate": max_frame_rate})
-
-@app.route('/set_target_object', methods=['POST'])
-def set_target_object():
-    data = request.get_json()
-    selected_target = data.get('target')
-    print(f"Target object set to: {selected_target}")
-    return jsonify({"selected_target": selected_target})
 
 if __name__ == "__main__":
     # Start Flask server in a thread
