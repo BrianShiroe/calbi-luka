@@ -173,3 +173,15 @@ document.addEventListener("DOMContentLoaded", function () {
     resetBtn.addEventListener("click", resetSettings);
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    const deviceSizeSelect = document.getElementById("deviceSize");
+
+    // Load saved preference
+    const savedSize = localStorage.getItem("deviceCardSize") || "regular";
+    deviceSizeSelect.value = savedSize;
+
+    // Save preference when changed
+    deviceSizeSelect.addEventListener("change", (event) => {
+        localStorage.setItem("deviceCardSize", event.target.value);
+    });
+});

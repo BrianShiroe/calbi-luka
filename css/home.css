@@ -3,6 +3,7 @@ body {
     padding: 20px;
     padding-left: 100px;
     background-color: #fff;
+    height: 100vh;
 }
 
 .header img{
@@ -11,8 +12,11 @@ body {
 
 .container {
     /* max-width: 1200px; */
-    max-height: fit-content;
+    height: 79vh;
     margin: 20px auto;
+    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .home-sb{
@@ -118,16 +122,21 @@ body {
     border-bottom: none;
 }
 
+:root {
+    --device-card-height: 200px;
+}
+
 /* Grid layout for devices */
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 10px;
-    grid-auto-rows: minmax(200px, auto);
+    grid-template-columns: repeat(auto-fill, minmax(var(--device-card-width), 1fr));
+    gap: 5px;
+    grid-auto-rows: minmax(var(--device-card-height), auto);
 }
 
 /* Device card styling */
-.device-card{
+.device-card {
+    height: var(--device-card-height);
     position: relative;
     background-color: #ffffff;
     color: #000000;
@@ -138,31 +147,41 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 230px;
     cursor: pointer;
     transition: transform 0.3s ease;
+}
+
+.small {
+    --device-card-height: 170px;
+}
+
+.regular {
+    --device-card-height: 200px;
+}
+
+.large {
+    --device-card-height: 250px;
 }
 
 .menu-container {
     position: absolute;
     top: 10px;
     right: 10px;
-    display: none; /* Initially hidden */
+    display: none;
 }
 
 .kebab-menu {
     font-size: 18px;
     cursor: pointer;
-    margin-right: 10px;
-    margin-top: 10px;
+    margin-right: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #000000;
     background-color: rgb(255, 255, 255);
-    width: 10px;
+    width: 25px;
     height: 25px;
-    border-radius: 10px;
+    border-radius: 30px;
 }
 
 .kebab-menu:hover{

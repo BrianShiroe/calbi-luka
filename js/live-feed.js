@@ -328,3 +328,27 @@ function showNotification() {
     const notificationIcon = document.getElementById("notification-icon");
     notificationIcon.classList.add("show");
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    applySavedDeviceSize();
+});
+
+function applySavedDeviceSize() {
+    const savedSize = localStorage.getItem("deviceCardSize") || "regular";
+    setDeviceCardSize(savedSize);
+}
+
+function setDeviceCardSize(size) {
+    const root = document.documentElement;
+    
+    if (size === "small") {
+        root.style.setProperty("--device-card-width", "200px");
+        root.style.setProperty("--device-card-height", "170px");
+    } else if (size === "large") {
+        root.style.setProperty("--device-card-width", "300px");
+        root.style.setProperty("--device-card-height", "250px");
+    } else {
+        root.style.setProperty("--device-card-width", "250px");
+        root.style.setProperty("--device-card-height", "200px");
+    }
+}

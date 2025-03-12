@@ -73,6 +73,15 @@
                 </div>
             
                 <div class="setting">
+                    <label for="deviceSize">Feed Size:</label>
+                    <select id="deviceSize">
+                        <option value="small">Small</option>
+                        <option value="regular" selected>Regular</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+
+                <div class="setting">
                     <label>Confidence</label>
                     <input type="range" id="confidence-level" min="0" max="100" value="70">
                     <span id="confidence-level-value">70%</span>
