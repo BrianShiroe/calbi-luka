@@ -58,20 +58,7 @@
         <div class="settings-content">
             <!-- General Settings -->
             <div class="settings-panel" id="general-settings">
-                <h4>General Settings</h4>
-            
-                <div class="setting">
-                    <label><input type="checkbox" id="toggle-detection" checked> Detection Mode</label>
-                </div>
-            
-                <div class="setting">
-                    <label><input type="checkbox" id="toggle-bounding-box" checked> Show Bounding Box</label>
-                </div>
-            
-                <div class="setting">
-                    <label><input type="checkbox" id="toggle-performance-metrics" checked> Show Performance Metrics</label>
-                </div>
-            
+                <h4>Standard Settings</h4>
                 <div class="setting">
                     <label for="deviceSize">Feed Size:</label>
                     <select id="deviceSize">
@@ -80,31 +67,80 @@
                         <option value="large">Large</option>
                     </select>
                 </div>
-
-                <div class="setting">
-                    <label>Confidence</label>
-                    <input type="range" id="confidence-level" min="0" max="100" value="70">
-                    <span id="confidence-level-value">70%</span>
+                
+                <div class="backend-settings">
+                    <h4>General Settings</h4>
+                    <div class="setting">
+                        <label><input type="checkbox" id="toggle-performance-metrics" checked> Show Performance Metrics</label>
+                    </div>
+                    <div class="setting">
+                        <label>Metric Update Interval</label>
+                        <input type="range" id="update-metric-interval" min="0.1" max="5" step="0.1" value="1" oninput="document.getElementById('update-metric-interval-value').textContent = this.value + 's'">
+                        <span id="update-metric-interval-value">1s</span>
+                    </div>
+                    <div class="setting">
+                        <label>Metric Font Size</label>
+                        <input type="range" id="metric-font-size" min="1" max="50" value="8" oninput="document.getElementById('metric-font-size-value').textContent = this.value + 'px'">
+                        <span id="metric-font-size-value">8px</span>
+                    </div>
+                    <div class="setting">
+                        <label>Stream Resolution</label>
+                        <select id="stream-resolution">
+                            <option value="144p">144p</option>
+                            <option value="160p">160p</option>
+                            <option value="180p">180p</option>
+                            <option value="240p">240p</option>
+                            <option value="360p">360p</option>
+                            <option value="480p">480p</option>
+                            <option value="720p" selected>720p</option>
+                            <option value="1080p">1080p</option>
+                        </select>
+                    </div>
+                    <div class="setting">
+                        <label>Frame Skip</label>
+                        <input type="range" id="stream-frame-skip" min="1" max="10" value="1" oninput="document.getElementById('stream-frame-skip-value').textContent = this.value">
+                        <span id="stream-frame-skip-value">1</span>
+                    </div>
+                    <div class="setting">
+                        <label>Max Frame Rate</label>
+                        <input type="range" id="frame-rate" min="1" max="60" value="60" oninput="document.getElementById('frame-rate-value').textContent = this.value + ' FPS'">
+                        <span id="frame-rate-value">60 FPS</span>
+                    </div>
                 </div>
-            
-                <div class="setting">
-                    <label>Max Frame Rate</label>
-                    <input type="range" id="frame-rate" min="1" max="60" value="60">
-                    <span id="frame-rate-value">60 FPS</span>
+                
+                <div class="backend-settings">
+                    <h4>Detection Settings</h4>
+                    <div class="setting">
+                        <label><input type="checkbox" id="toggle-detection" checked> Detection Mode</label>
+                    </div>
+                    <div class="setting">
+                        <label><input type="checkbox" id="toggle-bounding-box" checked> Show Bounding Box</label>
+                    </div>
+                    <div class="setting">
+                        <label><input type="checkbox" id="toggle-confidence-value"> Show Confidence Value</label>
+                    </div>
+                    <div class="setting">
+                        <label>Confidence</label>
+                        <input type="range" id="confidence-level" min="0" max="100" value="70" oninput="document.getElementById('confidence-level-value').textContent = this.value + '%'">
+                        <span id="confidence-level-value">70%</span>
+                    </div>
+                    <div class="setting">
+                        <label>Plotting Method</label>
+                        <select id="plotting-method">
+                            <option value="mark_object" selected>Mark Object</option>
+                            <option value="mark_screen">Mark Screen</option>
+                        </select>
+                    </div>
+                    <div class="setting">
+                        <label><input type="checkbox" id="toggle-alert-logging" checked> Enable Alert & Record Logging</label>
+                    </div>
+                    <div class="setting">
+                        <label>Alert Logging Delay</label>
+                        <input type="range" id="alert-logging-delay" min="1" max="100" value="10" oninput="document.getElementById('alert-logging-delay-value').textContent = this.value + 's'">
+                        <span id="alert-logging-delay-value">10s</span>
+                    </div>
                 </div>
-            
-                <div class="setting">
-                    <label>Metric Update Interval</label>
-                    <input type="range" id="update-metric-interval" min="0.1" max="5" step="0.1" value="0.1">
-                    <span id="update-metric-interval-value">1s</span>
-                </div>
-            
-                <div class="setting">
-                    <label>Metric Font Size</label>
-                    <input type="range" id="metric-font-size" min="1" max="50" value="50">
-                    <span id="metric-font-size-value">24px</span>
-                </div>
-
+                
                 <div id="buttons">
                     <button class="save-btn">Save Changes</button>
                     <button class="cancel-btn">Cancel</button>

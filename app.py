@@ -28,7 +28,7 @@ last_record_times = {}  # Dictionary to store last save time per stream
 
 #General Settings
 detection_mode = False
-performance_metrics_toggle = True
+performance_metrics_toggle = False
 update_metric_interval = 1
 metric_font_size = 8
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
@@ -41,7 +41,7 @@ show_confidence_value = False
 confidence_level = 0.7
 plotting_method = "mark_object"  # mark_object, mark_screen
 alert_and_record_logging = True
-delay_for_alert_and_record_logging = 5
+delay_for_alert_and_record_logging = 10
 
 #resolution options
 resolutions = {
@@ -294,7 +294,7 @@ def overlay_metrics(frame, metrics, model_status_text):
     
     return frame
 
-def set_stream_resolution(cap):
+def setup_stream_resolution(cap):
     if stream_resolution in resolutions:
         width, height = resolutions[stream_resolution]
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
@@ -313,7 +313,7 @@ def generate_frames(stream_url, device_title, device_location, device_id):
     if cap is None:
         return
 
-    set_stream_resolution(cap)
+    setup_stream_resolution(cap)
     metrics = initialize_metrics()
     frame_count = 0
     active_streams += 1  
@@ -330,7 +330,7 @@ def generate_frames(stream_url, device_title, device_location, device_id):
                 if cap is None:
                     print("Failed to reconnect. Stopping stream.")
                     break
-                set_stream_resolution(cap)
+                setup_stream_resolution(cap)
                 continue  
 
             frame_count += 1
@@ -555,6 +555,54 @@ def set_max_frame_rate():
     if 'max_frame_rate' in data:
         max_frame_rate = int(data['max_frame_rate'])
     return jsonify({"max_frame_rate": max_frame_rate})
+
+@app.route('/set_stream_resolution', methods=['POST'])
+def set_stream_resolution():
+    global stream_resolution
+    data = request.get_json()
+    if 'resolution' in data:
+        stream_resolution = data['resolution']
+    return jsonify({"stream_resolution": stream_resolution})
+
+@app.route('/set_stream_frame_skip', methods=['POST'])
+def set_stream_frame_skip():
+    global stream_frame_skip
+    data = request.get_json()
+    if 'frame_skip' in data:
+        stream_frame_skip = int(data['frame_skip'])
+    return jsonify({"stream_frame_skip": stream_frame_skip})
+
+@app.route('/toggle_confidence_value', methods=['POST'])
+def toggle_confidence_value():
+    global show_confidence_value
+    data = request.get_json()
+    if 'enabled' in data:
+        show_confidence_value = data['enabled']
+    return jsonify({"show_confidence_value": show_confidence_value})
+
+@app.route('/set_plotting_method', methods=['POST'])
+def set_plotting_method():
+    global plotting_method
+    data = request.get_json()
+    if 'method' in data:
+        plotting_method = data['method']
+    return jsonify({"plotting_method": plotting_method})
+
+@app.route('/toggle_alert_and_record_logging', methods=['POST'])
+def toggle_alert_and_record_logging():
+    global alert_and_record_logging
+    data = request.get_json()
+    if 'enabled' in data:
+        alert_and_record_logging = data['enabled']
+    return jsonify({"alert_and_record_logging": alert_and_record_logging})
+
+@app.route('/set_delay_for_alert_and_record_logging', methods=['POST'])
+def set_delay_for_alert_and_record_logging():
+    global delay_for_alert_and_record_logging
+    data = request.get_json()
+    if 'delay' in data:
+        delay_for_alert_and_record_logging = int(data['delay'])
+    return jsonify({"delay_for_alert_and_record_logging": delay_for_alert_and_record_logging})
 
 if __name__ == "__main__":
     # Start Flask server in a thread

@@ -34,22 +34,35 @@ document.addEventListener("DOMContentLoaded", function () {
     const updateMetricIntervalValue = document.getElementById("update-metric-interval-value");
     const metricFontSize = document.getElementById("metric-font-size");
     const metricFontSizeValue = document.getElementById("metric-font-size-value");
+    const streamResolution = document.getElementById("stream-resolution");
+    const streamFrameSkip = document.getElementById("stream-frame-skip");
+    const streamFrameSkipValue = document.getElementById("stream-frame-skip-value");
+    const showConfidenceValueToggle = document.getElementById("toggle-confidence-value");
+    const plottingMethod = document.getElementById("plotting-method");
+    const alertLoggingToggle = document.getElementById("toggle-alert-logging");
+    const alertLoggingDelay = document.getElementById("alert-logging-delay");
+    const alertLoggingDelayValue = document.getElementById("alert-logging-delay-value");
     const saveBtn = document.querySelector(".save-btn");
     const cancelBtn = document.querySelector(".cancel-btn");
     const resetBtn = document.querySelector(".reset-btn");
 
-    // Default values (matching Python defaults)
+    // Default values
     const defaultSettings = {
-        detection_mode: False,
-        show_bounding_box: true,
-        performance_metrics_toggle: true,
-        confidence_level: 70, // 0.7 * 100
-        frame_rate: 60, // max_frame_rate default
+        detection_mode: false,
+        performance_metrics_toggle: false,
         update_metric_interval: 1,
         metric_font_size: 8,
+        stream_resolution: "720p",
+        stream_frame_skip: 1,
+        max_frame_rate: 60,
+        show_bounding_box: true,
+        show_confidence_value: false,
+        confidence_level: 0.7,
+        plotting_method: "mark_object",
+        alert_and_record_logging: true,
+        delay_for_alert_and_record_logging: 10,
     };
 
-    // Function to update range values dynamically
     function updateRangeValue(input, output, suffix) {
         input.addEventListener("input", () => {
             output.textContent = `${input.value}${suffix}`;
@@ -60,115 +73,84 @@ document.addEventListener("DOMContentLoaded", function () {
     updateRangeValue(frameRate, frameRateValue, " FPS");
     updateRangeValue(updateMetricInterval, updateMetricIntervalValue, "s");
     updateRangeValue(metricFontSize, metricFontSizeValue, "px");
+    updateRangeValue(streamFrameSkip, streamFrameSkipValue, " frames");
+    updateRangeValue(alertLoggingDelay, alertLoggingDelayValue, "s");
 
-    // Load settings from localStorage or use defaults
     function loadSettings() {
-        detectionToggle.checked = JSON.parse(localStorage.getItem("detection_mode")) ?? defaultSettings.detection_mode;
-        boundingBoxToggle.checked = JSON.parse(localStorage.getItem("show_bounding_box")) ?? defaultSettings.show_bounding_box;
-        performanceMetricsToggle.checked = JSON.parse(localStorage.getItem("performance_metrics_toggle")) ?? defaultSettings.performance_metrics_toggle;
-        confidenceLevel.value = localStorage.getItem("confidence_level") ?? defaultSettings.confidence_level;
+        const settings = JSON.parse(localStorage.getItem("settings")) || defaultSettings;
+        
+        detectionToggle.checked = settings.detection_mode;
+        boundingBoxToggle.checked = settings.show_bounding_box;
+        performanceMetricsToggle.checked = settings.performance_metrics_toggle;
+        confidenceLevel.value = settings.confidence_level * 100;
         confidenceValue.textContent = `${confidenceLevel.value}%`;
-        frameRate.value = localStorage.getItem("frame_rate") ?? defaultSettings.frame_rate;
+        frameRate.value = settings.max_frame_rate;
         frameRateValue.textContent = `${frameRate.value} FPS`;
-        updateMetricInterval.value = localStorage.getItem("update_metric_interval") ?? defaultSettings.update_metric_interval;
+        updateMetricInterval.value = settings.update_metric_interval;
         updateMetricIntervalValue.textContent = `${updateMetricInterval.value}s`;
-        metricFontSize.value = localStorage.getItem("metric_font_size") ?? defaultSettings.metric_font_size;
+        metricFontSize.value = settings.metric_font_size;
         metricFontSizeValue.textContent = `${metricFontSize.value}px`;
+        streamResolution.value = settings.stream_resolution;
+        streamFrameSkip.value = settings.stream_frame_skip;
+        streamFrameSkipValue.textContent = `${streamFrameSkip.value} frames`;
+        showConfidenceValueToggle.checked = settings.show_confidence_value;
+        plottingMethod.value = settings.plotting_method;
+        alertLoggingToggle.checked = settings.alert_and_record_logging;
+        alertLoggingDelay.value = settings.delay_for_alert_and_record_logging;
+        alertLoggingDelayValue.textContent = `${alertLoggingDelay.value}s`;
     }
 
     loadSettings();
 
-    // Save settings function
     function saveSettings() {
-        const confidenceDecimal = confidenceLevel.value / 100; // Convert to decimal for backend
+        const confidenceDecimal = confidenceLevel.value / 100;
 
-        localStorage.setItem("detection_mode", detectionToggle.checked);
-        localStorage.setItem("show_bounding_box", boundingBoxToggle.checked);
-        localStorage.setItem("performance_metrics_toggle", performanceMetricsToggle.checked);
-        localStorage.setItem("confidence_level", confidenceLevel.value);
-        localStorage.setItem("frame_rate", frameRate.value);
-        localStorage.setItem("update_metric_interval", updateMetricInterval.value);
-        localStorage.setItem("metric_font_size", metricFontSize.value);
+        const settings = {
+            detection_mode: detectionToggle.checked,
+            show_bounding_box: boundingBoxToggle.checked,
+            performance_metrics_toggle: performanceMetricsToggle.checked,
+            confidence_level: confidenceDecimal,
+            max_frame_rate: frameRate.value,
+            update_metric_interval: updateMetricInterval.value,
+            metric_font_size: metricFontSize.value,
+            stream_resolution: streamResolution.value,
+            stream_frame_skip: streamFrameSkip.value,
+            show_confidence_value: showConfidenceValueToggle.checked,
+            plotting_method: plottingMethod.value,
+            alert_and_record_logging: alertLoggingToggle.checked,
+            delay_for_alert_and_record_logging: alertLoggingDelay.value,
+        };
 
-        fetch("/toggle_model", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ enabled: detectionToggle.checked }),
-        });
+        localStorage.setItem("settings", JSON.stringify(settings));
 
-        fetch("/toggle_bounding_box", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ enabled: boundingBoxToggle.checked }),
-        });
-
-        fetch("/toggle_performance_metrics", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ enabled: performanceMetricsToggle.checked }),
-        });
-
-        fetch("/set_confidence_level", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ confidence: confidenceDecimal }),
-        });
-
-        fetch("/set_max_frame_rate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ max_frame_rate: frameRate.value }),
-        });
-
-        fetch("/set_update_metric_interval", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ interval: updateMetricInterval.value }),
-        });
-
-        fetch("/set_metric_font_size", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ size: metricFontSize.value }),
-        });
+        fetch("/toggle_model", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: settings.detection_mode }) });
+        fetch("/toggle_bounding_box", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: settings.show_bounding_box }) });
+        fetch("/toggle_performance_metrics", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: settings.performance_metrics_toggle }) });
+        fetch("/set_confidence_level", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confidence: settings.confidence_level }) });
+        fetch("/set_max_frame_rate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ max_frame_rate: settings.max_frame_rate }) });
+        fetch("/set_update_metric_interval", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ interval: settings.update_metric_interval }) });
+        fetch("/set_metric_font_size", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ size: settings.metric_font_size }) });
+        fetch("/set_stream_resolution", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ resolution: settings.stream_resolution }) });
+        fetch("/set_stream_frame_skip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ frame_skip: settings.stream_frame_skip }) });
+        fetch("/toggle_confidence_value", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: settings.show_confidence_value }) });
+        fetch("/set_plotting_method", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ method: settings.plotting_method }) });
+        fetch("/toggle_alert_and_record_logging", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: settings.alert_and_record_logging }) });
+        fetch("/set_delay_for_alert_and_record_logging", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ delay: settings.delay_for_alert_and_record_logging }) });
 
         alert("Settings saved successfully!");
     }
 
-    // Cancel function (restore previous values)
     function cancelSettings() {
         loadSettings();
         alert("Changes discarded.");
     }
 
-    // Reset function (restore default values)
     function resetSettings() {
-        // Reset to default values
-        detectionToggle.checked = defaultSettings.detection_mode;
-        boundingBoxToggle.checked = defaultSettings.show_bounding_box;
-        performanceMetricsToggle.checked = defaultSettings.performance_metrics_toggle;
-        confidenceLevel.value = defaultSettings.confidence_level;
-        confidenceValue.textContent = `${defaultSettings.confidence_level}%`;
-        frameRate.value = defaultSettings.frame_rate;
-        frameRateValue.textContent = `${defaultSettings.frame_rate} FPS`;
-        updateMetricInterval.value = defaultSettings.update_metric_interval;
-        updateMetricIntervalValue.textContent = `${defaultSettings.update_metric_interval}s`;
-        metricFontSize.value = defaultSettings.metric_font_size;
-        metricFontSizeValue.textContent = `${defaultSettings.metric_font_size}px`;
-
-        // Update localStorage with default values
-        localStorage.setItem("detection_mode", defaultSettings.detection_mode);
-        localStorage.setItem("show_bounding_box", defaultSettings.show_bounding_box);
-        localStorage.setItem("performance_metrics_toggle", defaultSettings.performance_metrics_toggle);
-        localStorage.setItem("confidence_level", defaultSettings.confidence_level);
-        localStorage.setItem("frame_rate", defaultSettings.frame_rate);
-        localStorage.setItem("update_metric_interval", defaultSettings.update_metric_interval);
-        localStorage.setItem("metric_font_size", defaultSettings.metric_font_size);
-
+        localStorage.setItem("settings", JSON.stringify(defaultSettings));
+        loadSettings();
         alert("Settings reset to default.");
     }
 
-    // Event listeners
     saveBtn.addEventListener("click", saveSettings);
     cancelBtn.addEventListener("click", cancelSettings);
     resetBtn.addEventListener("click", resetSettings);
