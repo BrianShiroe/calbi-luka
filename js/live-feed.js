@@ -330,6 +330,19 @@ function showNotification() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    const deviceSizeSelect = document.getElementById("deviceSize");
+
+    // Load saved preference
+    const savedSize = localStorage.getItem("deviceCardSize") || "regular";
+    deviceSizeSelect.value = savedSize;
+
+    // Save preference when changed
+    deviceSizeSelect.addEventListener("change", (event) => {
+        localStorage.setItem("deviceCardSize", event.target.value);
+    });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
     applySavedDeviceSize();
 });
 
@@ -342,13 +355,13 @@ function setDeviceCardSize(size) {
     const root = document.documentElement;
     
     if (size === "small") {
-        root.style.setProperty("--device-card-width", "200px");
-        root.style.setProperty("--device-card-height", "170px");
+        root.style.setProperty("--device-card-width", "35vh");
+        root.style.setProperty("--device-card-height", "30vh");
     } else if (size === "large") {
-        root.style.setProperty("--device-card-width", "300px");
-        root.style.setProperty("--device-card-height", "250px");
+        root.style.setProperty("--device-card-width", "50vh");
+        root.style.setProperty("--device-card-height", "45vh");
     } else {
-        root.style.setProperty("--device-card-width", "250px");
-        root.style.setProperty("--device-card-height", "200px");
+        root.style.setProperty("--device-card-width", "40vh");
+        root.style.setProperty("--device-card-height", "35vh");
     }
 }
