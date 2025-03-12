@@ -12,11 +12,21 @@ th, td {
 }
 
 th {
-    background-color: #453cc6;
+    background-color: #453cc6cb;
     color: white;
 }
 
 .label {
     font-weight: bold;
     margin-bottom: 10px;
+}
+
+.export{
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    background: #453cc6;
+    border:none;
+    color: #fff;
+    font-size: 12px;
 }

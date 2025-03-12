@@ -170,34 +170,5 @@ document.addEventListener("DOMContentLoaded", function () {
             // Update activeTab reference
             activeTab = targetContent;
         });
-    });   
-
-    // Sample Data with timestamps
-    const activities = [
-        { event: "Fire reported in Zone 3", time: "12:45 PM" },
-        { event: "Flood alert in Barangay Santa Rita", time: "11:30 AM" },
-        { event: "Landslide detected in Highway 2", time: "10:15 AM" },
-        { event: "Car crash near City Center", time: "9:50 AM" },
-        { event: "Earthquake tremors recorded at 3.2 magnitude", time: "8:20 AM" }
-    ];
-
-    // Function to populate Recent Activity UI
-    function loadRecentActivities() {
-        const activityList = document.getElementById("activity-list");
-        activityList.innerHTML = ""; // Clear existing content
-
-        activities.forEach(activity => {
-            const listItem = document.createElement("li");
-            listItem.innerHTML = `
-                <div class="activity-item">
-                    <p>${activity.event}</p>
-                    <span class="activity-time" style="font-size:10px;">${activity.time}</span>
-                </div>
-            `;
-            activityList.appendChild(listItem);
-        });
-    }
-    // Load Activities on Page Load
-    window.onload = loadRecentActivities;
-
+    });
 });

@@ -1,26 +1,32 @@
 body {
     margin: 0;
-    padding: 20px;
-    padding-left: 100px;
-    background-color: #fff;
+    padding-top: 10px;
+    padding-right: 17px;
+    background-color: #eeeeee;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .header img{
     height:35px;
 }
 
+.content{ 
+    box-shadow: 0px 3px 20px rgba(0, 0, 0, 0.2);
+    padding: 22px;
+    border-radius: 20px;
+    background: #f5f5f5;
+    height: 97vh;
+}
+
 .container {
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px auto;
-    /* justify-content: center;
-    text-align: center; */
-    /* max-width: 1200px; */
-    /* max-height: fit-content; */
+    padding-top: 10px;
+    height: 83vh;
 }
 
 .analytics-sb {
-    background-color: #fff !important;
+    background-color: #453cc6cb !important;
+    box-shadow: 0 4px 8px rgba(60, 67, 196, 0.423);
 }
 
 .tabs {
@@ -30,11 +36,11 @@ body {
 }
 
 .tab-button {
-    padding: 10px 20px;
+    padding: 10px;
     border: none;
     color: #333;
     cursor: pointer;
-    background-color: #fff;
+    background-color: #f5f5f5;
     font-size: 12px;
 }
 
@@ -58,52 +64,34 @@ body {
     position: relative;
 }
 
-
 #overview {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
-    justify-content: space-between;
-    padding: 20px;
-}
-
-.summary-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: space-between;
-    margin-top: 10px;
 }
 
 .incident-summary {
     color: #333;
-    padding: 20px;
     border-radius: 8px;
-    width: 15%;
     text-align: center;
-    min-width: 28vh;
     position: relative;
     box-shadow: 0px 3px 20px rgba(0, 0, 0, 0.12);
 }
 
 .incident-summary p {
     font-size: 14px;
-    margin-bottom: 10px;
 }
 
 .incident-summary h2 {
     font-size: 24px;
     font-weight: bold;
-    margin: 5px 0;
 }
 
 .incident-summary select {
     position: absolute;
     bottom: 10px;
     right: 10px;
-    background: #ffffff;
+    background: #f5f5f5;
     color: #23204b;
-    padding: 5px;
     border: 1px solid #ccc;
     border-radius: 4px;
     cursor: pointer;
@@ -115,111 +103,28 @@ body {
 
 #timeframe{
     font-size: 10px;
-    padding: 2px 0px;
-    height: 20px;
+    height: 10px;
     border-width: 0px;
     top: 6px;
+    background: #f5f5f5;
 }
 
-.charts-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 2%;
-    align-items: center;
-    margin-top: 20px;
+#timeframe :hover{
+    background: #6f6a6a60;
 }
 
-.chart-header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    margin-bottom: 10px;
-}
-
-.chart-header label {
-    margin-right: 8px;
-    font-size: 14px;
-    color: #fff;
-}
-
-#lineChart, #pieChart{
-    height: 50vh !important;
+/* #lineChart, #pieChart{
     box-shadow: 0px 3px 20px rgba(0, 0, 0, 0.12);
     border-radius: 10px;
-    padding: 15px;
 }
 
 #lineChart{
-    width: 100vh !important;
+    width: 50vh !important;
 }
 
 #pieChart{
     width: 50vh !important;
-}
-
-.recent-activities {
-    color: #333;
-    background: #fff;
-    border-radius: 12px;
-    flex-shrink: 0;
-    height: 51vh !important;
-    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    scrollbar-width: thin; /* For Firefox */
-    scrollbar-color: #ccc transparent;
-}
-
-/* Custom Scrollbar for WebKit (Chrome, Edge, Safari) */
-.recent-activities::-webkit-scrollbar {
-    width: 6px;
-}
-
-.recent-activities::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.recent-activities::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 10px;
-}
-
-.recent-activities::-webkit-scrollbar-thumb:hover {
-    background: #aaa;
-}
-
-.recent-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #6a6a6a;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e0e0e0;
-    margin-bottom: 10px;
-}
-
-.recent-activities ul {
-    list-style: none;
-    padding: 0;
-}
-
-.recent-activities li {
-    padding: 12px;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    font-size: 13px;
-    background: #f9f9f9;
-    transition: background 0.2s ease-in-out;
-}
-
-.recent-activities li:hover {
-    background: #f0f0f0;
-    cursor: pointer;
-}
-
-#separate-box{
-    width:36vh !important;
-    background-color: #453cc6;
-    color: #fff;
-}
+} */
 
 th, td {
     border: 1px solid #ddd;
@@ -229,7 +134,6 @@ th, td {
 
 .label {
     font-weight: bold;
-    margin-bottom: 10px;
 }
 
 .table-container {

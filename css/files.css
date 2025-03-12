@@ -1,21 +1,33 @@
 body {
-    padding: 20px;
-    padding-left: 100px;
-    background-color: #fff;
+    margin: 0;
+    padding-top: 10px;
+    padding-right: 17px;
+    background-color: #eeee;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .header img{
     height:35px;
 }
 
-.container {
-    /* max-width: 1200px; */
-    margin: 20px auto;
-    padding: 10px;
+.content{ 
+    box-shadow: 0px 3px 20px rgba(0, 0, 0, 0.2);
+    padding: 22px;
+    border-radius: 20px;
+    background: #f5f5f5;
+    height: 97vh;
 }
 
-.files-sb{
-    background-color: #fff !important;
+.container {
+    padding-top: 10px;
+    height: 83vh;
+    margin: 15px auto;
+}
+
+.files-sb {
+    background-color: #453cc6cb !important;
+    box-shadow: 0 4px 8px rgba(60, 67, 196, 0.423);
 }
 
 .folder-container {
@@ -25,7 +37,7 @@ body {
 }
 
 .folder {
-    background-color: #fff;
+    background-color: #f5f5f5;
     padding: 15px;
     border-radius: 8px;
     display: flex;
@@ -94,12 +106,13 @@ body {
 
 .menu-container {
     position: absolute;
-    background-color: white;
+    background-color: fff;
     border-radius: 8px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     width: 120px;
     z-index: 1000;
     padding: 5px;
+    background-color: #f5f5f5;
 }
 
 .menu-options p {
@@ -126,7 +139,7 @@ body {
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 10000;
 }
 
 .modal-content {

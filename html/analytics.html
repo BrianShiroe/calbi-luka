@@ -35,8 +35,8 @@
             </li>
             <li>
                 <a href="../html/analytics.html" class="analytics-sb">
-                    <i class='bx bx-pie-chart-alt-2' style="color: #453cc6 !important;"></i>
-                    <span class="links_name" style="color: #453cc6 !important;">Analytics</span>
+                    <i class='bx bx-pie-chart-alt-2' style="color: #fff !important;"></i>
+                    <span class="links_name" style="color: #fff !important;">Analytics</span>
                 </a>
             </li>
             <li>
@@ -57,100 +57,93 @@
                     <span class="links_name">About</span>
                 </a>
             </li>
-            <li class="profile">
-                
+            <li>
                 <a href="../html/login.html">
                     <i class='bx bx-log-out' id="log_out"></i>
+                    <span class="links_name">Logout</span>
                 </a>
             </li>
         </ul>
-    </div>    
-
-    <div class="header">
-        <a href="../html/home.html">
-        <img src="../img/logo-no-name.png" alt="logoImg">
-        </a>
-    </div>
+    </div>   
     
-    <div class="tabs">
-        <button class="tab-button active" data-tab="overview">Overview</button>
-        <button class="tab-button" data-tab="incident-list">Incident List</button>
-    </div>
+    <div class="content">
 
-    <div class="container">
-        <!-- Overview Section -->
-        <div id="overview" class="tab-content active">
-            <div class="summary-container">
-                <div class="incident-summary">
-                    <i class='bx bxs-analyse'></i>
-                    <p>Total Detections</p>
-                    <h3 id="incident-count">0</h3>
-                    <select id="timeframe">
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                    </select>
-                </div>
-
-                <div class="incident-summary">
-                    <i class='bx bx-camera-home'></i>
-                    <p>Cameras Active</p>
-                    <h3 id="cameras-active">0</h3>
-                </div>
-
-                <div class="incident-summary">
-                    <i class='bx bx-radar'></i>
-                    <p>IoT Sensors Online</p>
-                    <h3 id="iot-sensors">0</h3>
-                </div>
-
-                <div class="incident-summary">
-                    <i class='bx bxs-car-crash'></i>
-                    <p>Incidents This Week</p>
-                    <h3 id="incidents-week">0</h3>
-                </div>
-
-                <div class="incident-summary">
-                    <i class='bx bx-map-pin' ></i>
-                    <p>Most Affected Area</p>
-                    <h3 id="location-name">--</h3>
-                </div>
-
-                <div class="incident-summary" id="separate-box">
-                    <i class='bx bx-radar'></i>
-                    <p>Title</p>
-                    <h3 id="title">0</h3>
-                </div>
-            </div>
-
-            <div class="charts-container">
-                <canvas id="lineChart"></canvas>
-                <canvas id="pieChart"></canvas>
-            </div>
-
-            <div class="recent-activities">
-                <h5 class="recent-title">Recent Activity</h5>
-                <ul id="activity-list">
-                    <!-- Dynamic content will be inserted here -->
-                </ul>
-            </div>            
-
+        <div class="header">
+            <a href="../html/home.html">
+            <img src="../img/logo-no-name.png" alt="logoImg">
+            </a>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-button active" data-tab="overview">Overview</button>
+            <button class="tab-button" data-tab="incident-list">Incident List</button>
         </div>
 
-        <!-- Incident List Section -->
-        <div id="incident-list" class="tab-content">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Location</th>
-                        <th>Time</th>
-                    </tr>
-                </thead>
-                <tbody id="incident-table">
-                    <tr><td colspan="4">No data available</td></tr>
-                </tbody>
-            </table>
+        <div class="container">
+            <!-- Overview Section -->
+            <div id="overview" class="tab-content active">
+                <div class="summary-container">
+                    <div class="incident-summary">
+                        <i class='bx bxs-analyse'></i>
+                        <p>Total Detections</p>
+                        <h3 id="incident-count">0</h3>
+                        <select id="timeframe">
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+
+                    <div class="incident-summary">
+                        <i class='bx bx-camera-home'></i>
+                        <p>Cameras Active</p>
+                        <h3 id="cameras-active">0</h3>
+                    </div>
+
+                    <div class="incident-summary">
+                        <i class='bx bx-radar'></i>
+                        <p>IoT Sensors Online</p>
+                        <h3 id="iot-sensors">0</h3>
+                    </div>
+
+                    <div class="incident-summary">
+                        <i class='bx bxs-car-crash'></i>
+                        <p>Incidents This Week</p>
+                        <h3 id="incidents-week">0</h3>
+                    </div>
+
+                    <div class="incident-summary">
+                        <i class='bx bx-map-pin' ></i>
+                        <p>Most Affected Area</p>
+                        <h3 id="location-name">--</h3>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <canvas id="lineChart"></canvas>
+                    <canvas id="pieChart"></canvas>
+                </div> 
+
+            </div>
+
+            <!-- Incident List Section -->
+            <div id="incident-list" class="tab-content">
+                <div class="top-buttons">
+                    <button class="export"><i class='bx bxs-spreadsheet' ></i> Export Table</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incident-table">
+                        <tr><td colspan="4">No data available</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
