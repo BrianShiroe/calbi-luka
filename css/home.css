@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 20px;
     padding-left: 100px;
-    background-color: #fff;
+    background-color: #eeee;
     height: 100vh;
 }
 
@@ -10,9 +10,17 @@ body {
     height:35px;
 }
 
+.content{
+    box-shadow: 0px 3px 20px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    background: #fff;
+    height: 95vh;
+}
+
 .container {
     /* max-width: 1200px; */
-    height: 79vh;
+    height: 82vh;
     margin: 20px auto;
     overflow: hidden;
     overflow-x: hidden;
@@ -30,8 +38,8 @@ body {
 
 .notification-icon {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: 35px;
+    right: 40px;
     color: rgb(16, 27, 110);
     font-size: 20px;
     padding: 10px;

@@ -65,103 +65,105 @@
         </ul>
     </div>
     
-    <div class="header">
-        <a href="../html/home.html">
-            <img src="../img/logo-no-name.png" alt="logoImg">
-        </a>
-    </div>
-    
-    <!-- Notification Section -->
-    <div class="notification-section">
-        <div type="button" id="notification-icon" class="notification-icon">
-            <i class="fas fa-bullhorn"></i>
-            <span id="notification-count" class="notification-count">0</span>
+    <div class="content">
+        <div class="header">
+            <a href="../html/home.html">
+                <img src="../img/logo-no-name.png" alt="logoImg">
+            </a>
         </div>
-        <div id="notification-box" class="notification-box">
-            <div class="notification-header">
-                <h3>Notifications</h3>
-                <button id="clear-notifications">Clear All</button>
+        
+        <!-- Notification Section -->
+        <div class="notification-section">
+            <div type="button" id="notification-icon" class="notification-icon">
+                <i class="fas fa-bullhorn"></i>
+                <span id="notification-count" class="notification-count">0</span>
             </div>
-            <ul id="notification-list">
-                <!-- Notifications will be dynamically added here -->
-            </ul>
+            <div id="notification-box" class="notification-box">
+                <div class="notification-header">
+                    <h3>Notifications</h3>
+                    <button id="clear-notifications">Clear All</button>
+                </div>
+                <ul id="notification-list">
+                    <!-- Notifications will be dynamically added here -->
+                </ul>
+            </div>
         </div>
-    </div>
-    
-    <!-- Tab navigation -->
-    <div class="tabs">
-        <div class="tab active" id="live-feed-tab" onclick="changeTab('live-feed')">
-            <i class='bx bx-cctv'></i>
-            Live Feed
+        
+        <!-- Tab navigation -->
+        <div class="tabs">
+            <div class="tab active" id="live-feed-tab" onclick="changeTab('live-feed')">
+                <i class='bx bx-cctv'></i>
+                Live Feed
+            </div>
+            <div class="tab" id="record-log-tab" onclick="changeTab('record-log')">
+                <i class='bx bx-camera-home' ></i>
+                Record Log
+            </div>
         </div>
-        <div class="tab" id="record-log-tab" onclick="changeTab('record-log')">
-            <i class='bx bx-camera-home' ></i>
-            Record Log
-        </div>
-    </div>
-    
-    <!-- Tab content -->
-    <div class="container">
-        <div class="tab-content active" id="live-feed">
-            <div class="grid-container" id="grid-container">
-                <!-- Dynamically populated device cards will appear here -->
+        
+        <!-- Tab content -->
+        <div class="container">
+            <div class="tab-content active" id="live-feed">
+                <div class="grid-container" id="grid-container">
+                    <!-- Dynamically populated device cards will appear here -->
+                </div>
+            </div>
+
+            <div class="tab-content active" id="record-log">
+                <div class="grid-container" id="record-log-grid">
+                    <!-- Dynamically populated record cards will appear here -->
+                </div>
             </div>
         </div>
 
-        <div class="tab-content active" id="record-log">
-            <div class="grid-container" id="record-log-grid">
-                <!-- Dynamically populated record cards will appear here -->
+        <!-- Pop-up form for URL input -->
+        <form id="add-form" class="popup" style="display: none;">
+            <div class="popup-content">
+                <h2>Add Device</h2>
+                <input type="text" id="title" placeholder="Enter Title (Optional)">
+                <input type="text" id="ip_address" placeholder="Enter Stream URL">
+                <input type="text" id="location" placeholder="Enter location (Optional)">
+                <div class="sub-stream" style="font-size: 10px; color: rgb(95, 98, 100); padding-top: 8px;">
+                    <p>Supported Formats:</p>
+                    <p>RTSP: rtsp://username:password@ip_address:port/media</p>
+                    <p>HTTP: http://ip_address:port/video</p>
+                    <p>HTTPS: https://ip_address:port/video</p>
+                    <p>Youtube: https://youtube_address</p>
+                    <p>Example URLs:</p>
+                    <p>rtsp://user1:pass@192.168.18.128:8080/stream1</p>
+                    <p>https://192.168.18.128:8080/video</p>
+                    <p>https://youtu.be/nSaf6rfEKcQ</p>
+                    
+                </div>
+                <button type="button" onclick="addDevice()">Add</button>
+                <button type="button" onclick="closePopup()">Cancel</button>
             </div>
-        </div>
+        </form>
+
+        <form id="edit-name-form" class="popup">
+            <div class="popup-content">
+                <h2>Edit Device Details</h2>
+                <label for="edit-title">TITLE</label>
+                <input type="text" id="edit-title">
+                <label for="edit-ip_address">IP ADDRESS</label>
+                <input type="text" id="edit-ip_address">
+                <label for="edit-location">LOCATION</label>
+                <input type="text" id="edit-location">
+                <button type="button" onclick="saveDeviceDetails()">Save</button>
+                <button type="button" onclick="closeEditNamePopup()">Cancel</button>
+            </div>
+        </form>
+
+        <form id="delete-form" class="popup">
+            <div class="popup-content">
+                <img src="../img/delete.png" style="height: 50px; margin-top: 10px;">
+                <h2 style="margin: 20px;">Are you sure?</h2>
+                <p style="font-size: 14px; margin: 10px;"> Do you really want to delete this feed? This action cannot be undone.</p>
+                <button type="button" id="confirm-delete">Yes, Delete</button>
+                <button type="button" id="cancel-delete">Cancel</button>
+            </div>
+        </form>
     </div>
-
-    <!-- Pop-up form for URL input -->
-    <form id="add-form" class="popup" style="display: none;">
-        <div class="popup-content">
-            <h2>Add Device</h2>
-            <input type="text" id="title" placeholder="Enter Title (Optional)">
-            <input type="text" id="ip_address" placeholder="Enter Stream URL">
-            <input type="text" id="location" placeholder="Enter location (Optional)">
-            <div class="sub-stream" style="font-size: 10px; color: rgb(95, 98, 100); padding-top: 8px;">
-                <p>Supported Formats:</p>
-                <p>RTSP: rtsp://username:password@ip_address:port/media</p>
-                <p>HTTP: http://ip_address:port/video</p>
-                <p>HTTPS: https://ip_address:port/video</p>
-                <p>Youtube: https://youtube_address</p>
-                <p>Example URLs:</p>
-                <p>rtsp://user1:pass@192.168.18.128:8080/stream1</p>
-                <p>https://192.168.18.128:8080/video</p>
-                <p>https://youtu.be/nSaf6rfEKcQ</p>
-                
-            </div>
-            <button type="button" onclick="addDevice()">Add</button>
-            <button type="button" onclick="closePopup()">Cancel</button>
-        </div>
-    </form>
-
-    <form id="edit-name-form" class="popup">
-        <div class="popup-content">
-            <h2>Edit Device Details</h2>
-            <label for="edit-title">TITLE</label>
-            <input type="text" id="edit-title">
-            <label for="edit-ip_address">IP ADDRESS</label>
-            <input type="text" id="edit-ip_address">
-            <label for="edit-location">LOCATION</label>
-            <input type="text" id="edit-location">
-            <button type="button" onclick="saveDeviceDetails()">Save</button>
-            <button type="button" onclick="closeEditNamePopup()">Cancel</button>
-        </div>
-    </form>
-
-    <form id="delete-form" class="popup">
-        <div class="popup-content">
-            <img src="../img/delete.png" style="height: 50px; margin-top: 10px;">
-            <h2 style="margin: 20px;">Are you sure?</h2>
-            <p style="font-size: 14px; margin: 10px;"> Do you really want to delete this feed? This action cannot be undone.</p>
-            <button type="button" id="confirm-delete">Yes, Delete</button>
-            <button type="button" id="cancel-delete">Cancel</button>
-        </div>
-    </form>
 
     <script src="../js/sidebar.js"></script>
     <script src="../js/live-feed.js"></script>
