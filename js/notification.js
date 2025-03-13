@@ -17,8 +17,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 notificationList.appendChild(li);
             }
         });
-        notificationCount.textContent = notifications.filter(alert => !alert.resolved).length;
-    
+
+        // Update the notification count
+        const unresolvedCount = notifications.filter(alert => !alert.resolved).length;
+        notificationCount.textContent = unresolvedCount;
+        console.log('Current notifications:', notifications); // Debugging
+        console.log('Unresolved count:', unresolvedCount); // Debugging
+
+        // Show or hide the notification box
         if (showBox) {
             notificationBox.classList.add('show');
         }
@@ -28,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function clearNotifications() {
         fetch('/clear_alerts', { method: 'POST' })
             .then(() => {
-                notifications = [];
+                notifications = notifications.map(alert => ({ ...alert, resolved: 1 })); // Mark all as resolved locally
                 updateNotificationUI(false);
                 notificationBox.classList.remove('show'); // Close notification box
             })
@@ -36,34 +42,42 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Toggle notification box visibility
-    notificationIcon.addEventListener('click', function () {
+    function toggleNotificationBox() {
         notificationBox.classList.toggle('show');
-    });
+    }
 
-    // Clear all notifications
+    // Remove any existing event listeners before adding new ones
+    notificationIcon.removeEventListener('click', toggleNotificationBox);
+    notificationIcon.addEventListener('click', toggleNotificationBox);
+
+    clearNotificationsButton.removeEventListener('click', clearNotifications);
     clearNotificationsButton.addEventListener('click', clearNotifications);
 
-    // Establish SSE connection for real-time alerts
-    const eventSource = new EventSource('/stream_alerts');
+    // Ensure only one SSE connection exists
+    if (!window.eventSource) {
+        window.eventSource = new EventSource('/stream_alerts');
 
-    eventSource.onmessage = function (event) {
-        const newAlert = JSON.parse(event.data);
+        window.eventSource.onmessage = function (event) {
+            const newAlert = JSON.parse(event.data);
+            // Check if the alert already exists in the notifications array
+            const exists = notifications.some(alert => alert.id === newAlert.id);
+            if (!exists) {
+                notifications.unshift(newAlert); // Add to the beginning of the array
+                updateNotificationUI(true); // Update the UI and show the notification box
+            }
+        };
 
-        // Add the new alert to the notifications array
-        notifications.unshift(newAlert); // Add to the beginning of the array
-        updateNotificationUI(true); // Update the UI and show the notification box
-    };
+        window.eventSource.onerror = function (error) {
+            console.error('SSE error:', error);
+            window.eventSource.close(); // Close the connection on error
+        };
+    }
 
-    eventSource.onerror = function (error) {
-        console.error('SSE error:', error);
-        eventSource.close(); // Close the connection on error
-    };
-
-    // Initial fetch (optional, if you want to load existing alerts on page load)
+    // Initial fetch to load existing alerts on page load
     fetch('/get_alerts')
         .then(response => response.json())
         .then(data => {
-            notifications = data;
+            notifications = data; // Replace the notifications array with the fetched alerts
             updateNotificationUI(false);
         })
         .catch(error => console.error('Error fetching initial alerts:', error));

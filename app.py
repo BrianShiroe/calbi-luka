@@ -180,7 +180,7 @@ def save_detected_frame(frame, stream_url, detected_objects, device_title, devic
             f"{timestamp}_{detected_objects_str}_detected_on_{device_title}_{device_location}.jpg"
         )
         cv2.imwrite(filename, frame)
-        print(f"Object Detected! Image saved as {filename}")
+        # print(f"Object Detected! Image saved as {filename}")
 
         # Ensure database operations are executed inside the Flask app context
         with app.app_context():
@@ -267,15 +267,15 @@ def overlay_metrics(frame, metrics, model_status_text):
     start_y = int(0.10 * height)  # Starting position for text
 
     colors = {
-        "Timestamp": (173, 216, 230),
+        "Timestamp": (30, 144, 255),
         "Model Status": (0, 0, 255),
         "FPS": (0, 255, 0),
         "Frame Rate": (255, 255, 0),
         "Processing Time": (255, 0, 255),
         "Streaming Delay": (0, 165, 255),
         "Resolution": (255, 255, 255),
-        "CPU Usage": (255, 140, 0),  # Orange color for CPU usage
-        "Active Streams": (0, 255, 255)  # Cyan color for active streams
+        "CPU Usage": (255, 140, 0),
+        "Active Streams": (0, 255, 255)
     }
 
     current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))

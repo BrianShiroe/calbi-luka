@@ -160,16 +160,21 @@ body {
     height: auto;
     transition: transform 0.3s eased;
 }
-
-.add-device:hover {
-    background-color: #453cc6;
-    color: white;
+.device-card:hover {
+    background-color: #f8f8f8; /* Lighter white hover */
+    color: black;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .add-device-card {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.add-device-card:hover {
+    background-color: #f8f8f8; /* Lighter white hover */
+    color: black;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 :root {
