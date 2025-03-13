@@ -554,12 +554,26 @@ def update_settings():
     global detection_mode, performance_metrics_toggle, update_metric_interval, metric_font_size
     global stream_resolution, stream_frame_skip, max_frame_rate, model_version
     global show_bounding_box, show_confidence_value, confidence_level, plotting_method
-    global alert_and_record_logging, delay_for_alert_and_record_logging
+    global alert_and_record_logging, delay_for_alert_and_record_logging, models
 
     data = request.get_json()
+    model_updated = False  # Flag to track if model needs reloading
+
     for key, value in data.items():
         if key in setting_vars:
-            globals()[setting_vars[key]] = value  # Dynamically update global variable
+            globals()[setting_vars[key]] = value
+            if key == "model_version":
+                model_updated = True
+
+    if model_updated:
+        try:
+            MODEL_PATHS = [f"model/{model_version}.pt"]
+            models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Reload model
+            for model in models:
+                model.fuse(False)  # Disable fusion to avoid attribute error
+            print(f"Model {model_version} loaded successfully!")
+        except Exception as e:
+            print(f"Error loading model {model_version}: {e}")
 
     return jsonify(data)
 

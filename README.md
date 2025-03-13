@@ -1,4 +1,4 @@
-# LUKA - Accident and Disaster Detection System
+# LUKA - Accident and Disaster Detection Web-based System
 
 ## Authors
 - **Brian O. Haw**  
@@ -62,6 +62,3 @@ This project is licensed under the **MIT License**. Feel free to use and modify 
 
 ## 🤝 Acknowledgments
 We extend our gratitude to our mentors, professors, and peers who supported the development of LUKA. Special thanks to open-source contributors who made this project possible.
-
----
-<!-- ✉️ **For inquiries or contributions, contact us at [username@gmail.com]** -->

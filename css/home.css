@@ -142,8 +142,10 @@ body {
 }
 
 /* Device card styling */
-.device-card {
+.device-card, 
+.add-device-card {
     height: var(--device-card-height);
+    min-height: var(--device-card-min-height);
     position: relative;
     background-color: #f5f5f5;
     color: #000000;
@@ -156,21 +158,11 @@ body {
     justify-content: center;
     cursor: pointer;
     overflow: hidden;
-    min-height: 30vh;
     height: auto;
-    transition: transform 0.3s eased;
-}
-.device-card:hover {
-    background-color: #f8f8f8; /* Lighter white hover */
-    color: black;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
 }
 
-.add-device-card {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+.device-card:hover, 
 .add-device-card:hover {
     background-color: #f8f8f8; /* Lighter white hover */
     color: black;
@@ -184,14 +176,17 @@ body {
 
 .small {
     --device-card-width: 40vh;
+    --device-card-min-height: 30vh;
 }
 
 .regular {
     --device-card-width: 55vh;
+    --device-card-min-height: 40vh;
 }
 
 .large {
     --device-card-width: 70vh;
+    --device-card-min-height: 50vh;
 }
 
 .device-card:hover .menu-container {
@@ -451,7 +446,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     position: relative;
 }
 
@@ -465,7 +460,7 @@ body {
 
 /* Overlay text at the bottom of each feed */
 .fullscreen .device-card h3 {
-    position: absolute;
+    position: sticky;
     bottom: 21.5px;
     left: 0;
     width: 100%;
@@ -477,7 +472,7 @@ body {
 }
 
 .fullscreen .device-card p {
-    position: absolute;
+    position: sticky;
     bottom: 0;
     left: 0;
     width: 100%;
