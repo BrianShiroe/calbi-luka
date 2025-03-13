@@ -326,7 +326,7 @@ def setup_stream_resolution(cap):
         width, height = resolutions[stream_resolution]
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-        print(f"Stream resolution set to {stream_resolution} ({width}x{height})")
+        #print(f"Stream resolution set to {stream_resolution} ({width}x{height})")
     else:
         print(f"Invalid resolution: {stream_resolution}. Keeping default.")
 
