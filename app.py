@@ -9,12 +9,17 @@ import os
 import re
 import psutil
 import json
+import logging
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from flask import Flask, Response, request, jsonify, g, send_from_directory, stream_with_context
 from flask_cors import CORS
 from ultralytics import YOLO
 from concurrent.futures import ThreadPoolExecutor
+
+# Logging/Printing Function. INFO to Show all logs, ERROR to show only errors.
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.INFO)
 
 # Configuration
 FLASK_PORT = 5500  # Flask serves as the main server
@@ -32,7 +37,6 @@ metric_font_size = 8
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
 stream_frame_skip = 0  # Only process 1 out of every 2 frames (adjust as needed)
 max_frame_rate = 60
-
 #Detection Settings
 model_version = "yolo11n"
 show_bounding_box = True
@@ -41,6 +45,24 @@ confidence_level = 0.7
 plotting_method = "mark_object"  # mark_object, mark_screen
 alert_and_record_logging = True
 delay_for_alert_and_record_logging = 10
+
+# Mapping of setting keys to global variable names
+setting_vars = {
+    "detection_mode": "detection_mode",
+    "performance_metrics_toggle": "performance_metrics_toggle",
+    "update_metric_interval": "update_metric_interval",
+    "metric_font_size": "metric_font_size",
+    "stream_resolution": "stream_resolution",
+    "stream_frame_skip": "stream_frame_skip",
+    "max_frame_rate": "max_frame_rate",
+    "model_version": "model_version",
+    "show_bounding_box": "show_bounding_box",
+    "show_confidence_value": "show_confidence_value",
+    "confidence_level": "confidence_level",
+    "plotting_method": "plotting_method",
+    "alert_and_record_logging": "alert_and_record_logging",
+    "delay_for_alert_and_record_logging": "delay_for_alert_and_record_logging"
+}
 
 MODEL_PATHS = [f"model/{model_version}.pt"]
 models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Use GPU if available
@@ -267,15 +289,15 @@ def overlay_metrics(frame, metrics, model_status_text):
     start_y = int(0.10 * height)  # Starting position for text
 
     colors = {
-        "Timestamp": (30, 144, 255),
+        "Timestamp": (173, 216, 230),
         "Model Status": (0, 0, 255),
         "FPS": (0, 255, 0),
         "Frame Rate": (255, 255, 0),
         "Processing Time": (255, 0, 255),
         "Streaming Delay": (0, 165, 255),
         "Resolution": (255, 255, 255),
-        "CPU Usage": (255, 140, 0),
-        "Active Streams": (0, 255, 255)
+        "CPU Usage": (255, 140, 0),  # Orange color for CPU usage
+        "Active Streams": (0, 255, 255)  # Cyan color for active streams
     }
 
     current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
@@ -526,122 +548,20 @@ def get_recorded_files():
 def serve_recorded_file(filename):
     return send_from_directory(detected_records_path, filename)
 
-# SECTION: feature toggle API
-@app.route('/toggle_model', methods=['POST'])
-def toggle_model():
-    global detection_mode
+# SECTION: Setting feature toggle API
+@app.route('/update_settings', methods=['POST'])
+def update_settings():
+    global detection_mode, performance_metrics_toggle, update_metric_interval, metric_font_size
+    global stream_resolution, stream_frame_skip, max_frame_rate, model_version
+    global show_bounding_box, show_confidence_value, confidence_level, plotting_method
+    global alert_and_record_logging, delay_for_alert_and_record_logging
+
     data = request.get_json()
-    if 'enabled' in data:
-        detection_mode = data['enabled']
-    return jsonify({"detection_mode": detection_mode})
+    for key, value in data.items():
+        if key in setting_vars:
+            globals()[setting_vars[key]] = value  # Dynamically update global variable
 
-@app.route('/toggle_bounding_box', methods=['POST'])
-def toggle_bounding_box():
-    global show_bounding_box
-    data = request.get_json()
-    if 'enabled' in data:
-        show_bounding_box = data['enabled']
-    return jsonify({"show_bounding_box": show_bounding_box})
-
-@app.route('/toggle_performance_metrics', methods=['POST'])
-def toggle_performance_metrics():
-    global performance_metrics_toggle
-    data = request.get_json()
-    if 'enabled' in data:
-        performance_metrics_toggle = data['enabled']
-    return jsonify({"performance_metrics_toggle": performance_metrics_toggle})
-
-@app.route('/set_confidence_level', methods=['POST'])
-def set_confidence_level():
-    global confidence_level
-    data = request.get_json()
-    if 'confidence' in data:
-        confidence_level = float(data['confidence'])  # The value from frontend is in 0-1 range
-    return jsonify({"confidence_level": confidence_level})
-
-@app.route('/set_update_metric_interval', methods=['POST'])
-def set_update_metric_interval():
-    global update_metric_interval
-    data = request.get_json()
-    if 'interval' in data:
-        update_metric_interval = float(data['interval'])
-    return jsonify({"update_metric_interval": update_metric_interval})
-
-@app.route('/set_metric_font_size', methods=['POST'])
-def set_metric_font_size():
-    global metric_font_size
-    data = request.get_json()
-    if 'size' in data:
-        metric_font_size = int(data['size'])
-    return jsonify({"metric_font_size": metric_font_size})
-
-@app.route('/set_max_frame_rate', methods=['POST'])
-def set_max_frame_rate():
-    global max_frame_rate
-    data = request.get_json()
-    if 'max_frame_rate' in data:
-        max_frame_rate = int(data['max_frame_rate'])
-    return jsonify({"max_frame_rate": max_frame_rate})
-
-@app.route('/set_stream_resolution', methods=['POST'])
-def set_stream_resolution():
-    global stream_resolution
-    data = request.get_json()
-    if 'resolution' in data:
-        stream_resolution = data['resolution']
-    return jsonify({"stream_resolution": stream_resolution})
-
-@app.route('/set_stream_frame_skip', methods=['POST'])
-def set_stream_frame_skip():
-    global stream_frame_skip
-    data = request.get_json()
-    if 'frame_skip' in data:
-        stream_frame_skip = int(data['frame_skip'])
-    return jsonify({"stream_frame_skip": stream_frame_skip})
-
-@app.route('/toggle_confidence_value', methods=['POST'])
-def toggle_confidence_value():
-    global show_confidence_value
-    data = request.get_json()
-    if 'enabled' in data:
-        show_confidence_value = data['enabled']
-    return jsonify({"show_confidence_value": show_confidence_value})
-
-@app.route('/set_plotting_method', methods=['POST'])
-def set_plotting_method():
-    global plotting_method
-    data = request.get_json()
-    if 'method' in data:
-        plotting_method = data['method']
-    return jsonify({"plotting_method": plotting_method})
-
-@app.route('/toggle_alert_and_record_logging', methods=['POST'])
-def toggle_alert_and_record_logging():
-    global alert_and_record_logging
-    data = request.get_json()
-    if 'enabled' in data:
-        alert_and_record_logging = data['enabled']
-    return jsonify({"alert_and_record_logging": alert_and_record_logging})
-
-@app.route('/set_delay_for_alert_and_record_logging', methods=['POST'])
-def set_delay_for_alert_and_record_logging():
-    global delay_for_alert_and_record_logging
-    data = request.get_json()
-    if 'delay' in data:
-        delay_for_alert_and_record_logging = int(data['delay'])
-    return jsonify({"delay_for_alert_and_record_logging": delay_for_alert_and_record_logging})
-
-@app.route('/set_model_version', methods=['POST'])
-def set_model_version():
-    global model_version, models
-    data = request.get_json()
-
-    if 'version' in data:
-        model_version = data['version']
-        MODEL_PATHS = [f"model/{model_version}.pt"]  # Update model paths
-        models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Reload models
-
-    return jsonify({"model_version": model_version})
+    return jsonify(data)
 
 if __name__ == "__main__":
     # Start Flask server in a thread

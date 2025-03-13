@@ -7,19 +7,6 @@ document.querySelectorAll(".tab").forEach(tab => {
     });
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const deviceSizeSelect = document.getElementById("deviceSize");
-
-    // Load saved preference
-    const savedSize = localStorage.getItem("deviceCardSize") || "regular";
-    deviceSizeSelect.value = savedSize;
-
-    // Save preference when changed
-    deviceSizeSelect.addEventListener("change", (event) => {
-        localStorage.setItem("deviceCardSize", event.target.value);
-    });
-});
-
 // General Settings
 document.addEventListener("DOMContentLoaded", function () {
     // Get elements
@@ -107,54 +94,58 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function saveSettings() {
         const confidenceDecimal = confidenceLevel.value / 100;
-
+    
         const settings = {
             detection_mode: detectionToggle.checked,
             show_bounding_box: boundingBoxToggle.checked,
             performance_metrics_toggle: performanceMetricsToggle.checked,
             confidence_level: confidenceDecimal,
-            max_frame_rate: frameRate.value,
-            update_metric_interval: updateMetricInterval.value,
-            metric_font_size: metricFontSize.value,
+            max_frame_rate: parseInt(frameRate.value, 10),
+            update_metric_interval: parseFloat(updateMetricInterval.value),
+            metric_font_size: parseInt(metricFontSize.value, 10),
             stream_resolution: streamResolution.value,
-            stream_frame_skip: streamFrameSkip.value,
+            stream_frame_skip: parseInt(streamFrameSkip.value, 10),
             show_confidence_value: showConfidenceValueToggle.checked,
             plotting_method: plottingMethod.value,
             alert_and_record_logging: alertLoggingToggle.checked,
-            delay_for_alert_and_record_logging: alertLoggingDelay.value,
+            delay_for_alert_and_record_logging: parseInt(alertLoggingDelay.value, 10),
             model_version: modelVersion.value,
         };
-
+    
+        // Save settings locally
         localStorage.setItem("settings", JSON.stringify(settings));
-
-        fetch("/toggle_model", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: settings.detection_mode }) });
-        fetch("/toggle_bounding_box", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: settings.show_bounding_box }) });
-        fetch("/toggle_performance_metrics", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: settings.performance_metrics_toggle }) });
-        fetch("/set_confidence_level", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confidence: settings.confidence_level }) });
-        fetch("/set_max_frame_rate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ max_frame_rate: settings.max_frame_rate }) });
-        fetch("/set_update_metric_interval", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ interval: settings.update_metric_interval }) });
-        fetch("/set_metric_font_size", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ size: settings.metric_font_size }) });
-        fetch("/set_stream_resolution", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ resolution: settings.stream_resolution }) });
-        fetch("/set_stream_frame_skip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ frame_skip: settings.stream_frame_skip }) });
-        fetch("/toggle_confidence_value", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: settings.show_confidence_value }) });
-        fetch("/set_plotting_method", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ method: settings.plotting_method }) });
-        fetch("/toggle_alert_and_record_logging", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: settings.alert_and_record_logging }) });
-        fetch("/set_delay_for_alert_and_record_logging", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ delay: settings.delay_for_alert_and_record_logging }) });
-        fetch("/set_model_version", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ version: settings.model_version }) });
-
-        alert("Settings saved successfully!");
-    }
+    
+        // Send all settings in a single request
+        fetch("/update_settings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(settings)
+        })
+        .then(response => response.json())
+        .then(data => alert("Settings saved successfully!"))
+        .catch(error => console.error("Error updating settings:", error));
+    }   
+    
+    function resetSettings() {
+        localStorage.setItem("settings", JSON.stringify(defaultSettings));
+        loadSettings();
+    
+        // Ensure reset is applied on the server
+        fetch("/update_settings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(defaultSettings)
+        })
+        .then(response => response.json())
+        .then(data => alert("Settings reset to default and saved!"))
+        .catch(error => console.error("Error resetting settings:", error));
+    }    
 
     function cancelSettings() {
         loadSettings();
         alert("Changes discarded.");
     }
 
-    function resetSettings() {
-        localStorage.setItem("settings", JSON.stringify(defaultSettings));
-        loadSettings();
-        alert("Settings reset to default.");
-    }
 
     saveBtn.addEventListener("click", saveSettings);
     cancelBtn.addEventListener("click", cancelSettings);

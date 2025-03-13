@@ -6,7 +6,21 @@ window.onload = function () {
     loadDevices(); // Load saved devices from local storage
     renderDevices(); // Render devices in the UI
     showNotification(); // Show notification icon (if applicable)
+    sendSavedSettingsToServer()
 };
+
+function sendSavedSettingsToServer() {
+    const settings = JSON.parse(localStorage.getItem("settings")) || defaultSettings;
+
+    fetch("/update_settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings)
+    })
+    .then(response => response.json())
+    .then(data => console.log("Settings sent to server successfully!", data))
+    .catch(error => console.error("Error sending settings to server:", error));
+}
 
 // Load devices
 function loadDevices() {
