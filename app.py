@@ -134,7 +134,7 @@ def initialize_stream(stream_url):
         return None
     return cap
 
-# Subsection: process_frame
+# Subsection: object detection
 def detect_objects(frame):
     global mark_screen_duration
     detected_objects = set()
@@ -144,44 +144,53 @@ def detect_objects(frame):
         results = model(frame, verbose=False, conf=confidence_level)
         
         for result in results:
-            for box in result.boxes:
-                class_id = int(box.cls)
-                class_name = model.names[class_id]  # Get the class name from the model
-                detected_objects.add(class_name)
-                object_detected = True  # Mark that an object is detected
-
-                if show_bounding_box:
-                    if plotting_method == "mark_object":
-                        # Draw bounding box around detected objects
-                        x1, y1, x2, y2 = map(int, box.xyxy[0])
-                        color = (0, 255, 0)  # Green color for the bounding box
-                        thickness = 5
-                        cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
-
-                        if show_confidence_value:
-                            confidence = box.conf[0].item()  # Get confidence value
-                            label = f"{class_name} {confidence:.2f}"
-                            font = cv2.FONT_HERSHEY_SIMPLEX
-                            font_scale = 2
-                            font_thickness = 5
-                            text_color = (0, 255, 0)  # Green text
-
-                            # Put text slightly above the bounding box
-                            text_size = cv2.getTextSize(label, font, font_scale, font_thickness)[0]
-                            text_x = x1
-                            text_y = max(y1 - 5, text_size[1] + 5)  # Ensure text is inside the frame
-                            cv2.putText(frame, label, (text_x, text_y), font, font_scale, text_color, font_thickness)
+            process_detection_results(result, frame, detected_objects)
+            object_detected = True
     
-                    # Handle mark_screen logic
-                    elif plotting_method == "mark_screen":
-                        if object_detected:
-                            screen_color = (0, 0, 255)  # Red color for screen marking
-                            thickness = 50
-                            height, width, _ = frame.shape
-                            cv2.rectangle(frame, (0, 0), (width, height), screen_color, thickness)
-                            
+    if plotting_method == "mark_screen" and object_detected:
+        mark_entire_screen(frame)
+    
     return frame, detected_objects
+
+def process_detection_results(result, frame, detected_objects):
+    for box in result.boxes:
+        class_id = int(box.cls)
+        class_name = models[0].names[class_id]  # Assuming all models have the same class names
+        detected_objects.add(class_name)
+        
+        if show_bounding_box:
+            draw_bounding_box(frame, box, class_name)
+
+def draw_bounding_box(frame, box, class_name):
+    x1, y1, x2, y2 = map(int, box.xyxy[0])
+    color = (0, 255, 0)  # Green color for the bounding box
+    thickness = 5
+    cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
     
+    if show_confidence_value:
+        draw_confidence_label(frame, box, class_name, x1, y1)
+
+def draw_confidence_label(frame, box, class_name, x1, y1):
+    confidence = box.conf[0].item()  # Get confidence value
+    label = f"{class_name} {confidence:.2f}"
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 2
+    font_thickness = 5
+    text_color = (0, 255, 0)  # Green text
+    
+    # Put text slightly above the bounding box
+    text_size = cv2.getTextSize(label, font, font_scale, font_thickness)[0]
+    text_x = x1
+    text_y = max(y1 - 5, text_size[1] + 5)  # Ensure text is inside the frame
+    cv2.putText(frame, label, (text_x, text_y), font, font_scale, text_color, font_thickness)
+
+def mark_entire_screen(frame):
+    screen_color = (0, 0, 255)  # Red color for screen marking
+    thickness = 50
+    height, width, _ = frame.shape
+    cv2.rectangle(frame, (0, 0), (width, height), screen_color, thickness)
+    
+# Section: detected frame saving
 def save_detected_frame(frame, stream_url, detected_objects, device_title, device_location, device_id):
     global last_record_times
     
@@ -226,8 +235,6 @@ def process_frame(frame, stream_url, device_title, device_location, device_id):
         frame, detected_objects = detect_objects(frame)
         save_detected_frame(frame, stream_url, detected_objects, device_title, device_location, device_id)
     
-    # timestamp_text = time.strftime("%Y-%m-%d %H:%M:%S")
-    # cv2.putText(frame, timestamp_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     processing_time = time.time() - process_start
     return frame, processing_time, model_status_text
 
@@ -330,59 +337,84 @@ def setup_stream_resolution(cap):
     else:
         print(f"Invalid resolution: {stream_resolution}. Keeping default.")
 
+def initialize_and_verify_stream(stream_url):
+    cap = initialize_stream(get_fresh_stream(stream_url))
+    if cap is None:
+        print("Failed to initialize stream.")
+    return cap
+
+def is_stream_active(device_id):
+    return active_streams_dict.get(device_id, False)
+
+def read_frame(cap, stream_url):
+    success, frame = cap.read()
+    if not success:
+        print(f"Stream disconnected: {stream_url}. Attempting to refresh URL...")
+        cap.release()
+        cap = initialize_stream(get_fresh_stream(stream_url))
+        if cap is None:
+            print("Failed to reconnect. Stopping stream.")
+            return None
+        setup_stream_resolution(cap)
+        return None
+    return frame
+
+def should_skip_frame(frame_count):
+    return stream_frame_skip > 0 and frame_count % stream_frame_skip != 0
+
+def resize_frame_if_needed(frame):
+    if stream_resolution in resolutions:
+        width, height = resolutions[stream_resolution]
+        return cv2.resize(frame, (width, height))
+    return frame
+
+def format_frame(encoded_frame):
+    return (b'--frame\r\n'
+            b'Content-Type: image/jpeg\r\n\r\n' + encoded_frame + b'\r\n')
+
+def cleanup_stream(device_id, cap):
+    global active_streams
+    active_streams -= 1
+    cap.release()
+    cv2.destroyAllWindows()
+    active_streams_dict.pop(device_id, None)
+
 def generate_frames(stream_url, device_title, device_location, device_id):
-    global stream_resolution, active_streams  
+    global stream_resolution, active_streams
 
     # Register the stream as active
-    active_streams_dict[device_id] = True  
-
-    cap = initialize_stream(get_fresh_stream(stream_url))
+    active_streams_dict[device_id] = True
+    cap = initialize_and_verify_stream(stream_url)
     if cap is None:
         return
 
     setup_stream_resolution(cap)
     metrics = initialize_metrics()
     frame_count = 0
-    active_streams += 1  
+    active_streams += 1
 
     try:
-        while active_streams_dict.get(device_id, False):  # Check if stream is still allowed
+        while is_stream_active(device_id):
             frame_start_time = time.time()
-
-            success, frame = cap.read()
-            if not success:
-                print(f"Stream disconnected: {stream_url}. Attempting to refresh URL...")
-                cap.release()
-                cap = initialize_stream(get_fresh_stream(stream_url))  
-                if cap is None:
-                    print("Failed to reconnect. Stopping stream.")
-                    break
-                setup_stream_resolution(cap)
-                continue  
+            frame = read_frame(cap, stream_url)
+            if frame is None:
+                break
 
             frame_count += 1
-            if stream_frame_skip > 0 and frame_count % stream_frame_skip != 0:
-                continue  
+            if should_skip_frame(frame_count):
+                continue
 
-            if stream_resolution in resolutions:
-                width, height = resolutions[stream_resolution]
-                frame = cv2.resize(frame, (width, height))
-
+            frame = resize_frame_if_needed(frame)
             frame, processing_time, model_status_text = process_frame(frame, stream_url, device_title, device_location, device_id)
             update_metrics(metrics, frame_start_time, processing_time, active_streams)
             frame = overlay_metrics(frame, metrics, model_status_text)
             encoded_frame = encode_frame(frame)
 
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + encoded_frame + b'\r\n')
-
+            yield format_frame(encoded_frame)
             enforce_frame_rate(frame_start_time)
 
     finally:
-        active_streams -= 1  
-        cap.release()
-        cv2.destroyAllWindows()
-        active_streams_dict.pop(device_id, None)  # Remove from active tracking
+        cleanup_stream(device_id, cap)
 
 # stream handler
 @app.route('/stream')
