@@ -10,12 +10,14 @@ import re
 import psutil
 import json
 import logging
+import pygame
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from flask import Flask, Response, request, jsonify, g, send_from_directory, stream_with_context
 from flask_cors import CORS
 from ultralytics import YOLO
 from concurrent.futures import ThreadPoolExecutor
+from tabulate import tabulate
 
 # Logging/Printing Function. INFO to Show all logs, ERROR to show only errors.
 log = logging.getLogger('werkzeug')
@@ -29,45 +31,60 @@ DB_PATH = "db/luka.db"
 detected_records_path = "records"
 os.makedirs(detected_records_path, exist_ok=True)
 
-#General Settings
-detection_mode = False
+# General Settings variables
 performance_metrics_toggle = False
 update_metric_interval = 1
 metric_font_size = 8
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
 stream_frame_skip = 0  # Only process 1 out of every 2 frames (adjust as needed)
 max_frame_rate = 60
-#Detection Settings
-model_version = "yolo11n"
+# Detection Settings variables
+detection_mode = False
+model_version = "car-fire-5.1.11n"
 show_bounding_box = True
 show_confidence_value = False
 confidence_level = 0.7
 plotting_method = "mark_object"  # mark_object, mark_screen
 alert_and_record_logging = True
-delay_for_alert_and_record_logging = 10
+delay_for_alert_and_record_logging = 20
+# Alert sound variables
+alert_sound = True
+alert_duration = 2.5  # Duration in seconds
+alert_volume = 30  # Volume percentage (0 to 100)
+alert_sound_name = "red_alert"
+alert_sound_path = f"sound-effect/{alert_sound_name}.mp3"
+fade_out_duration = 500  # Fade-out duration in milliseconds (e.g., 500ms = 0.5s)
+ALERT_PLAYING = False  # Prevent overlapping alerts
 
 # Mapping of setting keys to global variable names
 setting_vars = {
-    "detection_mode": "detection_mode",
+    #general
     "performance_metrics_toggle": "performance_metrics_toggle",
     "update_metric_interval": "update_metric_interval",
     "metric_font_size": "metric_font_size",
     "stream_resolution": "stream_resolution",
     "stream_frame_skip": "stream_frame_skip",
     "max_frame_rate": "max_frame_rate",
+    #model
+    "detection_mode": "detection_mode",
     "model_version": "model_version",
     "show_bounding_box": "show_bounding_box",
     "show_confidence_value": "show_confidence_value",
     "confidence_level": "confidence_level",
     "plotting_method": "plotting_method",
     "alert_and_record_logging": "alert_and_record_logging",
-    "delay_for_alert_and_record_logging": "delay_for_alert_and_record_logging"
+    "delay_for_alert_and_record_logging": "delay_for_alert_and_record_logging",
+    #alert sound
+    "alert_sound": "alert_sound",
+    "alert_duration": "alert_duration",
+    "alert_volume": "alert_volume",
+    "alert_sound_name": "alert_sound_name"
 }
 
 MODEL_PATHS = [f"model/{model_version}.pt"]
 models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Use GPU if available
 
-# Global variables
+# DO NOT TOUCH VARIABLES
 active_streams = 0
 active_streams_dict = {}  # Track active streams by device ID
 last_record_times = {}  # Dictionary to store last save time per stream
@@ -89,6 +106,7 @@ target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect obj
 
 app = Flask(__name__, static_folder=".") # Initialize Flask application
 CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
+pygame.mixer.init()
 
 # Watchdog event handler to detect file changes
 class ReloadHandler(FileSystemEventHandler):
@@ -203,7 +221,6 @@ def save_detected_frame(frame, stream_url, detected_objects, device_title, devic
             f"{timestamp}_{detected_objects_str}_detected_on_{device_title}_{device_location}.jpg"
         )
         cv2.imwrite(filename, frame)
-        # print(f"Object Detected! Image saved as {filename}")
 
         # Ensure database operations are executed inside the Flask app context
         with app.app_context():
@@ -217,6 +234,38 @@ def save_detected_frame(frame, stream_url, detected_objects, device_title, devic
                 (device_id, device_title, detected_objects_str, device_location, formatted_timestamp)
             )
             db.commit()
+        
+        # Play alert sound when an object is detected
+        play_alert_sound()
+
+def play_alert_sound():
+    global ALERT_PLAYING
+
+    # Check if sound is enabled
+    if not alert_sound or ALERT_PLAYING:
+        return  # Skip playing if sound is disabled or already playing
+
+    def sound_thread():
+        global ALERT_PLAYING
+        ALERT_PLAYING = True
+
+        pygame.mixer.music.load(alert_sound_path)
+
+        # Set volume (pygame uses 0.0 to 1.0, so we normalize it)
+        pygame.mixer.music.set_volume(alert_volume / 100.0)
+
+        pygame.mixer.music.play()
+
+        # Play for (alert_duration - fade_out_duration)
+        time.sleep(max(0, alert_duration - (fade_out_duration / 1000)))  
+
+        # Smoothly fade out the sound
+        pygame.mixer.music.fadeout(fade_out_duration)  
+        
+        time.sleep(fade_out_duration / 1000)  # Wait for fade-out to complete
+        ALERT_PLAYING = False  # Reset flag
+
+    threading.Thread(target=sound_thread, daemon=True).start()
 
 def process_frame(frame, stream_url, device_title, device_location, device_id):
     process_start = time.time()
@@ -550,6 +599,12 @@ def get_recorded_files():
 def serve_recorded_file(filename):
     return send_from_directory(detected_records_path, filename)
 
+# Function to update alert sound path
+def update_alert_sound_path():
+    global alert_sound_path
+    alert_sound_path = f"sound-effect/{alert_sound_name}.mp3"
+    print(f"Alert sound path updated to: {alert_sound_path}")
+
 # SECTION: setting feature toggle API
 @app.route('/update_settings', methods=['POST'])
 def update_settings():
@@ -557,6 +612,7 @@ def update_settings():
     global stream_resolution, stream_frame_skip, max_frame_rate, model_version
     global show_bounding_box, show_confidence_value, confidence_level, plotting_method
     global alert_and_record_logging, delay_for_alert_and_record_logging, models
+    global alert_sound, alert_duration, alert_volume, alert_sound_name
 
     data = request.get_json()
     model_updated = False  # Flag to track if model needs reloading
@@ -566,18 +622,51 @@ def update_settings():
             globals()[setting_vars[key]] = value
             if key == "model_version":
                 model_updated = True
+            if key == "alert_sound_name":  # Update sound path if sound name changes
+                update_alert_sound_path()
+
+    print_updated_settings()  # Call the function to print updated settings
 
     if model_updated:
         try:
             MODEL_PATHS = [f"model/{model_version}.pt"]
             models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Reload model
             for model in models:
-                model.fuse(False)  # Disable fusion to avoid attribute error
+                model.fuse()  # Disable fusion to avoid attribute error
             print(f"Model {model_version} loaded successfully!")
         except Exception as e:
             print(f"Error loading model {model_version}: {e}")
 
     return jsonify(data)
+
+def print_updated_settings():
+    settings = [
+        ("Detection Mode", detection_mode, 
+         "Performance Metrics", performance_metrics_toggle, 
+         "Metric Update Interval", update_metric_interval),
+        
+        ("Metric Font Size", metric_font_size, 
+         "Stream Resolution", stream_resolution, 
+         "Stream Frame Skip", stream_frame_skip),
+        
+        ("Max Frame Rate", max_frame_rate, 
+         "Model Version", model_version, 
+         "Show Bounding Box", show_bounding_box),
+        
+        ("Show Confidence Value", show_confidence_value, 
+         "Confidence Level", confidence_level, 
+         "Plotting Method", plotting_method),
+        
+        ("Alert & Record Logging", alert_and_record_logging, 
+         "Delay for Logging", delay_for_alert_and_record_logging, 
+         "Alert Sound", alert_sound),
+        
+        ("Alert Duration", alert_duration, 
+         "Alert Volume", alert_volume, 
+         "Alert Sound Name", alert_sound_name)
+    ]
+    print("Updated Settings:\n")
+    print(tabulate(settings, headers=["Setting", "Value", "Setting", "Value", "Setting", "Value"], tablefmt="grid"))
 
 if __name__ == "__main__":
     # Start Flask server in a thread

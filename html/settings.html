@@ -125,9 +125,7 @@
                             <input type="range" id="frame-rate" min="1" max="60" value="60" oninput="document.getElementById('frame-rate-value').textContent = this.value + ' FPS'">
                             <span id="frame-rate-value">60 FPS</span>
                         </div>
-                    </div>
-                    
-                    <div class="backend-settings">
+
                         <h4>Detection Settings</h4>
                         <div class="setting">
                             <label>Model Version</label>
@@ -169,7 +167,32 @@
                             <input type="range" id="alert-logging-delay" min="1" max="100" value="10" oninput="document.getElementById('alert-logging-delay-value').textContent = this.value + 's'">
                             <span id="alert-logging-delay-value">10s</span>
                         </div>
-                    </div>
+                    
+                        <!-- NEW ALERT SOUND SETTINGS -->
+                        <h4>Alert Sound Settings</h4>
+                        <div class="setting">
+                            <label><input type="checkbox" id="alert-sound-toggle" checked> Enable Alert Sound</label>
+                        </div>
+                        <div class="setting">
+                            <label>Alert Duration</label>
+                            <input type="range" id="alert-duration" min="0.5" max="10" step="0.1" value="2.5" 
+                                oninput="document.getElementById('alert-duration-value').textContent = this.value + 's'">
+                            <span id="alert-duration-value">2.5s</span>
+                        </div>
+                        <div class="setting">
+                            <label>Alert Volume</label>
+                            <input type="range" id="alert-volume" min="0" max="100" value="30" 
+                                oninput="document.getElementById('alert-volume-value').textContent = this.value + '%'">
+                            <span id="alert-volume-value">30%</span>
+                        </div>
+                        <div class="setting">
+                            <label>Alert Sound</label>
+                            <select id="alert-sound-name">
+                                <option value="red_alert" selected>Red Alert</option>
+                                <option value="security_alert">Security Alert</option>
+                            </select>
+                        </div>
+                    </div>                    
                     
                     <div id="buttons">
                         <button class="save-btn">Save Changes</button>

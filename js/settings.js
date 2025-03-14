@@ -30,26 +30,43 @@ document.addEventListener("DOMContentLoaded", function () {
     const alertLoggingDelay = document.getElementById("alert-logging-delay");
     const alertLoggingDelayValue = document.getElementById("alert-logging-delay-value");
     const modelVersion = document.getElementById("model-version");
+    
+    const alertSoundToggle = document.getElementById("alert-sound-toggle");
+    const alertDuration = document.getElementById("alert-duration");
+    const alertDurationValue = document.getElementById("alert-duration-value");
+    const alertVolume = document.getElementById("alert-volume");
+    const alertVolumeValue = document.getElementById("alert-volume-value");
+    const alertSoundName = document.getElementById("alert-sound-name");
+
     const saveBtn = document.querySelector(".save-btn");
     const cancelBtn = document.querySelector(".cancel-btn");
     const resetBtn = document.querySelector(".reset-btn");
 
     // Default values
     const defaultSettings = {
-        detection_mode: false,
+        //general
         performance_metrics_toggle: false,
         update_metric_interval: 1,
         metric_font_size: 8,
         stream_resolution: "720p",
         stream_frame_skip: 0,
         max_frame_rate: 60,
-        model_version: "yolo11n",
+        
+        //model
+        detection_mode: false,
+        model_version: "car-fire-5.1.11n",
         show_bounding_box: true,
         show_confidence_value: false,
         confidence_level: 0.7,
         plotting_method: "mark_object",
         alert_and_record_logging: true,
-        delay_for_alert_and_record_logging: 10,
+        delay_for_alert_and_record_logging: 20,
+
+        // alerts sound
+        alert_sound: true,
+        alert_duration: 2.5,  // in seconds
+        alert_volume: 30,  // percentage (0-100)
+        alert_sound_name: "red_alert"  // default alert sound
     };
 
     function updateRangeValue(input, output, suffix) {
@@ -67,12 +84,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function loadSettings() {
         const settings = JSON.parse(localStorage.getItem("settings")) || defaultSettings;
-        
-        detectionToggle.checked = settings.detection_mode;
+        //general
         boundingBoxToggle.checked = settings.show_bounding_box;
         performanceMetricsToggle.checked = settings.performance_metrics_toggle;
-        confidenceLevel.value = settings.confidence_level * 100;
-        confidenceValue.textContent = `${confidenceLevel.value}%`;
         frameRate.value = settings.max_frame_rate;
         frameRateValue.textContent = `${frameRate.value} FPS`;
         updateMetricInterval.value = settings.update_metric_interval;
@@ -82,12 +96,23 @@ document.addEventListener("DOMContentLoaded", function () {
         streamResolution.value = settings.stream_resolution;
         streamFrameSkip.value = settings.stream_frame_skip;
         streamFrameSkipValue.textContent = `${streamFrameSkip.value} frames`;
+        //model
+        detectionToggle.checked = settings.detection_mode;
+        confidenceLevel.value = settings.confidence_level * 100;
+        confidenceValue.textContent = `${confidenceLevel.value}%`;
         showConfidenceValueToggle.checked = settings.show_confidence_value;
         plottingMethod.value = settings.plotting_method;
         alertLoggingToggle.checked = settings.alert_and_record_logging;
         alertLoggingDelay.value = settings.delay_for_alert_and_record_logging;
         alertLoggingDelayValue.textContent = `${alertLoggingDelay.value}s`;
         modelVersion.value = settings.model_version;
+        // alert sound
+        alertSoundToggle.checked = settings.alert_sound;
+        alertDuration.value = settings.alert_duration;
+        alertDurationValue.textContent = `${settings.alert_duration}s`;
+        alertVolume.value = settings.alert_volume;
+        alertVolumeValue.textContent = `${settings.alert_volume}%`;
+        alertSoundName.value = settings.alert_sound_name;
     }
 
     loadSettings();
@@ -96,8 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const confidenceDecimal = confidenceLevel.value / 100;
     
         const settings = {
-            detection_mode: detectionToggle.checked,
-            show_bounding_box: boundingBoxToggle.checked,
+            //general
             performance_metrics_toggle: performanceMetricsToggle.checked,
             confidence_level: confidenceDecimal,
             max_frame_rate: parseInt(frameRate.value, 10),
@@ -105,11 +129,19 @@ document.addEventListener("DOMContentLoaded", function () {
             metric_font_size: parseInt(metricFontSize.value, 10),
             stream_resolution: streamResolution.value,
             stream_frame_skip: parseInt(streamFrameSkip.value, 10),
+            //model
+            detection_mode: detectionToggle.checked,
+            show_bounding_box: boundingBoxToggle.checked,
             show_confidence_value: showConfidenceValueToggle.checked,
             plotting_method: plottingMethod.value,
             alert_and_record_logging: alertLoggingToggle.checked,
             delay_for_alert_and_record_logging: parseInt(alertLoggingDelay.value, 10),
             model_version: modelVersion.value,
+            //alert sound
+            alert_sound: alertSoundToggle.checked,
+            alert_duration: parseFloat(alertDuration.value),
+            alert_volume: parseInt(alertVolume.value, 10),
+            alert_sound_name: alertSoundName.value,
         };
     
         // Save settings locally
