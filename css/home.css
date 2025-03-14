@@ -290,6 +290,10 @@ body {
     background: #f0f0f0;
 }
 
+h2{
+    margin-bottom: 10px;
+}
+
 /* Popup styling for adding devices */
 .popup {
     display: none;
@@ -308,7 +312,7 @@ body {
 .popup-content {
     background-color: white;
     padding: 25px;
-    border-radius: 12px;
+    border-radius: 15px;
     max-width: 450px;
     width: 90%;
     text-align: center;
@@ -320,21 +324,24 @@ body {
 .popup .close {
     position: absolute;
     top: 15px;
-    right: 15px;
-    font-size: 22px;
+    right: 25px;
+    font-size: 20px !important;
     cursor: pointer;
-    color: #333;
+    color: #797979;
     transition: color 0.2s;
 }
 
 .popup .close:hover {
-    color: #ff0000;
+    color: #333;
 }
 
 .popup label{
     display: flex;
     text-align: center;
     justify-content: center;
+    font-size: 14px;
+    margin-top: 2px;
+    font-weight: 500;
 }
 
 .popup input {
@@ -346,6 +353,7 @@ body {
     border-radius: 6px;
     font-size: 14px;
     transition: border-color 0.3s;
+    color: #424242;
 }
 
 .popup input:focus {
@@ -363,9 +371,25 @@ body {
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s, transform 0.2s;
+    margin: 2px;
 }
 
-.popup button:hover {
+.popup .confirm{
+    background-color: #453cc6cb;
+    color: white;
+}
+
+.popup .cancel{
+    background-color: #e3e3e3cb;
+    color: #333;
+}
+
+.popup .cancel:hover{
+    background-color: #cbcbcb;
+    transform: scale(1.05);
+}
+
+.popup .confirm:hover{
     background-color: #1a1740;
     transform: scale(1.05);
 }
@@ -380,14 +404,6 @@ body {
 #delete-form .popup-content {
     background-color: #f1f1f1;
     text-align: center;
-}
-
-#delete-form .popup-content button {
-    background-color: #453cc6;
-}
-
-#delete-form .popup-content button:hover {
-    background-color: #1a1740;
 }
 
 .modes{
@@ -407,16 +423,12 @@ body {
     font-size: 0.7rem;
     border-radius: 5px; 
     border-width: 0;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .monitoring-mode:hover{
-    background-color: #0000001a;
-    border-radius: 10px; 
-    right: 0;
-    border-radius: 10px; 
-    right: 0;
-    border-radius: 10px; 
-    right: 0;
+    background-color: #33333321;
     border-radius: 10px; 
     right: 0;
 }
@@ -455,7 +467,7 @@ body {
 .fullscreen .device-card video {
     width: 100%;
     object-fit: cover; /* Crop to fit */
-    border-radius: 0; /* Remove rounded corners */
+    border-radius: 0;
 }
 
 /* Overlay text at the bottom of each feed */
