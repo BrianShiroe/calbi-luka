@@ -172,6 +172,10 @@ function createMenuOptions(deviceIndex, deviceId) {
     return menuOptions;
 }
 
+function closeDeletePopup() {
+    document.getElementById("delete-form").style.display = "none";
+}
+
 // SECTION: Fullscreen
 function openFullscreen(videoFeedURL) {
     const videoContainer = document.createElement("div");

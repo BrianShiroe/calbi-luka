@@ -19,7 +19,7 @@ document.querySelector(".monitoring-mode").addEventListener("click", function ()
         if (!exitButton) {
             const exitBtn = document.createElement("button");
             exitBtn.classList.add("exit-fullscreen-btn");
-            exitBtn.innerHTML = "<i class='bx bx-x'></i> Exit";
+            exitBtn.innerHTML = "<i class='bx bx-window-x' ></i> Exit";
             Object.assign(exitBtn.style, {
                 position: "fixed",
                 top: "15px",
@@ -97,7 +97,7 @@ function restoreExitButton() {
     if (!exitBtn) {
         exitBtn = document.createElement("button");
         exitBtn.classList.add("exit-fullscreen-btn");
-        exitBtn.innerHTML = "<i class='bx bx-x'></i> Exit";
+        exitBtn.innerHTML = "<i class='bx bx-window-close' ></i> Exit";
         Object.assign(exitBtn.style, {
             position: "fixed",
             top: "15px",
