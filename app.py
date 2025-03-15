@@ -193,10 +193,7 @@ def detect_objects(frame):
                     # Handle mark_screen logic
                     elif plotting_method == "mark_screen":
                         if object_detected:
-                            screen_color = (0, 0, 255)  # Red color for screen marking
-                            thickness = 50
-                            height, width, _ = frame.shape
-                            cv2.rectangle(frame, (0, 0), (width, height), screen_color, thickness)
+                            pass
                             
     return frame, detected_objects
     
