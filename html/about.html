@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/font.css">
+    <link rel="stylesheet" href="../css/about.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <title>Setting | Luka</title>
+</head>
+<body>
+    <script>
+    // Apply sidebar state before rendering
+    let isSidebarClosed = localStorage.getItem("sidebarClosed") === "true";
+    if (isSidebarClosed) {
+        document.body.classList.add("sidebar-closed");
+    }
+    </script>  
+    <div class="sidebar" id="sidebar-container">
+        <div class="logo-details">
+            <i class='bx bx-chevron-left' id="btn"></i>
+        </div>
+        <ul class="nav-list">
+            <li>
+                <a href="../html/home.html" class="home-sb">
+                    <i class='bx bx-grid-alt'></i>
+                    <span class='links_name'>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="../html/analytics.html">
+                    <i class='bx bx-pie-chart-alt-2'></i>
+                    <span class="links_name">Analytics</span>
+                </a>
+            </li>
+            <li>
+                <a href="../html/files.html">
+                    <i class='bx bx-folder'></i>
+                    <span class="links_name">Files</span>
+                </a>
+            </li>
+            <li>
+                <a href="../html/settings.html">
+                    <i class='bx bx-cog'></i>
+                    <span class="links_name">Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="../html/about.html" class="about-sb">
+                    <i class='bx bx-info-circle' style="color: #fff !important;"></i>
+                    <span class="links_name" style="color: #fff !important;">About</span>
+                </a>
+            </li>
+            <li>
+                <a href="../html/login.html">
+                    <i class='bx bx-log-out' id="log_out"></i>
+                    <span class="links_name">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="content">
+
+        <div class="header">
+            <a href="../html/home.html">
+            <img src="../img/logo-no-name.png" alt="logoImg">
+            </a>
+        </div>
+
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+</body>
+</html>
