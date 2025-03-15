@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function fetchAndDisplayRecordedFiles() {
-        // Only proceed if the "Record Log" tab is active
         if (!isRecordLogTabActive()) {
             return;
         }
@@ -14,8 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const response = await fetch('/get_recorded_files');
             let files = await response.json();
             
-            // Reverse order to show newest first
-            files = files.reverse();
+            files = files.reverse(); // Show newest first
 
             const gridContainer = document.getElementById('record-log-grid');
             gridContainer.innerHTML = ''; // Clear existing content
@@ -26,13 +24,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 card.className = 'record-card';
 
                 if (['jpg', 'jpeg', 'png'].includes(fileExtension)) {
-                    // Display image files with lazy loading
                     card.innerHTML = `
                         <img src="/records/${file}" alt="${file}" loading="lazy">
                         <p>${file}</p>
                     `;
                 } else if (['mp4', 'avi'].includes(fileExtension)) {
-                    // Display video files with lazy loading
                     card.innerHTML = `
                         <video controls preload="none" poster="/records/${file}.jpg">
                             <source data-src="/records/${file}" type="video/${fileExtension}">
@@ -41,18 +37,17 @@ document.addEventListener('DOMContentLoaded', function () {
                         <p>${file}</p>
                     `;
 
-                    // Lazy load video when it comes into view
                     const video = card.querySelector('video');
                     const source = card.querySelector('source');
                     const observer = new IntersectionObserver((entries) => {
                         entries.forEach(entry => {
                             if (entry.isIntersecting) {
-                                source.src = source.dataset.src; // Load the video source
-                                video.load(); // Load the video
-                                observer.unobserve(video); // Stop observing once loaded
+                                source.src = source.dataset.src;
+                                video.load();
+                                observer.unobserve(video);
                             }
                         });
-                    }, { threshold: 0.5 }); // Trigger when 50% of the video is in view
+                    }, { threshold: 0.5 });
 
                     observer.observe(video);
                 }
@@ -64,7 +59,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Call the function when the page loads or when the "Record Log" tab is clicked
-    document.addEventListener('DOMContentLoaded', fetchAndDisplayRecordedFiles);
+    // Event listener for tab click
     document.getElementById('record-log-tab').addEventListener('click', fetchAndDisplayRecordedFiles);
+
+    // 🔹 Set up SSE to listen for alerts and refresh recorded files
+    const eventSource = new EventSource('/stream_alerts');
+
+    eventSource.onmessage = function(event) {
+        console.log("New alert received:", event.data);
+
+        // Only update the record log if the tab is active
+        if (isRecordLogTabActive()) {
+            fetchAndDisplayRecordedFiles();
+        }
+    };
+
+    eventSource.onerror = function() {
+        console.error("EventSource connection error. Retrying...");
+        eventSource.close();
+    };
 });
