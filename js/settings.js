@@ -25,19 +25,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const streamFrameSkip = document.getElementById("stream-frame-skip");
     const streamFrameSkipValue = document.getElementById("stream-frame-skip-value");
     const showConfidenceValueToggle = document.getElementById("toggle-confidence-value");
-    const plottingMethod = document.getElementById("plotting-method");
     const alertLoggingToggle = document.getElementById("toggle-alert-logging");
     const alertLoggingDelay = document.getElementById("alert-logging-delay");
     const alertLoggingDelayValue = document.getElementById("alert-logging-delay-value");
     const modelVersion = document.getElementById("model-version");
-    
+    // alert
     const alertSoundToggle = document.getElementById("alert-sound-toggle");
     const alertDuration = document.getElementById("alert-duration");
     const alertDurationValue = document.getElementById("alert-duration-value");
     const alertVolume = document.getElementById("alert-volume");
     const alertVolumeValue = document.getElementById("alert-volume-value");
     const alertSoundName = document.getElementById("alert-sound-name");
-
+    // btn
     const saveBtn = document.querySelector(".save-btn");
     const cancelBtn = document.querySelector(".cancel-btn");
     const resetBtn = document.querySelector(".reset-btn");
@@ -58,7 +57,6 @@ document.addEventListener("DOMContentLoaded", function () {
         show_bounding_box: true,
         show_confidence_value: false,
         confidence_level: 0.7,
-        plotting_method: "mark_object",
         alert_and_record_logging: true,
         delay_for_alert_and_record_logging: 20,
 
@@ -101,7 +99,6 @@ document.addEventListener("DOMContentLoaded", function () {
         confidenceLevel.value = settings.confidence_level * 100;
         confidenceValue.textContent = `${confidenceLevel.value}%`;
         showConfidenceValueToggle.checked = settings.show_confidence_value;
-        plottingMethod.value = settings.plotting_method;
         alertLoggingToggle.checked = settings.alert_and_record_logging;
         alertLoggingDelay.value = settings.delay_for_alert_and_record_logging;
         alertLoggingDelayValue.textContent = `${alertLoggingDelay.value}s`;
@@ -133,7 +130,6 @@ document.addEventListener("DOMContentLoaded", function () {
             detection_mode: detectionToggle.checked,
             show_bounding_box: boundingBoxToggle.checked,
             show_confidence_value: showConfidenceValueToggle.checked,
-            plotting_method: plottingMethod.value,
             alert_and_record_logging: alertLoggingToggle.checked,
             delay_for_alert_and_record_logging: parseInt(alertLoggingDelay.value, 10),
             model_version: modelVersion.value,

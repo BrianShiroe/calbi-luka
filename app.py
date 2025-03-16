@@ -44,7 +44,6 @@ model_version = "car-fire-5.1.11n"
 show_bounding_box = True
 show_confidence_value = False
 confidence_level = 0.7
-plotting_method = "mark_object"  # mark_object, mark_screen
 alert_and_record_logging = True
 delay_for_alert_and_record_logging = 20
 # Alert sound variables
@@ -71,7 +70,6 @@ setting_vars = {
     "show_bounding_box": "show_bounding_box",
     "show_confidence_value": "show_confidence_value",
     "confidence_level": "confidence_level",
-    "plotting_method": "plotting_method",
     "alert_and_record_logging": "alert_and_record_logging",
     "delay_for_alert_and_record_logging": "delay_for_alert_and_record_logging",
     #alert sound
@@ -169,31 +167,25 @@ def detect_objects(frame):
                 object_detected = True  # Mark that an object is detected
 
                 if show_bounding_box:
-                    if plotting_method == "mark_object":
-                        # Draw bounding box around detected objects
-                        x1, y1, x2, y2 = map(int, box.xyxy[0])
-                        color = (0, 255, 0)  # Green color for the bounding box
-                        thickness = 5
-                        cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
+                    # Draw bounding box around detected objects
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                    color = (0, 255, 0)  # Green color for the bounding box
+                    thickness = 5
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
 
-                        if show_confidence_value:
-                            confidence = box.conf[0].item()  # Get confidence value
-                            label = f"{class_name} {confidence:.2f}"
-                            font = cv2.FONT_HERSHEY_SIMPLEX
-                            font_scale = 2
-                            font_thickness = 5
-                            text_color = (0, 255, 0)  # Green text
+                    if show_confidence_value:
+                        confidence = box.conf[0].item()  # Get confidence value
+                        label = f"{class_name} {confidence:.2f}"
+                        font = cv2.FONT_HERSHEY_SIMPLEX
+                        font_scale = 2
+                        font_thickness = 5
+                        text_color = (0, 255, 0)  # Green text
 
-                            # Put text slightly above the bounding box
-                            text_size = cv2.getTextSize(label, font, font_scale, font_thickness)[0]
-                            text_x = x1
-                            text_y = max(y1 - 5, text_size[1] + 5)  # Ensure text is inside the frame
-                            cv2.putText(frame, label, (text_x, text_y), font, font_scale, text_color, font_thickness)
-    
-                    # Handle mark_screen logic
-                    elif plotting_method == "mark_screen":
-                        if object_detected:
-                            pass
+                        # Put text slightly above the bounding box
+                        text_size = cv2.getTextSize(label, font, font_scale, font_thickness)[0]
+                        text_x = x1
+                        text_y = max(y1 - 5, text_size[1] + 5)  # Ensure text is inside the frame
+                        cv2.putText(frame, label, (text_x, text_y), font, font_scale, text_color, font_thickness)
                             
     return frame, detected_objects
     
@@ -607,7 +599,7 @@ def update_alert_sound_path():
 def update_settings():
     global detection_mode, performance_metrics_toggle, update_metric_interval, metric_font_size
     global stream_resolution, stream_frame_skip, max_frame_rate, model_version
-    global show_bounding_box, show_confidence_value, confidence_level, plotting_method
+    global show_bounding_box, show_confidence_value, confidence_level
     global alert_and_record_logging, delay_for_alert_and_record_logging, models
     global alert_sound, alert_duration, alert_volume, alert_sound_name
 
@@ -651,8 +643,7 @@ def print_updated_settings():
          "Show Bounding Box", show_bounding_box),
         
         ("Show Confidence Value", show_confidence_value, 
-         "Confidence Level", confidence_level, 
-         "Plotting Method", plotting_method),
+         "Confidence Level", confidence_level),
         
         ("Alert & Record Logging", alert_and_record_logging, 
          "Delay for Logging", delay_for_alert_and_record_logging, 

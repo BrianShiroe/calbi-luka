@@ -92,7 +92,7 @@
             <div id="buttons">
                 <button class="cancel-btn"><i class='bx bx-x' style="font-size: 14px;"></i> Cancel</button>
                 <button class="save-btn"><i class='bx bx-check' style="font-size: 14px;"></i> Save Changes</button>
-                <!-- <button class="reset-btn">Reset to Default</button> -->
+                <button class="reset-btn">Reset to Default</button>
             </div>
         </div>
 
@@ -188,13 +188,6 @@
                                 <label>Confidence</label>
                                 <input type="range" id="confidence-level" min="0" max="100" value="70" oninput="document.getElementById('confidence-level-value').textContent = this.value + '%'">
                                 <span id="confidence-level-value">70%</span>
-                            </div>
-                            <div class="setting">
-                                <label>Plotting Method</label>
-                                <select id="plotting-method">
-                                    <option value="mark_object" selected>Mark Object</option>
-                                    <option value="mark_screen">Mark Screen</option>
-                                </select>
                             </div>
                             <div class="setting">
                                 <label class="toggle-label">

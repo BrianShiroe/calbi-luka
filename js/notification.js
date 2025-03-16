@@ -35,16 +35,17 @@ document.addEventListener('DOMContentLoaded', function () {
         const deviceCard = document.getElementById(`device-${deviceId}`);
         if (deviceCard) {
             deviceCard.classList.add('highlight');
-    
-            // Retrieve and parse alert duration, default to 5 seconds
-            const alertDuration = parseFloat(localStorage.getItem('alert_duration')) || 5;
+
+            // Retrieve and parse alert duration from "settings" in localStorage
+            const settings = JSON.parse(localStorage.getItem('settings')) || {};
+            const alertDuration = parseFloat(settings.alert_duration) || 5;
             const duration = alertDuration * 1000;
-    
+
             setTimeout(() => {
                 deviceCard.classList.remove('highlight');
             }, duration);
         }
-    }    
+    }
 
     // Function to clear all notifications
     function clearNotifications() {
