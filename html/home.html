@@ -139,6 +139,7 @@
         <!-- Pop-up form for URL input -->
         <form id="add-form" class="popup" style="display: none;">
             <div class="popup-content">
+                <span class="close" onclick="closePopup()">x</span>
                 <h2>Add Device</h2>
                 <input type="text" id="title" placeholder="Enter Title (Optional)">
                 <input type="text" id="ip_address" placeholder="Enter Stream URL">
@@ -155,8 +156,8 @@
                     <p>https://youtu.be/nSaf6rfEKcQ</p>
                     
                 </div>
-                <button type="button" onclick="addDevice()">Add</button>
-                <button type="button" onclick="closePopup()">Cancel</button>
+                <button class="cancel" type="button" onclick="closePopup()">Cancel</button>
+                <button class="confirm" type="button" onclick="addDevice()">Add</button>
             </div>
         </form>
 
