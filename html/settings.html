@@ -90,9 +90,9 @@
                 General Settings
             </span>
             <div id="buttons">
+                <button class="reset-btn">Reset to Default</button>
                 <button class="cancel-btn"><i class='bx bx-x' style="font-size: 14px;"></i> Cancel</button>
                 <button class="save-btn"><i class='bx bx-check' style="font-size: 14px;"></i> Save Changes</button>
-                <!-- <button class="reset-btn">Reset to Default</button> -->
             </div>
         </div>
 
@@ -153,23 +153,12 @@
                             <p class="settings-main-label">Detection Settings</p>  
                             <p class="sub-label">Configure how the incident detection behaves.</p> 
                             <div class="setting">
-                                <label>Model Version</label>
-                                <select id="model-version">
-                                    <option value="car-fire-5.1.11n">car-fire-5.1.11n</option>
-                                    <option value="flood-5.1.11n">flood-5.1.11n</option>
-                                    <option value="landslide-5.1.11n">landslide-5.1.11n</option>
-                                    <option value="cidm-2.7.11n">cidm-2.7.11n</option>
-                                    <option value="yolo11n" selected>yolo11n</option>
-                                    <option value="yolov8n">yolov8n</option>
-                                </select>
-                            </div>      
-                            <div class="setting">
                                 <label class="toggle-label">
                                     <input class="toggle-switch" type="checkbox" id="toggle-detection" checked>
                                      Detection Mode
                                     <span class="slider"></span>
                                 </label>
-                            </div>            
+                            </div>
                             <div class="setting">
                                 <label class="toggle-label">
                                     <input class="toggle-switch" type="checkbox" id="toggle-bounding-box" checked>
@@ -188,6 +177,17 @@
                                 <label>Confidence</label>
                                 <input type="range" id="confidence-level" min="0" max="100" value="70" oninput="document.getElementById('confidence-level-value').textContent = this.value + '%'">
                                 <span id="confidence-level-value">70%</span>
+                            </div>
+                            <div class="setting">
+                                <label>Model Version</label>
+                                <select id="model-version">
+                                    <option value="car-fire-5.1.11n">car-fire-5.1.11n</option>
+                                    <option value="flood-5.1.11n">flood-5.1.11n</option>
+                                    <option value="landslide-5.1.11n">landslide-5.1.11n</option>
+                                    <option value="cidm-2.7.11n">cidm-2.7.11n</option>
+                                    <option value="yolo11n" selected>yolo11n</option>
+                                    <option value="yolov8n">yolov8n</option>
+                                </select>
                             </div>
                         </div>
                         <!-- NEW ALERT SOUND SETTINGS -->
@@ -287,7 +287,7 @@
                     <div id="buttons">
                         <button class="save-btn">Save Changes</button>
                         <button class="cancel-btn">Cancel</button>
-                        <!-- <button class="reset-btn">Reset</button> -->
+                        <button class="reset-btn">Reset</button>
                     </div>
                 </div>
 

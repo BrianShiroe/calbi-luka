@@ -41,7 +41,7 @@ max_frame_rate = 60
 # Detection Settings variables
 detection_mode = False
 model_version = "car-fire-5.1.11n"
-show_bounding_box = True
+show_bounding_box = False
 show_confidence_value = False
 confidence_level = 0.7
 alert_and_record_logging = True
