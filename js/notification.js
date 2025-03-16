@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         notifications.forEach(alert => {
             if (!alert.resolved) {
                 const li = document.createElement('li');
-                li.textContent = `${alert.event_type} detected on ${alert.camera_title}: ${alert.location} at ${alert.detected_at} ID${alert.camera_ID}`;
+                li.textContent = `${alert.event_type} detected on ${alert.camera_title}: ${alert.location} at ${alert.detected_at}`;
                 notificationList.appendChild(li);
             }
         });
@@ -29,6 +29,22 @@ document.addEventListener('DOMContentLoaded', function () {
             notificationBox.classList.add('show');
         }
     }
+
+    // Function to highlight the corresponding device card
+    function highlightDeviceCard(deviceId) {
+        const deviceCard = document.getElementById(`device-${deviceId}`);
+        if (deviceCard) {
+            deviceCard.classList.add('highlight');
+    
+            // Retrieve and parse alert duration, default to 5 seconds
+            const alertDuration = parseFloat(localStorage.getItem('alert_duration')) || 5;
+            const duration = alertDuration * 1000;
+    
+            setTimeout(() => {
+                deviceCard.classList.remove('highlight');
+            }, duration);
+        }
+    }    
 
     // Function to clear all notifications
     function clearNotifications() {
@@ -64,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!exists) {
                 notifications.unshift(newAlert); // Add to the beginning of the array
                 updateNotificationUI(true); // Update the UI and show the notification box
+                highlightDeviceCard(newAlert.camera_id); // Highlight the specific device card
             }
         };
 

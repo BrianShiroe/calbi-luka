@@ -162,6 +162,15 @@ body {
     transition: transform 0.3s ease;
 }
 
+.highlight {
+    background-color: #ec2121 !important;
+    color: #313131 !important;
+    border: 2px solid #ff0000;
+    box-shadow: 0 0 10px 2px rgba(236, 33, 33, 0.8);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    border-radius: 5px; /* Optional: Adds rounded corners for better appearance */
+}
+
 .device-card:hover, 
 .add-device-card:hover {
     background-color: #f8f8f8; /* Lighter white hover */

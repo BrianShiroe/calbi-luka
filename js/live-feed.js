@@ -81,6 +81,7 @@ function renderDevices() {
     devices.forEach((device, index) => {
         const videoFeedURL = `http://localhost:5500/stream?stream_url=${encodeURIComponent(device.ip_address)}&device_title=${encodeURIComponent(device.title)}&device_location=${encodeURIComponent(device.location)}&device_id=${device.id}`;
         const deviceCard = createDeviceCard(videoFeedURL, device.title, device.location, device.id, index); // Pass device.id
+        deviceCard.id = `device-${device.id}`; // Assign unique ID to each device card
         gridContainer.appendChild(deviceCard);
     });
 
