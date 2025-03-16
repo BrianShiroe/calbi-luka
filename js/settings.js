@@ -183,3 +183,23 @@ document.addEventListener("DOMContentLoaded", function () {
     cancelBtn.addEventListener("click", cancelSettings);
     resetBtn.addEventListener("click", resetSettings);
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const tabs = document.querySelectorAll(".tab");
+    const title = document.querySelector(".settings-title");
+    
+    const tabData = {
+        tab1: { title: "General Settings", icon: "bx bx-cog" },
+        tab2: { title: "Account Settings", icon: "bx bx-user" },
+        tab3: { title: "Security Settings", icon: "bx bx-lock" }
+    };
+
+    tabs.forEach(tab => {
+        tab.addEventListener("change", function () {
+            if (this.checked) {
+                const data = tabData[this.id];
+                title.innerHTML = `<i class='${data.icon}' style="background-color: #453cc622; padding: 10px; border-radius: 20px;"></i> ${data.title}`;
+            }
+        });
+    });
+});
