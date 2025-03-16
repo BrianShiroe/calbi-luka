@@ -149,10 +149,10 @@ def get_fresh_stream(stream_url):
         return new_url
     return stream_url
 
-def initialize_stream(stream_url):
+def initialize_stream(stream_url, device_title):
     cap = cv2.VideoCapture(stream_url)
     if not cap.isOpened():
-        print(f"Failed to open stream: {stream_url}")
+        print(f"Failed to open stream: {device_title}")
         return None
     return cap
 
@@ -385,7 +385,7 @@ def generate_frames(stream_url, device_title, device_location, device_id):
     active_streams_dict[device_id] = True  
 
     # Initialize the video stream
-    cap = initialize_stream(get_fresh_stream(stream_url))
+    cap = initialize_stream(get_fresh_stream(stream_url), device_title)
     if cap is None:
         return
 
@@ -406,7 +406,7 @@ def generate_frames(stream_url, device_title, device_location, device_id):
             if not success:
                 print(f"Stream disconnected: {device_title}. Attempting to refresh URL...")
                 cap.release()
-                cap = initialize_stream(get_fresh_stream(stream_url))  
+                cap = initialize_stream(get_fresh_stream(stream_url), device_title)
                 if cap is None:
                     print("Failed to reconnect. Stopping stream.")
                     break  # Exit the loop if reconnection fails
@@ -685,6 +685,7 @@ def print_updated_settings():
     print("Updated Settings:\n")
     print(tabulate(settings, headers=["Setting", "Value", "Setting", "Value", "Setting", "Value"], tablefmt="grid"))
 
+# Main entry point for the application execution
 if __name__ == "__main__":
     # Start the Flask server in a separate thread to keep the main thread available for other tasks.
     flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=FLASK_PORT, threaded=True, use_reloader=False))
