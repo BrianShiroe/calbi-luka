@@ -62,3 +62,6 @@ This project is licensed under the **MIT License**. Feel free to use and modify 
 
 ## 🤝 Acknowledgments
 We extend our gratitude to our mentors, professors, and peers who supported the development of LUKA. Special thanks to open-source contributors who made this project possible.
+
+## 📚 Documentation
+For detailed documentation, installation instructions, and usage guidelines, please refer to the [LUKA Documentation](https://docs.google.com/document/d/1Xb9r_EgJ_dx0_urg7DnGRpxzY0-B9rsqIcPNPT30Lus/edit?usp=sharing).

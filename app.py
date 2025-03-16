@@ -44,7 +44,9 @@ model_version = "car-fire-5.1.11n"
 show_bounding_box = False
 show_confidence_value = False
 confidence_level = 0.7
-alert_and_record_logging = True
+enable_alert = True
+enable_record_logging = True
+
 delay_for_alert_and_record_logging = 20
 # Alert sound variables
 alert_sound = True
@@ -57,22 +59,25 @@ ALERT_PLAYING = False  # Prevent overlapping alerts
 
 # Mapping of setting keys to global variable names
 setting_vars = {
-    #general
+    # General
     "performance_metrics_toggle": "performance_metrics_toggle",
     "update_metric_interval": "update_metric_interval",
     "metric_font_size": "metric_font_size",
     "stream_resolution": "stream_resolution",
     "stream_frame_skip": "stream_frame_skip",
     "max_frame_rate": "max_frame_rate",
-    #model
+    
+    # Model
     "detection_mode": "detection_mode",
     "model_version": "model_version",
     "show_bounding_box": "show_bounding_box",
     "show_confidence_value": "show_confidence_value",
     "confidence_level": "confidence_level",
-    "alert_and_record_logging": "alert_and_record_logging",
+    "enable_alert": "enable_alert",
+    "enable_record_logging": "enable_record_logging",
     "delay_for_alert_and_record_logging": "delay_for_alert_and_record_logging",
-    #alert sound
+    
+    # Alert sound
     "alert_sound": "alert_sound",
     "alert_duration": "alert_duration",
     "alert_volume": "alert_volume",
@@ -82,7 +87,7 @@ setting_vars = {
 MODEL_PATHS = [f"model/{model_version}.pt"]
 models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Use GPU if available
 
-# DO NOT TOUCH VARIABLES
+# constant varaibles (Do Not Touch)
 active_streams = 0
 active_streams_dict = {}  # Track active streams by device ID
 last_record_times = {}  # Dictionary to store last save time per stream
@@ -102,6 +107,7 @@ resolutions = {
 #DONT TOUCH (TO INCLUDE)
 target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect objects for yolo
 
+#Flask App Initialization with CORS and Pygame
 app = Flask(__name__, static_folder=".") # Initialize Flask application
 CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
 pygame.mixer.init()
@@ -125,7 +131,7 @@ def start_file_watcher():
         observer.stop()
     observer.join()
 
-# SECTION: starting stream
+# SECTION: YouTube Stream Handling and Initialization
 def get_youtube_stream_url(youtube_url):
     ydl_opts = {'format': 'best', 'quiet': True}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -143,14 +149,26 @@ def get_fresh_stream(stream_url):
         return new_url
     return stream_url
 
-def initialize_stream(stream_url):
+def initialize_stream(stream_url, device_title):
     cap = cv2.VideoCapture(stream_url)
     if not cap.isOpened():
-        print(f"Failed to open stream: {stream_url}")
+        print(f"Failed to open stream: {device_title}")
         return None
     return cap
 
-# SECTION: object detection
+# SECTION: Frame Processing with YOLO Detection & Object Highlighting
+def process_frame(frame, stream_url, device_title, device_location, device_id):
+    process_start = time.time()
+    model_status_text = "Model: OFF"
+    
+    if detection_mode:
+        model_status_text = "Model: ON"
+        frame, detected_objects = detect_objects(frame)
+        save_detected_frame(frame, stream_url, detected_objects, device_title, device_location, device_id)
+    
+    processing_time = time.time() - process_start
+    return frame, processing_time, model_status_text
+
 def detect_objects(frame):
     global mark_screen_duration
     detected_objects = set()
@@ -189,11 +207,11 @@ def detect_objects(frame):
                             
     return frame, detected_objects
     
-# SUBSECTION: record and alert object detected
+# SUBSECTION: Record and Alert Object Detected
 def save_detected_frame(frame, stream_url, detected_objects, device_title, device_location, device_id):
     global last_record_times
     
-    if not alert_and_record_logging:  # Skip recording if logging is disabled
+    if not enable_record_logging and not enable_alert:  # Skip if both are disabled
         return
     
     current_time = time.time()
@@ -205,27 +223,29 @@ def save_detected_frame(frame, stream_url, detected_objects, device_title, devic
         timestamp = time.strftime("%m-%d-%y_%I.%M.%S%p")
         formatted_timestamp = time.strftime("%m-%d-%y_%I.%M.%S%p")
         
-        filename = os.path.join(
-            detected_records_path,
-            f"{timestamp}_{detected_objects_str}_detected_on_{device_title}_{device_location}.jpg"
-        )
-        cv2.imwrite(filename, frame)
-
-        # Ensure database operations are executed inside the Flask app context
-        with app.app_context():
-            db = get_db()
-            cursor = db.cursor()
-            cursor.execute(
-                """
-                INSERT INTO alert (camera_id, camera_title, event_type, location, detected_at)
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (device_id, device_title, detected_objects_str, device_location, formatted_timestamp)
+        if enable_record_logging:
+            filename = os.path.join(
+                detected_records_path,
+                f"{timestamp}_{detected_objects_str}_detected_on_{device_title}_{device_location}.jpg"
             )
-            db.commit()
+            cv2.imwrite(filename, frame)
+
+        if enable_alert:
+            # Ensure database operations are executed inside the Flask app context
+            with app.app_context():
+                db = get_db()
+                cursor = db.cursor()
+                cursor.execute(
+                    """
+                    INSERT INTO alert (camera_id, camera_title, event_type, location, detected_at)
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (device_id, device_title, detected_objects_str, device_location, formatted_timestamp)
+                )
+                db.commit()
         
-        # Play alert sound when an object is detected
-        play_alert_sound()
+            # Play alert sound when an object is detected
+            play_alert_sound()
 
 def play_alert_sound():
     global ALERT_PLAYING
@@ -256,19 +276,7 @@ def play_alert_sound():
 
     threading.Thread(target=sound_thread, daemon=True).start()
 
-def process_frame(frame, stream_url, device_title, device_location, device_id):
-    process_start = time.time()
-    model_status_text = "Model: OFF"
-    
-    if detection_mode:
-        model_status_text = "Model: ON"
-        frame, detected_objects = detect_objects(frame)
-        save_detected_frame(frame, stream_url, detected_objects, device_title, device_location, device_id)
-    
-    processing_time = time.time() - process_start
-    return frame, processing_time, model_status_text
-
-# SECTION: stream settings
+# SECTION: Utility Functions for Stream Handling and Optimization
 def sanitize_filename(url):
     sanitized = re.sub(r'[^\w\-_.]', '_', url)  # Replace unsafe characters with '_'
     return sanitized[:50]  # Limit length to avoid filesystem issues
@@ -283,7 +291,16 @@ def enforce_frame_rate(frame_start_time):
         if time_to_wait > 0:
             time.sleep(time_to_wait)
 
-#SECTION: metrics
+def setup_stream_resolution(cap):
+    if stream_resolution in resolutions:
+        width, height = resolutions[stream_resolution]
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        #print(f"Stream resolution set to {stream_resolution} ({width}x{height})")
+    else:
+        print(f"Invalid resolution: {stream_resolution}. Keeping default.")
+
+#SECTION: Performance Metrics Tracking and Overlay for Video Streams
 def initialize_metrics():
     return {
         "frame_count": 0,
@@ -360,15 +377,6 @@ def overlay_metrics(frame, metrics, model_status_text):
     
     return frame
 
-def setup_stream_resolution(cap):
-    if stream_resolution in resolutions:
-        width, height = resolutions[stream_resolution]
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-        #print(f"Stream resolution set to {stream_resolution} ({width}x{height})")
-    else:
-        print(f"Invalid resolution: {stream_resolution}. Keeping default.")
-
 #SECTION: Main Streaming Function
 def generate_frames(stream_url, device_title, device_location, device_id):
     global stream_resolution, active_streams  
@@ -376,55 +384,72 @@ def generate_frames(stream_url, device_title, device_location, device_id):
     # Register the stream as active
     active_streams_dict[device_id] = True  
 
-    cap = initialize_stream(get_fresh_stream(stream_url))
+    # Initialize the video stream
+    cap = initialize_stream(get_fresh_stream(stream_url), device_title)
     if cap is None:
         return
 
+    # Configure stream resolution
     setup_stream_resolution(cap)
+
+    # Initialize performance metrics
     metrics = initialize_metrics()
     frame_count = 0
-    active_streams += 1  
+    active_streams += 1  # Increment the active stream count
 
     try:
-        while active_streams_dict.get(device_id, False):  # Check if stream is still allowed
-            frame_start_time = time.time()
+        while active_streams_dict.get(device_id, False):  # Continue streaming if the stream is active
+            frame_start_time = time.time()  # Record the start time for performance monitoring
 
+            # Read a frame from the video stream
             success, frame = cap.read()
             if not success:
                 print(f"Stream disconnected: {device_title}. Attempting to refresh URL...")
                 cap.release()
-                cap = initialize_stream(get_fresh_stream(stream_url))  
+                cap = initialize_stream(get_fresh_stream(stream_url), device_title)
                 if cap is None:
                     print("Failed to reconnect. Stopping stream.")
-                    break
+                    break  # Exit the loop if reconnection fails
                 setup_stream_resolution(cap)
                 continue  
 
+            # Skip frames based on the configured frame skip value
             frame_count += 1
             if stream_frame_skip > 0 and frame_count % stream_frame_skip != 0:
                 continue  
 
+            # Resize the frame if a valid resolution is set
             if stream_resolution in resolutions:
                 width, height = resolutions[stream_resolution]
                 frame = cv2.resize(frame, (width, height))
 
+            # Process the frame (e.g., object detection, overlay text)
             frame, processing_time, model_status_text = process_frame(frame, stream_url, device_title, device_location, device_id)
+
+            # Update performance metrics
             update_metrics(metrics, frame_start_time, processing_time, active_streams)
+
+            # Overlay performance metrics onto the frame
             frame = overlay_metrics(frame, metrics, model_status_text)
+
+            # Encode the frame as JPEG
             encoded_frame = encode_frame(frame)
 
+            # Yield the encoded frame to be sent to the client
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + encoded_frame + b'\r\n')
 
+            # Maintain the configured frame rate
             enforce_frame_rate(frame_start_time)
 
     finally:
+        # Decrement the active stream count when the stream stops
         active_streams -= 1  
-        cap.release()
-        cv2.destroyAllWindows()
-        active_streams_dict.pop(device_id, None)  # Remove from active tracking
+        cap.release()  # Release the video capture object
+        cv2.destroyAllWindows()  # Close any OpenCV windows
+        active_streams_dict.pop(device_id, None)  # Remove the stream from active tracking
 
-# stream handler
+# Flask Route for Video Streaming with Device Metadata
 @app.route('/stream')
 def stream():
     stream_url = request.args.get('stream_url')
@@ -445,7 +470,7 @@ def stream():
 
     return Response(generate_frames(stream_url, device_title, device_location, device_id), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# SECTION: Start of flask route handlers
+# SECTION: Flask Routes for Serving HTML and Static Files
 @app.route("/")
 def serve_home():
     return send_from_directory("html", "home.html")
@@ -460,13 +485,19 @@ def serve_static(filename):
         return send_from_directory(".", filename)
     return send_from_directory("html", filename)
 
-# SECTION: device configuration API
+# SECTION: Database Connection Management
 def get_db(): # Database helper function
     if 'db' not in g:
         g.db = sqlite3.connect(DB_PATH)
         g.db.row_factory = sqlite3.Row
     return g.db
 
+@app.teardown_appcontext
+def close_db(error):
+    if 'db' in g:
+        g.db.close()
+
+# SECTION: Streaming and Managing Alerts API
 @app.route('/stream_alerts', methods=['GET'])
 def stream_alerts():
     def event_stream():
@@ -505,11 +536,7 @@ def clear_alerts():
     db.commit()
     return jsonify({"success": True})
 
-@app.teardown_appcontext # Close the database connection when the app context ends
-def close_db(error):
-    if 'db' in g:
-        g.db.close()
-
+# Camera Device Management API
 @app.route('/get_devices', methods=['GET'])
 def get_devices():
     db = get_db()
@@ -570,7 +597,7 @@ def delete_device():
     db.commit()
     return jsonify({"success": True})
 
-# SECTION: record logs
+# SECTION: Recorded Files Management API
 @app.route('/get_recorded_files', methods=['GET'])
 def get_recorded_files():
     try:
@@ -588,19 +615,19 @@ def get_recorded_files():
 def serve_recorded_file(filename):
     return send_from_directory(detected_records_path, filename)
 
-# Function to update alert sound path
+# Dynamic Alert Sound Path Updater
 def update_alert_sound_path():
     global alert_sound_path
     alert_sound_path = f"sound-effect/{alert_sound_name}.mp3"
     print(f"Alert sound path updated to: {alert_sound_path}")
 
-# SECTION: setting feature toggle API
+# SECTION: Dynamic System Settings Updater with Model Reloading
 @app.route('/update_settings', methods=['POST'])
 def update_settings():
     global detection_mode, performance_metrics_toggle, update_metric_interval, metric_font_size
     global stream_resolution, stream_frame_skip, max_frame_rate, model_version
     global show_bounding_box, show_confidence_value, confidence_level
-    global alert_and_record_logging, delay_for_alert_and_record_logging, models
+    global enable_alert, enable_record_logging, delay_for_alert_and_record_logging, models
     global alert_sound, alert_duration, alert_volume, alert_sound_name
 
     data = request.get_json()
@@ -628,6 +655,7 @@ def update_settings():
 
     return jsonify(data)
 
+# System Settings Overview with Tabulated Display
 def print_updated_settings():
     settings = [
         ("Detection Mode", detection_mode, 
@@ -645,28 +673,30 @@ def print_updated_settings():
         ("Show Confidence Value", show_confidence_value, 
          "Confidence Level", confidence_level),
         
-        ("Alert & Record Logging", alert_and_record_logging, 
-         "Delay for Logging", delay_for_alert_and_record_logging, 
-         "Alert Sound", alert_sound),
+        ("Enable Alert", enable_alert, 
+         "Enable Record Logging", enable_record_logging, 
+         "Delay for Logging", delay_for_alert_and_record_logging),
         
-        ("Alert Duration", alert_duration, 
+        ("Alert Sound", alert_sound, 
+         "Alert Duration", alert_duration, 
          "Alert Volume", alert_volume, 
          "Alert Sound Name", alert_sound_name)
     ]
     print("Updated Settings:\n")
     print(tabulate(settings, headers=["Setting", "Value", "Setting", "Value", "Setting", "Value"], tablefmt="grid"))
 
+# Main entry point for the application execution
 if __name__ == "__main__":
-    # Start Flask server in a thread
+    # Start the Flask server in a separate thread to keep the main thread available for other tasks.
     flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=FLASK_PORT, threaded=True, use_reloader=False))
-    flask_thread.daemon = True
-    flask_thread.start()
-    
-    # Wait for Flask to initialize
+    flask_thread.daemon = True  # Mark the thread as a daemon, so it will exit when the main program ends.
+    flask_thread.start()  # Start the Flask server in the background.
+
+    # Allow some time for the Flask server to initialize before proceeding.
     time.sleep(5)   
     
-    # Open the default page in a browser
+    # Open the default home page in the user's web browser automatically.
     webbrowser.open_new_tab(f"http://127.0.0.1:{FLASK_PORT}/html/home.html")
     
-    # Start file watcher in the main thread
+    # Start monitoring file changes in the main thread to enable automatic updates or reloads.
     start_file_watcher()
