@@ -39,7 +39,7 @@
 }
 
 .toggle-switch:checked + .slider {
-    background: #453cc6cb;
+    background: #1d56d1cb;
 }
 
 .toggle-switch:checked + .slider::before {

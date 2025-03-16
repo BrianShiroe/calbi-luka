@@ -30,7 +30,7 @@ body {
 }
 
 .settings-sb {
-    background-color: #453cc6cb !important;
+    background-color: #1d56d1cb !important;
     box-shadow: 0 4px 8px rgba(60, 67, 196, 0.423);
 }
 
@@ -67,7 +67,7 @@ input[name="tab"] {
 }
 
 input[name="tab"]:checked + .tab_label {
-    background: #453cc6cb;
+    background: #1d56d1cb;
     color: white;
     border-radius: 10px;
 }
@@ -171,7 +171,7 @@ button {
     gap: 10px;
 }
 
-.save-btn { background: #453cc6cb; }
+.save-btn { background: #1d56d1cb; }
 .save-btn:hover { background: #1b1567cb; }
 
 .cancel-btn { background: #dfdfe0; color: #333; }

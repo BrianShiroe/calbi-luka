@@ -26,7 +26,7 @@ body {
 }
 
 .files-sb {
-    background-color: #453cc6cb !important;
+    background-color: #1d56d1cb !important;
     box-shadow: 0 4px 8px rgba(60, 67, 196, 0.423);
 }
 
@@ -185,7 +185,7 @@ input {
 }
 
 .sort-button {
-    background: #453cc6cb;
+    background: #1d56d1cb;
     color: white;
     border: none;
     border-radius: 5px;

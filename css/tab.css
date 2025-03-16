@@ -6,7 +6,7 @@
 .tab {
     padding: 5px 20px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 700;
     text-align: center;
     border-radius: 20px 0 20px 0;
     margin: 0 5px 0 0;
@@ -17,7 +17,7 @@
 }
 
 .tab.active {
-    background-color: #453cc6cb;
+    background-color: #1d56d1cb;
     color: white;
 }
 
