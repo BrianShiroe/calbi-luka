@@ -18,9 +18,9 @@
             <form>
                 <h2 class="main-label">Create Account</h2>
                 <p class="sub-label">New here? Sign up to get started!</p>
-                <input type="text" placeholder="Name">
-                <input type="email" placeholder="Email">
-                <input type="password" placeholder="Password">
+                <input type="text" id="username" placeholder="Name">
+                <input type="email" id="register-email" placeholder="Email">
+                <input type="password" id="register-password" placeholder="Password">
                 <p></p>
                 <button class="sign-up-btn">Sign Up</button>
             </form>
@@ -30,14 +30,12 @@
                 <h2 class="main-label">Login</h2>
                 <p class="sub-label">
                     Ready to pick up where you left off?</p>
-                <input type="email" placeholder="Email">
-                <input type="password" placeholder="Password">
+                    <input type="email" id="login-email" placeholder="Email">
+                    <input type="password" id="login-password" placeholder="Password">
                 <a href="#" style="color: #5571e4; font-weight: 600; font-size: 12px;">
                     Forgot Your Password?
                 </a>
-                <form action="../html/home.html">
-                    <input type="button" onclick="location.href='../html/home.html';" class="login-btn" value="Login" />
-                </form>
+                <input type="button" class="login-btn" value="Login">
             </form>
         </div>
         <div class="toggle-container">
