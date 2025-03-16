@@ -25,11 +25,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const streamFrameSkip = document.getElementById("stream-frame-skip");
     const streamFrameSkipValue = document.getElementById("stream-frame-skip-value");
     const showConfidenceValueToggle = document.getElementById("toggle-confidence-value");
-    const alertLoggingToggle = document.getElementById("toggle-alert-logging");
-    const alertLoggingDelay = document.getElementById("alert-logging-delay");
-    const alertLoggingDelayValue = document.getElementById("alert-logging-delay-value");
     const modelVersion = document.getElementById("model-version");
     // alert
+    const enableAlertToggle = document.getElementById("enable-alert-toggle");
+    const enableRecordLoggingToggle = document.getElementById("enable-record-logging-toggle");
+    const alertLoggingDelay = document.getElementById("alert-logging-delay");
+    const alertLoggingDelayValue = document.getElementById("alert-logging-delay-value");
     const alertSoundToggle = document.getElementById("alert-sound-toggle");
     const alertDuration = document.getElementById("alert-duration");
     const alertDurationValue = document.getElementById("alert-duration-value");
@@ -57,7 +58,8 @@ document.addEventListener("DOMContentLoaded", function () {
         show_bounding_box: false,
         show_confidence_value: false,
         confidence_level: 0.7,
-        alert_and_record_logging: true,
+        enable_alert: true,
+        enable_record_logging: true,
         delay_for_alert_and_record_logging: 20,
 
         // alerts sound
@@ -99,7 +101,8 @@ document.addEventListener("DOMContentLoaded", function () {
         confidenceLevel.value = settings.confidence_level * 100;
         confidenceValue.textContent = `${confidenceLevel.value}%`;
         showConfidenceValueToggle.checked = settings.show_confidence_value;
-        alertLoggingToggle.checked = settings.alert_and_record_logging;
+        enableAlertToggle.checked = settings.enable_alert;
+        enableRecordLoggingToggle.checked = settings.enable_record_logging;
         alertLoggingDelay.value = settings.delay_for_alert_and_record_logging;
         alertLoggingDelayValue.textContent = `${alertLoggingDelay.value}s`;
         modelVersion.value = settings.model_version;
@@ -130,7 +133,8 @@ document.addEventListener("DOMContentLoaded", function () {
             detection_mode: detectionToggle.checked,
             show_bounding_box: boundingBoxToggle.checked,
             show_confidence_value: showConfidenceValueToggle.checked,
-            alert_and_record_logging: alertLoggingToggle.checked,
+            enable_alert: enableAlertToggle.checked,
+            enable_record_logging: enableRecordLoggingToggle.checked,
             delay_for_alert_and_record_logging: parseInt(alertLoggingDelay.value, 10),
             model_version: modelVersion.value,
             //alert sound

@@ -443,9 +443,9 @@ h2{
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: #000000ea; /* Black background for better visibility */
+    background: #000216;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); /* Adjusts based on screen size */
+    grid-template-columns: repeat(auto-fill, minmax(60vh, 1fr)); /* Adjusts based on screen size */
     grid-auto-rows: auto;
     gap: 5px;
     padding: 10px;
@@ -476,26 +476,22 @@ h2{
 /* Overlay text at the bottom of each feed */
 .fullscreen .device-card h3 {
     position: sticky;
-    bottom: 21.5px;
     left: 0;
     width: 100%;
     color: white;
     text-align: center;
     font-size: 14px;
     padding: 3px 0;
-    background-color: #00000088;
 }
 
 .fullscreen .device-card p {
     position: sticky;
-    bottom: 0;
     left: 0;
     width: 100%;
     color: white;
     text-align: center;
     font-size: 14px;
     padding: 3px 0;
-    background-color: #00000088;
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
 }
