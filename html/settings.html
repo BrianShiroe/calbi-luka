@@ -189,6 +189,11 @@
                                 <input type="range" id="confidence-level" min="0" max="100" value="70" oninput="document.getElementById('confidence-level-value').textContent = this.value + '%'">
                                 <span id="confidence-level-value">70%</span>
                             </div>
+                        </div>
+                        <!-- NEW ALERT SOUND SETTINGS -->
+                        <div class="settings-group">
+                            <p class="settings-main-label">Alert Management</p>
+                            <p class="sub-label">Control alert preference.</p>
                             <div class="setting">
                                 <label class="toggle-label">
                                     <input class="toggle-switch" type="checkbox" id="toggle-alert-logging" checked>
@@ -201,11 +206,6 @@
                                 <input type="range" id="alert-logging-delay" min="1" max="100" value="10" oninput="document.getElementById('alert-logging-delay-value').textContent = this.value + 's'">
                                 <span id="alert-logging-delay-value">10s</span>
                             </div>
-                        </div>
-                        <!-- NEW ALERT SOUND SETTINGS -->
-                        <div class="settings-group">
-                            <p class="settings-main-label">Alert Preference</p>
-                            <p class="sub-label">Control alert sound preference.</p>
                             <div class="setting">
                                 <label class="toggle-label">
                                     <input class="toggle-switch" type="checkbox" id="alert-sound-toggle" checked>
