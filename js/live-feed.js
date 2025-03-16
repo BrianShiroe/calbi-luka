@@ -91,7 +91,7 @@ function renderDevices() {
     addDeviceCard.innerHTML = `
         <div class="add-device-container">
             <i class="fas fa-plus add-icon" style="font-size:20px; position:relative; left:35%;"></i>
-            <p style="font-size:12px; color:grey;">Add Device</p>
+            <p>Add Device</p>
         </div>
     `;
     addDeviceCard.onclick = openPopup;
@@ -105,7 +105,7 @@ function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceId, de
 
     const mediaContainer = createMediaContainer(videoFeedURL);
     const nameElement = createTextElement("h3", deviceName);
-    const locationElement = createTextElement("p", `Location: ${deviceLocation}`, { fontSize: "12px", color: "grey" });
+    const locationElement = createTextElement("p", `Location: ${deviceLocation}`);
     const menuContainer = createMenuContainer(deviceIndex, deviceId); // Pass deviceId to menu container
 
     deviceCard.append(mediaContainer, nameElement, locationElement, menuContainer);
