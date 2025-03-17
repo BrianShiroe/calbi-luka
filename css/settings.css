@@ -145,23 +145,24 @@ input[type="range"], select {
     color: #4b4b4b;
 }
 
-/* Buttons */
-button {
-    width: 140px;
-    padding: 10px;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-}
-
 .header-changes {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px;
+}
+
+/* Buttons */
+button {
+    width: 140px;
+    padding: 10px;
+    color: #ffffff;
+    background-color: #1d56d1cb;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
 }
 
 #buttons{
@@ -194,6 +195,7 @@ button {
     display: flex;
     align-items: center;
     gap: 15px;
+    margin-top: 10px;
 }
 
 .profile-picture {

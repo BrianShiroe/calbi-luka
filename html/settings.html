@@ -79,8 +79,8 @@
             <input type="radio" name="tab" id="tab2" class="tab tab--2">
             <label class="tab_label" for="tab2"><i class='bx bx-lock' style="margin-right: 20px; font-size: 12px"></i> Account</label>
             
-            <input type="radio" name="tab" id="tab3" class="tab tab--3">
-            <label class="tab_label" for="tab3"><i class='bx bx-user' style="margin-right: 20px; font-size: 12px"></i> Security</label>
+            <!-- <input type="radio" name="tab" id="tab3" class="tab tab--3">
+            <label class="tab_label" for="tab3"><i class='bx bx-user' style="margin-right: 20px; font-size: 12px"></i> Security</label> -->
             
             <div class="indicator"></div>
         </div>
@@ -255,91 +255,67 @@
                                 </select>
                             </div>
                         </div>
-                    </div>        
+                    </div>
+                    <button class="reset-btn"><i class='bx bx-reset'></i> Reset Settings</button>   
                 </div>
 
                 <!-- Account Settings -->
                 <div class="settings-panel" id="account-settings" style="display: none;">
                     <div class="settings-group">
-                        <p class="settings-main-label">Account Management</p>
-                        <p class="sub-label">Modify how you profile appears.</p>
-                            <span class="tooltip">This feature is currently under development.</span></h4>
-                        
-                            <div class="settings-label">Profile
-                                <button class="edit-btn">Edit</button>
+                        <div class="settings-label">Profile</div>
+                        <div class="profile-container">
+                            <div class="profile-picture">
+                                <img id="profile-img" src="../img/default.png" alt="Profile Picture">
                             </div>
-                            <div class="profile-container">
-                                <div class="profile-picture">
-                                    <img id="profile-img" src="../img/default.png" alt="Profile Picture">
-                                </div>
-                                <div class="profile-info">
-                                    <label for="profile-upload">John Dela Cruz</label>
-                                    <p>Admin</p>
-                                    <!-- <input type="file" id="profile-upload" accept="image/*"> -->
+                            <div class="profile-info">
+                                <label for="profile-upload">John Dela Cruz</label>
+                                <p>Admin</p>
                             </div>    
-                            </div>
-                    </div>
-
-                    <div class="settings-group">
-                            <div class="settings-main-label">Account Information</div>
-                                <p class="sub-label">Modify how you profile appears.</p>
-                                <button class="edit-btn">Edit</button>
-                            <div class="settings-row">
-                                <div class="setting">
-                                    <label>First Name</label>
-                                    <p>John</p>
-                                </div>
-                                <div class="setting">
-                                    <label>Last Name</label>
-                                    <p>Dela Cruz</p>
-                                </div>
-                            </div>
-                            <div class="settings-row">
-                                <div class="setting">
-                                    <label>Email</label>
-                                    <p>iamemail@gmail.com</p>
-                                </div>
-                                <div class="setting">
-                                    <label>Phone</label>
-                                    <p>+63 912 345 6789</p>
-                                </div>
-                            </div>
-                    </div>     
-                </div>
-
-                <!-- Security Settings -->
-                <div class="settings-panel" id="security-settings" style="display: none;">
-                    <div class="settings-group">
-                    <p class="settings-main-label">Password Settings</p> 
-                    <span class="tooltip">This feature is currently under development.</span>
-                        <div class="setting">
-                            <p>Change password: </p>
-                            <input type="password" placeholder="Enter new password">
                         </div>
                     </div>
+                
                     <div class="settings-group">
-                        <div class="setting">
-                            <p class="settings-main-label">Two Factor Authentication</p> 
-                            <span class="tooltip">This feature is currently under development.</span>
-                            <div class="toggle">
-                                <label class="toggle-label">
-                                    <input class="toggle-switch" type="checkbox" id="toggle-2fa" checked>
-                                    Enable Two Factor Authentication
-                                    <span class="slider"></span>
-                                </label>
-                            </div> 
+                        <div class="settings-main-label">Account Information</div>
+                        <p class="sub-label">Modify how your profile appears.</p>
+                        <div class="settings-row">
+                            <div class="setting">
+                                <label>First Name</label>
+                                <p>John</p>
+                            </div>
+                            <div class="setting">
+                                <label>Last Name</label>
+                                <p>Dela Cruz</p>
+                            </div>
                         </div>
-                    </div>
+                        <div class="settings-row">
+                            <div class="setting">
+                                <label>Email</label>
+                                <p>iamemail@gmail.com</p>
+                            </div>
+                            <div class="setting">
+                                <label>Phone</label>
+                                <p>+63 912 345 6789</p>
+                            </div>
+                        </div>
+                    </div> 
+                
                     <div class="settings-group">
+                        <p class="settings-main-label">Password Settings</p> 
                         <div class="setting">
-                            <p class="settings-main-label">Device Management</p> 
-                            <span class="tooltip">This feature is currently under development.</span>
-                            <label>Trusted Devices</label>
-                            <button class="manage-btn">Manage Devices</button>
+                            <label for="old-password">Current Password:</label>
+                            <input type="password" id="old-password" placeholder="Enter current password">
                         </div>
+                        <div class="setting">
+                            <label for="new-password">New Password:</label>
+                            <input type="password" id="new-password" placeholder="Enter new password">
+                        </div>
+                        <div class="setting">
+                            <label for="confirm-password">Confirm New Password:</label>
+                            <input type="password" id="confirm-password" placeholder="Re-enter new password">
+                        </div>
+                        <button id="update-password">Update Password</button>
                     </div>
                 </div>
-                <button class="reset-btn"><i class='bx bx-reset'></i> Reset Settings</button>   
             </div>
         </div>
     </div>
