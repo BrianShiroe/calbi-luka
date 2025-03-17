@@ -574,6 +574,12 @@ def profile():
         'role': current_user.role
     }), 200
 
+@app.route('/auth/check', methods=['GET'])
+def auth_check():
+    if current_user.is_authenticated:
+        return jsonify({'logged_in': True, 'username': current_user.username, 'role': current_user.role}), 200
+    return jsonify({'logged_in': False}), 401
+
 # SECTION: Streaming and Managing Alerts API
 @app.route('/stream_alerts', methods=['GET'])
 def stream_alerts():

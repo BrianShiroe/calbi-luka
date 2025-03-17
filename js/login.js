@@ -31,26 +31,26 @@ document.addEventListener("DOMContentLoaded", () => {
     // Validate input fields
     const validateInput = (input, type) => {
         if (!input) return false;
-
+    
         const patterns = {
             username: /^[a-zA-Z0-9_-]{3,16}$/,
-            email: /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/,
+            email: /^(?!.*\.{2})[a-zA-Z0-9._%+-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/,
             password: /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/
         };
-
+    
         return patterns[type]?.test(input.trim()) || false;
     };
-
+    
     // Handle form submission to Flask backend
     const handleSubmit = async (fields, apiUrl, redirectUrl) => {
         clearErrors();
         let isValid = true;
         let formData = {};
-
+    
         fields.forEach(({ id, type, errorMsg }) => {
             const inputField = document.getElementById(id);
             if (!inputField) return;
-
+    
             const value = inputField.value.trim();
             if (!validateInput(value, type)) {
                 showError(id, errorMsg);
@@ -58,16 +58,24 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             formData[id.replace("register-", "").replace("login-", "")] = value; // Normalize field names
         });
-
+    
+        // Confirm password validation
+        const passwordField = document.getElementById("register-password");
+        const confirmPasswordField = document.getElementById("confirm-password");
+        if (passwordField && confirmPasswordField && passwordField.value !== confirmPasswordField.value) {
+            showError("confirm-password", "Passwords do not match.");
+            isValid = false;
+        }
+    
         if (!isValid) return;
-
+    
         try {
             const response = await fetch(apiUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
             });
-
+    
             const data = await response.json();
             if (response.ok) {
                 alert(data.message);
@@ -80,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showError(fields[0].id, "Something went wrong. Please try again.");
         }
     };
-
+    
     // Event listeners for login and sign-up
     loginSubmitBtn?.addEventListener("click", (e) => {
         e.preventDefault();
@@ -89,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
             { id: "login-password", type: "password", errorMsg: "Password must be at least 6 characters long and contain 1 special character." }
         ], "/login", "home.html");
     });
-
+    
     signUpSubmitBtn?.addEventListener("click", (e) => {
         e.preventDefault();
         handleSubmit([
