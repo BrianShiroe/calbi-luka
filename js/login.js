@@ -1,101 +1,101 @@
-const container = document.getElementById('container');
-const registerBtn = document.getElementById('register');
-const loginBtn = document.getElementById('login');
+document.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("container");
+    const registerBtn = document.getElementById("register");
+    const loginBtn = document.getElementById("login");
+    const loginSubmitBtn = document.querySelector(".login-btn");
+    const signUpSubmitBtn = document.querySelector(".sign-up-btn");
 
-registerBtn.addEventListener('click', () => {
-    container.classList.add("active");
-});
+    // Toggle login/signup view
+    [registerBtn, loginBtn].forEach((btn, index) => {
+        if (btn) btn.addEventListener("click", () => container.classList.toggle("active", index === 0));
+    });
 
-loginBtn.addEventListener('click', () => {
-    container.classList.remove("active");
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-    const loginBtn = document.querySelector(".login-btn");
-    const signUpBtn = document.querySelector(".sign-up-btn");
-
-    function showError(inputId, message) {
+    // Show error messages
+    const showError = (inputId, message) => {
         const inputField = document.getElementById(inputId);
-        let errorElement = inputField.nextElementSibling;
+        if (!inputField) return;
 
+        let errorElement = inputField.nextElementSibling;
         if (!errorElement || !errorElement.classList.contains("error-message")) {
             errorElement = document.createElement("p");
             errorElement.classList.add("error-message");
-            errorElement.style.color = "red";
-            errorElement.style.fontSize = "12px";
-            inputField.parentNode.insertBefore(errorElement, inputField.nextSibling);
+            Object.assign(errorElement.style, { color: "red", fontSize: "12px" });
+            inputField.insertAdjacentElement("afterend", errorElement);
         }
-
         errorElement.textContent = message;
-    }
+    };
 
-    function clearErrors() {
-        document.querySelectorAll(".error-message").forEach(el => el.remove());
-    }
+    // Clear error messages
+    const clearErrors = () => document.querySelectorAll(".error-message").forEach(el => el.remove());
 
-    function validateInput(input, type) {
-        const specialCharPattern = /[!@#$%^&*(),.?":{}|<>]/g;
-        if (type === "email") {
-            return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(input);
-        } else if (type === "password") {
-            return input.length >= 6; // Minimum password length
-        } else {
-            return !specialCharPattern.test(input) && input.length > 0; // Restrict special characters and empty username
-        }
-    }
+    // Validate input fields
+    const validateInput = (input, type) => {
+        if (!input) return false;
 
-    loginBtn.addEventListener("click", function (event) {
-        event.preventDefault(); // Prevent unintended redirection
+        const patterns = {
+            username: /^[a-zA-Z0-9_-]{3,16}$/,
+            email: /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/,
+            password: /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/
+        };
+
+        return patterns[type]?.test(input.trim()) || false;
+    };
+
+    // Handle form submission to Flask backend
+    const handleSubmit = async (fields, apiUrl, redirectUrl) => {
         clearErrors();
-        
-        const email = document.getElementById("login-email").value.trim();
-        const password = document.getElementById("login-password").value.trim();
-
         let isValid = true;
+        let formData = {};
 
-        if (!validateInput(email, "email")) {
-            showError("login-email", "Invalid email format.");
-            isValid = false;
-        }
+        fields.forEach(({ id, type, errorMsg }) => {
+            const inputField = document.getElementById(id);
+            if (!inputField) return;
 
-        if (!validateInput(password, "password")) {
-            showError("login-password", "Password must be at least 6 characters long.");
-            isValid = false;
-        }
+            const value = inputField.value.trim();
+            if (!validateInput(value, type)) {
+                showError(id, errorMsg);
+                isValid = false;
+            }
+            formData[id.replace("register-", "").replace("login-", "")] = value; // Normalize field names
+        });
 
-        if (isValid) {
-            window.location.href = "home.html";
+        if (!isValid) return;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert(data.message);
+                window.location.href = redirectUrl;
+            } else {
+                showError(fields[0].id, data.error);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            showError(fields[0].id, "Something went wrong. Please try again.");
         }
+    };
+
+    // Event listeners for login and sign-up
+    loginSubmitBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        handleSubmit([
+            { id: "login-email", type: "email", errorMsg: "Invalid email format." },
+            { id: "login-password", type: "password", errorMsg: "Password must be at least 6 characters long and contain 1 special character." }
+        ], "/login", "home.html");
     });
 
-    signUpBtn.addEventListener("click", function (event) {
-        event.preventDefault(); // Prevent unintended redirection
-        clearErrors();
-        
-        const username = document.getElementById("username").value.trim();
-        const email = document.getElementById("register-email").value.trim();
-        const password = document.getElementById("register-password").value.trim();
-
-        let isValid = true;
-
-        if (!validateInput(username, "text")) {
-            showError("username", "Username must not contain special characters and cannot be empty.");
-            isValid = false;
-        }
-
-        if (!validateInput(email, "email")) {
-            showError("register-email", "Invalid email format.");
-            isValid = false;
-        }
-
-        if (!validateInput(password, "password")) {
-            showError("register-password", "Password must be at least 6 characters long.");
-            isValid = false;
-        }
-
-        if (isValid) {
-            alert("Account created successfully!");
-            window.location.href = "login.html";
-        }
+    signUpSubmitBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        handleSubmit([
+            { id: "username", type: "username", errorMsg: "Username must be 3-16 characters (letters, numbers, _ or -)." },
+            { id: "register-email", type: "email", errorMsg: "Invalid email format." },
+            { id: "register-password", type: "password", errorMsg: "Password must be at least 6 characters long and contain 1 special character." }
+        ], "/register", "login.html");
     });
 });

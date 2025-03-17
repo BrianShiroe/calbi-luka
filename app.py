@@ -13,11 +13,13 @@ import logging
 import pygame
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from flask import Flask, Response, request, jsonify, g, send_from_directory, stream_with_context
+from flask import Flask, Response, request, jsonify, g, send_from_directory, stream_with_context, session
 from flask_cors import CORS
 from ultralytics import YOLO
 from concurrent.futures import ThreadPoolExecutor
 from tabulate import tabulate
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
 # Logging/Printing Function. INFO to Show all logs, ERROR to show only errors.
 log = logging.getLogger('werkzeug')
@@ -27,7 +29,6 @@ log.setLevel(logging.INFO)
 FLASK_PORT = 5500  # Flask serves as the main server
 DIRECTORY = "html"  # Directory to serve static files from
 DEFAULT_FILE = "home.html"
-DB_PATH = "db/luka.db"
 detected_records_path = "records"
 os.makedirs(detected_records_path, exist_ok=True)
 
@@ -111,6 +112,12 @@ target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect obj
 app = Flask(__name__, static_folder=".") # Initialize Flask application
 CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
 pygame.mixer.init()
+app.secret_key = 'your_secret_key'  # Change this to a secure key
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+DB_PATH = "db/luka.db"
 
 # Watchdog event handler to detect file changes
 class ReloadHandler(FileSystemEventHandler):
@@ -496,6 +503,76 @@ def get_db(): # Database helper function
 def close_db(error):
     if 'db' in g:
         g.db.close()
+
+# SECTION: User Registration and Login API
+class User(UserMixin):
+    def __init__(self, id, username, password, email, role):
+        self.id = id
+        self.username = username
+        self.password = password
+        self.email = email
+        self.role = role
+
+@login_manager.user_loader
+def load_user(user_id):
+    db = get_db()
+    user = db.execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
+    if user:
+        return User(user['id'], user['username'], user['password'], user['email'], user['role'])
+    return None
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.json
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    role = data.get('role', 'viewer')
+
+    if not username or not email or not password:
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    hashed_password = generate_password_hash(password)
+    db = get_db()
+    try:
+        db.execute("INSERT INTO user (username, password, email, role) VALUES (?, ?, ?, ?)",
+                   (username, hashed_password, email, role))
+        db.commit()
+        return jsonify({'message': 'User registered successfully'}), 201
+    except sqlite3.IntegrityError:
+        return jsonify({'error': 'Username or email already exists'}), 400
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+
+    db = get_db()
+    user = db.execute("SELECT * FROM user WHERE email = ?", (email,)).fetchone()
+
+    if user and check_password_hash(user['password'], password):
+        user_obj = User(user['id'], user['username'], user['password'], user['email'], user['role'])
+        login_user(user_obj)
+        return jsonify({'message': 'Login successful', 'user': user_obj.username, 'role': user_obj.role}), 200
+    
+    return jsonify({'error': 'Invalid email or password'}), 401
+
+@app.route('/logout', methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    return jsonify({'message': 'Logged out successfully'}), 200
+
+@app.route('/profile', methods=['GET'])
+@login_required
+def profile():
+    return jsonify({
+        'id': current_user.id,
+        'username': current_user.username,
+        'email': current_user.email,
+        'role': current_user.role
+    }), 200
 
 # SECTION: Streaming and Managing Alerts API
 @app.route('/stream_alerts', methods=['GET'])
