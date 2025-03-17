@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", function () {
             errorElement.classList.add("error-message");
             errorElement.style.color = "red";
             errorElement.style.fontSize = "12px";
-            errorElement.style.marginTop = "5px";
             inputField.parentNode.insertBefore(errorElement, inputField.nextSibling);
         }
 
