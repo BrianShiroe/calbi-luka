@@ -13,14 +13,14 @@
     <title>Settings | Luka</title>
 </head>
 <body>
-    <script class="sidebar">
+    <script>
     // Apply sidebar state before rendering
     let isSidebarClosed = localStorage.getItem("sidebarClosed") === "true";
     if (isSidebarClosed) {
         document.body.classList.add("sidebar-closed");
     }
     </script>
-    
+
         <div class="sidebar" id="sidebar-container">
             <div class="logo-details">
                 <i class='bx bx-chevron-left' id="btn"></i>
