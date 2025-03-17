@@ -178,7 +178,6 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Changes discarded.");
     }
 
-
     saveBtn.addEventListener("click", saveSettings);
     cancelBtn.addEventListener("click", cancelSettings);
     resetBtn.addEventListener("click", resetSettings);

@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
             const data = await response.json();
             if (response.ok) {
-                alert(data.message);
+                // alert(data.message);
                 window.location.href = redirectUrl;
             } else {
                 showError(fields[0].id, data.error);

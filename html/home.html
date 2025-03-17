@@ -188,6 +188,77 @@
             </div>
         </form>
     </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="customModal" class="modal" onclick="closeModal()">
+        <div class="modal-content" id="modalText"></div>
+    </div>
+
+    <script class="alert-modal">
+        let modalTimeout;
+
+        function showModal(message) {
+            const modal = document.getElementById("customModal");
+            const modalText = document.getElementById("modalText");
+            
+            modalText.textContent = message;
+            modal.style.display = "block";
+            modal.classList.remove("fade-out");
+            modal.classList.add("fade-in");
+
+            clearTimeout(modalTimeout);
+            modalTimeout = setTimeout(closeModal, 1500);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("customModal");
+            if (modal.style.display === "block") {
+                modal.classList.remove("fade-in");
+                modal.classList.add("fade-out");
+                setTimeout(() => modal.style.display = "none", 300);
+            }
+        }
+
+        // Override default alert function
+        window.alert = showModal;
+    </script>
+
+    <style class="alert-modal">
+        /* Alert modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 15%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease-in-out;
+            z-index: 1000;
+            max-width: 80%;
+            cursor: pointer;
+        }
+
+        .modal-content {
+            padding: 8px;
+            font-weight: bold;
+            animation: popIn 0.2s ease-in-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .fade-in { opacity: 1; }
+        .fade-out { opacity: 0; }
+    </style>
+    
     <script src="../js/authenticate.js"></script>
     <script src="../js/sidebar.js"></script>
     <script src="../js/live-feed.js"></script>

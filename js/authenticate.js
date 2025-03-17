@@ -20,7 +20,7 @@ function logoutUser() {
     fetch('/logout', { method: 'POST', credentials: 'same-origin' })
         .then(response => response.json())
         .then(data => {
-            alert(data.message); // Show logout message
+            // alert(data.message); // Show logout message
             window.location.href = '../html/login.html'; // Redirect to login
         })
         .catch(error => console.error('Logout failed:', error));
