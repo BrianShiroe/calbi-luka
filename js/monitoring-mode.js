@@ -1,25 +1,30 @@
 document.querySelector(".monitoring-mode").addEventListener("click", function () {
     const gridContainer = document.querySelector(".grid-container");
-    gridContainer.classList.toggle("fullscreen");
+    const htmlTag = document.documentElement; // Select the <html> tag
 
-    // Ensure body doesn't scroll in fullscreen mode
+    gridContainer.classList.toggle("fullscreen");
     document.body.classList.toggle("fullscreen-mode", gridContainer.classList.contains("fullscreen"));
 
-    // Update button text
+    if (gridContainer.classList.contains("fullscreen")) {
+        htmlTag.classList.add("regular");
+        ensureSevenDeviceCards();
+    } else {
+        htmlTag.classList.remove("regular");
+        removeTemporaryCards();
+    }
+
     this.innerHTML = gridContainer.classList.contains("fullscreen")
         ? "<i class='bx bx-exit-fullscreen'></i> Exit Monitoring Mode"
         : "<i class='bx bx-desktop'></i> Monitoring Mode";
 
-    // Check if a stream (individual) fullscreen video exists (has a close button)
     const soloFullscreenActive = document.querySelector(".fullscreen-video") !== null;
     const exitButton = document.querySelector(".exit-fullscreen-btn");
 
     if (gridContainer.classList.contains("fullscreen") && !soloFullscreenActive) {
-        // Only create exit button if it's Monitoring Mode fullscreen, NOT Solo Stream fullscreen
         if (!exitButton) {
             const exitBtn = document.createElement("button");
             exitBtn.classList.add("exit-fullscreen-btn");
-            exitBtn.innerHTML = "<i class='bx bx-window-x' ></i> Exit";
+            exitBtn.innerHTML = "<i class='bx bx-window-x'></i> Exit";
             Object.assign(exitBtn.style, {
                 position: "fixed",
                 top: "15px",
@@ -36,18 +41,48 @@ document.querySelector(".monitoring-mode").addEventListener("click", function ()
             exitBtn.addEventListener("click", function () {
                 gridContainer.classList.remove("fullscreen");
                 document.body.classList.remove("fullscreen-mode");
+                htmlTag.classList.remove("regular");
                 document.querySelector(".monitoring-mode").innerHTML = "<i class='bx bx-desktop'></i> Monitoring Mode";
-                exitBtn.remove(); // Remove exit button when exiting fullscreen
+                removeTemporaryCards();
+                exitBtn.remove();
             });
             document.body.appendChild(exitBtn);
         }
     } else if (exitButton) {
-        // Remove exit button if a solo stream fullscreen is detected
         exitButton.remove();
     }
 });
 
-// Hook into individual stream fullscreen function to remove exit button if it appears
+function ensureSevenDeviceCards() {
+    const gridContainer = document.querySelector(".grid-container");
+    const activeCards = gridContainer.querySelectorAll(".device-card").length;
+    const neededCards = 7 - activeCards;
+    
+    if (neededCards > 0) {
+        for (let i = 0; i < neededCards; i++) {
+            const tempCard = document.createElement("div");
+            tempCard.classList.add("device-card", "temporary-card");
+            tempCard.innerHTML = "<p>No Feed</p>";
+            Object.assign(tempCard.style, {
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "#292626",
+                color: "#555",
+                fontSize: "16px",
+                height: "40vh",
+                borderRadius: "5px",
+            });
+            gridContainer.appendChild(tempCard);
+        }
+    }
+}
+
+function removeTemporaryCards() {
+    document.querySelectorAll(".temporary-card").forEach(card => card.remove());
+}
+
+
 function openFullscreen(videoFeedURL) {
     const videoContainer = document.createElement("div");
     videoContainer.className = "fullscreen-video";
@@ -71,7 +106,6 @@ function openFullscreen(videoFeedURL) {
     videoContainer.append(mediaElement, closeButton);
     document.body.appendChild(videoContainer);
 
-    // Remove the exit button if it exists (so it doesn't show up in individual fullscreen mode)
     const exitButton = document.querySelector(".exit-fullscreen-btn");
     if (exitButton) {
         exitButton.remove();
@@ -83,8 +117,7 @@ function closeFullscreen() {
     if (videoContainer) {
         videoContainer.remove();
     }
-
-    // Re-add the exit button if Monitoring Mode is still active
+    
     const gridContainer = document.querySelector(".grid-container");
     if (gridContainer.classList.contains("fullscreen")) {
         restoreExitButton();
@@ -93,11 +126,10 @@ function closeFullscreen() {
 
 function restoreExitButton() {
     let exitBtn = document.querySelector(".exit-fullscreen-btn");
-
     if (!exitBtn) {
         exitBtn = document.createElement("button");
         exitBtn.classList.add("exit-fullscreen-btn");
-        exitBtn.innerHTML = "<i class='bx bx-window-close' ></i> Exit";
+        exitBtn.innerHTML = "<i class='bx bx-window-close'></i> Exit";
         Object.assign(exitBtn.style, {
             position: "fixed",
             top: "15px",
@@ -111,20 +143,17 @@ function restoreExitButton() {
             fontSize: "16px",
             zIndex: "1100",
         });
-
         document.body.appendChild(exitBtn);
     }
 
-    // Remove any existing event listeners to prevent duplicates
     exitBtn.replaceWith(exitBtn.cloneNode(true));
     exitBtn = document.querySelector(".exit-fullscreen-btn");
-
-    // Reattach event listener to make exit button functional again
     exitBtn.addEventListener("click", function () {
         const gridContainer = document.querySelector(".grid-container");
         gridContainer.classList.remove("fullscreen");
         document.body.classList.remove("fullscreen-mode");
         document.querySelector(".monitoring-mode").innerHTML = "<i class='bx bx-desktop'></i> Monitoring Mode";
-        exitBtn.remove(); // Remove exit button when exiting fullscreen
+        exitBtn.remove();
+        removeTemporaryCards();
     });
 }

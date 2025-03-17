@@ -462,12 +462,14 @@ h2{
     align-items: center;
     justify-content: start;
     position: relative;
+    overflow: hidden;
 }
 
 /* Ensure feed takes full space */
 .fullscreen .device-card img,
 .fullscreen .device-card video {
     width: 100%;
+    height: auto;
     object-fit: cover; /* Crop to fit */
     border-radius: 0;
 }
@@ -521,12 +523,21 @@ h2{
     background: darkred;
 }
 
+/* Highlight effect */
 .highlight {
     background-color: #d97706; /* Deep orange */
     box-shadow: 0 0 10px 2px rgba(217, 119, 6, 0.8);
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    border-radius: 5px; /* Optional: Adds rounded corners for better appearance */
+    border-radius: 5px; /* Rounded corners */
 }
+
+/* Ensure it works in fullscreen mode */
+.grid-container.fullscreen .device-card.highlight {
+    background-color: #d97706; /* Same deep orange */
+    box-shadow: 0 0 15px 4px rgba(217, 119, 6, 0.8); /* Slightly stronger glow */
+    border-radius: 5px;
+}
+
 .highlight h3{
     color: white;
 }
