@@ -17,3 +17,4 @@ FROM alert;
 DROP TABLE alert;
 
 ALTER TABLE alert_new RENAME TO alert;
+
