@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         notifications.forEach(alert => {
             if (!alert.resolved) {
                 const li = document.createElement('li');
-                li.textContent = `${alert.event_type} detected on ${alert.camera_title}: ${alert.location} at ${alert.detected_at}`;
+                li.textContent = `${alert.camera_title}: ${alert.event_type} detected on ${alert.location} at ${alert.detected_at}`;
                 notificationList.appendChild(li);
             }
         });
