@@ -10,15 +10,6 @@
 
 This system is built to detect road collisions, fires, floods, and other emergencies using **deep learning-powered video analysis**. The goal is to **minimize response times** and **improve situational awareness** by integrating smart detection capabilities into existing surveillance infrastructures.
 
-## 🚀 Features
-- **Real-Time YOLO-Based Detection** – Detects accidents and disasters using YOLOv8 and OpenCV.
-- **Automated Alerts & Logging** – Incident reports stored in an SQLite database for later review.
-- **Configurable Sensitivity** – Adjustable confidence thresholds and detection parameters.
-- **Multi-Camera Stream Handling** – Supports multiple **RTSP, CCTV, and YouTube streams**.
-- **Performance Monitoring** – Tracks **FPS, CPU usage, processing delay, and memory usage**.
-- **Web-Based Dashboard** – A Flask-powered UI for monitoring live streams and detected incidents.
-- **Dynamic Stream Control** – Adjust various stream settings to optimize performance.
-
 ## 🛠️ Setup and Installation
 Follow these steps to set up **LUKA** on your system.
 
@@ -27,7 +18,7 @@ Follow these steps to set up **LUKA** on your system.
 git clone https://github.com/LCbalsa/calbi-luka.git
 
 # 2 Navigate to the Project Directory
-cd luka
+cd <env_path>
 
 # 3 Verify Anaconda Installation
 # Ensure Anaconda is installed before proceeding
@@ -54,6 +45,31 @@ python app.py
 
 # ✅ Setup Complete! Wait for luka to open automatically on web or access LUKA on http://127.0.0.1:5500/
    ```
+
+## 🚀 Quick Start (For Existing Installations)
+If you have already set up **LUKA**, follow these steps to launch the application quickly:
+
+```sh
+# 1 Navigate to the Project Directory
+cd <env_path>
+
+# 2 Activate the Conda Environment
+conda activate luka_env
+
+# 3 Start the Web Application
+python app.py
+
+# ✅ LUKA is now running! Access it at http://127.0.0.1:5500/
+```
+
+## 🚀 Features
+- **Real-Time YOLO-Based Detection** – Detects accidents and disasters using YOLOv8 and OpenCV.
+- **Automated Alerts & Logging** – Incident reports stored in an SQLite database for later review.
+- **Configurable Sensitivity** – Adjustable confidence thresholds and detection parameters.
+- **Multi-Camera Stream Handling** – Supports multiple **RTSP, CCTV, and YouTube streams**.
+- **Performance Monitoring** – Tracks **FPS, CPU usage, processing delay, and memory usage**.
+- **Web-Based Dashboard** – A Flask-powered UI for monitoring live streams and detected incidents.
+- **Dynamic Stream Control** – Adjust various stream settings to optimize performance.
 
 ## 📌 Usage
 1. Start the Flask server: python app.py
