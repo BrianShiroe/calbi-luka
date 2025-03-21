@@ -12,7 +12,7 @@ conda info --envs
 conda activate base
 
 # Create conda env
-conda create --name luka_env python=3.11.11
+conda create --name luka_env python=3.11.11 -y
 
 # Activate conda env
 conda activate luka_env

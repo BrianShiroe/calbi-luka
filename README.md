@@ -1,9 +1,9 @@
 # LUKA - Accident and Disaster Detection Web-based System
 
 ## Authors
-- **Brian O. Haw**  
-- **Maria Zorene J. Ramos**  
-- **Mark Angelo P. Santonil**  
+- **Brian O. Haw**
+- **Maria Zorene J. Ramos**
+- **Mark Angelo P. Santonil**
 
 ## 📌 Description
 **LUKA** is a Flask-based intelligent accident and disaster detection system leveraging **YOLO (You Only Look Once), OpenCV, CCTV, and IoT-based cameras** to provide real-time monitoring and automated alerting. Designed as a **final thesis project**, LUKA aims to enhance public safety by rapidly identifying incidents and notifying relevant authorities or personnel.
@@ -19,25 +19,42 @@ This system is built to detect road collisions, fires, floods, and other emergen
 - **Web-Based Dashboard** – A Flask-powered UI for monitoring live streams and detected incidents.
 - **Dynamic Stream Control** – Adjust various stream settings to optimize performance.
 
-## 🛠️ Installation
-To set up LUKA on your local machine, follow these steps:
+## 🛠️ Setup and Installation
+Follow these steps to set up **LUKA** on your system.
 
 ```sh
-# Clone the repository
+# 1 Clone the Repository
 git clone https://github.com/LCbalsa/calbi-luka.git
 
-# Navigate to the project directory
+# 2 Navigate to the Project Directory
 cd luka
 
-# Install dependencies
-pip install -r requirements.txt
+# 3 Verify Anaconda Installation
+# Ensure Anaconda is installed before proceeding
+conda --version || echo "❌ Anaconda not found! Please install Anaconda from https://www.anaconda.com/"
 
+# 4 Check Existing Conda Environments
+conda info --envs
 
-### Additional Setup
-- Ensure **Python 3.8+** is installed.
-- Configure environment variables as needed for API keys and database settings.
-- Recommended to use virtual environment like anaconda for ease of use.
+# 5 Create a New Conda Environment for LUKA
+conda create --name luka_env python=3.11.11 -y
+
+# 6 Activate the Conda Environment
+conda activate luka_env
+
+# 5 Install Required Dependencies
+pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu118
+
+# 7 Verify Installation
+python -m flask --version || echo "❌ Flask is not installed correctly!"
+python -c "import torch; print('✔️ PyTorch Installed:', torch.__version__)" || echo "❌ PyTorch installation failed!"
+
+# 8 Start the Web Application
+python app.py
+
+# ✅ Setup Complete! Wait for luka to open automatically on web or access LUKA on http://127.0.0.1:5500/
    ```
+
 ## 📌 Usage
 1. Start the Flask server: python app.py
 2. Access the web dashboard at `http://127.0.0.1:5500`.
