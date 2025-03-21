@@ -1,13 +1,40 @@
 # Installation
 
+# First Install anaconda
+
+# Check for installed conda and Version
+conda --version
+
+# Check conda environment
+conda info --envs
+
+# Open conda env
+conda activate base
+
 # Create conda env
 conda create --name luka_env python=3.11.11
 
-# Activate luka
+# Activate conda env
 conda activate luka_env
 
-## To deactivate luka
-Conda deactivate luka_env
+# Install required libraries
+pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu118
+
+#run web application
+python app.py
+
+
+
+
+
+
+
+
+
+
+
+
+##### OTHERS : DO NOT TOUCH! #####
 
 # Preinstalled Files from conda
 # Name                    Version                   Build  Channel
@@ -30,16 +57,14 @@ wheel                     0.45.1          py311haa95532_0
 xz                        5.6.4                h4754444_1
 zlib                      1.2.13               h8cc25b3_1
 
-# Install Libraries
-pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu118
+# Check Active Conda Environment
+conda info --envs
 
-# Restart environment or your computer
+## To deactivate luka
+conda deactivate luka_env
 
-#run app.py
-python app.py
-
-
-
+# Delete conda env
+conda env remove --name <env_name>
 
 # For autoinstall of libraries (TO REMOVE)
 pip install pipreqs
