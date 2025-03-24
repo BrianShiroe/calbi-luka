@@ -117,7 +117,7 @@ app.secret_key = 'your_secret_key'  # Change this to a secure key
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-DB_PATH = "db/luka.db"
+DB_PATH = "db/luka.sqlite"
 
 # Watchdog event handler to detect file changes
 class ReloadHandler(FileSystemEventHandler):
@@ -348,39 +348,40 @@ def overlay_metrics(frame, metrics, model_status_text):
     font_scale = (height / 480) * (metric_font_size / 10)  # Scale font size dynamically
     font_thickness = max(1, int(height / 240))  # Adjust thickness based on resolution
     line_spacing = int(40 * font_scale)  # Adjust vertical spacing dynamically
-    start_x = int(0.05 * width)  # Adjust left margin based on frame width
+    start_x = int(0.03 * width)  # Adjust left margin based on frame width
     start_y = int(0.10 * height)  # Starting position for text
 
-    colors = {
-        "Timestamp": (173, 216, 230),
-        "Model Status": (0, 0, 255),
-        "FPS": (0, 255, 0),
-        "Frame Rate": (255, 255, 0),
-        "Processing Time": (255, 0, 255),
-        "Streaming Delay": (0, 165, 255),
-        "Resolution": (255, 255, 255),
-        "CPU Usage": (255, 140, 0),  # Orange color for CPU usage
-        "Active Streams": (0, 255, 255)  # Cyan color for active streams
-    }
-
+    text_color = (255, 255, 255)  # White color for all text
+    
     current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
     if performance_metrics_toggle:
         metrics_text = [
-            (f"Timestamp: {current_time}", "Timestamp"),
-            (model_status_text, "Model Status"),
-            (f"FPS: {metrics['displayed_fps']:.2f}", "FPS"),
-            (f"Frame Rate: {metrics['displayed_frame_rate']:.2f} FPS", "Frame Rate"),
-            (f"Processing Time: {metrics['displayed_processing_time']:.3f}s", "Processing Time"),
-            (f"Streaming Delay: {metrics['displayed_real_time_lag']:.3f}s", "Streaming Delay"),
-            (f"Resolution: {stream_resolution}", "Resolution"),
-            (f"CPU Usage: {metrics['displayed_cpu_usage']:.2f}%", "CPU Usage"),
-            (f"Active Streams: {metrics['displayed_active_streams']}", "Active Streams")  # Display active streams
+            f"Timestamp: {current_time}",
+            model_status_text,
+            f"FPS: {metrics['displayed_fps']:.2f}",
+            f"Frame Rate: {metrics['displayed_frame_rate']:.2f} FPS",
+            f"Processing Time: {metrics['displayed_processing_time']:.3f}s",
+            f"Streaming Delay: {metrics['displayed_real_time_lag']:.3f}s",
+            f"Resolution: {stream_resolution}",
+            f"CPU Usage: {metrics['displayed_cpu_usage']:.2f}%",
+            f"Active Streams: {metrics['displayed_active_streams']}"
         ]
         
-        for i, (text, key) in enumerate(metrics_text):
+        # Calculate background rectangle size
+        max_text_width = max([cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)[0][0] for text in metrics_text])
+        bg_width = max_text_width + 20  # Add padding
+        bg_height = len(metrics_text) * line_spacing + 10  # Total height
+        
+        # Draw background rectangle
+        overlay = frame.copy()
+        cv2.rectangle(overlay, (start_x - 10, start_y - 50), (start_x + bg_width, start_y + bg_height), (0, 0, 0), -1)
+        alpha = 0.5
+        cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
+        
+        for i, text in enumerate(metrics_text):
             y_position = start_y + (i * line_spacing)
-            cv2.putText(frame, text, (start_x, y_position), cv2.FONT_HERSHEY_SIMPLEX, font_scale, colors[key], font_thickness)
+            cv2.putText(frame, text, (start_x, y_position), cv2.FONT_HERSHEY_SIMPLEX, font_scale, text_color, font_thickness)
     
     return frame
 
@@ -724,7 +725,7 @@ def update_settings():
             if key == "alert_sound_name":  # Update sound path if sound name changes
                 update_alert_sound_path()
 
-    print_updated_settings()  # Call the function to print updated settings
+    ### print_updated_settings()  # Call the function to print updated settings
 
     if model_updated:
         try:
@@ -776,7 +777,7 @@ if __name__ == "__main__":
     flask_thread.start()  # Start the Flask server in the background.
 
     # Allow some time for the Flask server to initialize before proceeding.
-    time.sleep(5)   
+    time.sleep(0)   
     
     # Open the default home page in the user's web browser automatically.
     webbrowser.open_new_tab(f"http://127.0.0.1:{FLASK_PORT}/html/home.html")
