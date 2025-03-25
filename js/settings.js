@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
         metric_font_size: 8,
         stream_resolution: "720p",
         stream_frame_skip: 0,
-        max_frame_rate: 60,
+        max_frame_rate: 30,
         
         //model
         detection_mode: false,

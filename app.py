@@ -38,7 +38,7 @@ update_metric_interval = 1
 metric_font_size = 8
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
 stream_frame_skip = 0  # Only process 1 out of every 2 frames (adjust as needed)
-max_frame_rate = 60
+max_frame_rate = 30
 # Detection Settings variables
 detection_mode = False
 model_version = "car-fire-5.1.11n"
