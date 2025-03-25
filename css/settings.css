@@ -94,6 +94,7 @@ input[name="tab"]:checked + .tab_label {
     box-shadow: 0px 3px 20px rgba(0, 0, 0, 0.2);
     padding: 25px;
     margin-bottom: 2%;
+    min-width: 450px;
 }
 
 .settings-content {
@@ -150,6 +151,7 @@ input[type="range"], select {
     justify-content: space-between;
     align-items: center;
     padding: 10px;
+    min-width: 400px;
 }
 
 /* Buttons */
@@ -178,11 +180,17 @@ button {
 .cancel-btn { background: #dfdfe0; color: #333; }
 .cancel-btn:hover { background: #abadaf; color: #fff; }
 
+#reset-btn-container{
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
 .reset-btn { 
     background: #f5f5f5; 
     color: #333; 
     border: 1px solid #333; 
-    margin-left: 86%;
+    /* margin-left: 86%; */
     margin-bottom: 2%;
 }
 
@@ -249,6 +257,8 @@ button {
     border: 1px solid #ccc;
     border-radius: 5px;
     outline: none;
+    width: 50%;
+    min-width: 400px;
 }
 
 #password-settings input:focus {
@@ -265,6 +275,8 @@ button {
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s ease;
+    width: 50%;
+    min-width: 400px;
 }
 
 #password-settings button:hover {

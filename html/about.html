@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../css/font.css">
     <link rel="stylesheet" href="../css/about.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <title>Setting | Luka</title>
+    <title>About | Luka</title>
 </head>
 <body>
     <script>
@@ -63,13 +63,66 @@
     </div>
 
     <div class="content">
-
         <div class="header">
             <a href="../html/home.html">
-            <img src="../img/logo-no-name.png" alt="logoImg">
+                <img src="../img/logo-no-name.png" alt="logoImg">
             </a>
         </div>
 
+        <div class="about-container">
+            <div class="about-header">
+                <h1>Luka CCTV Monitoring System</h1>
+                <p>Advanced real-time object detection and alert system for safety monitoring</p>
+            </div>
+
+            <div class="feature-section">
+                <h2>Key Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class='bx bx-video'></i> Multi-Source Monitoring</h3>
+                        <p>Supports RTSP, HTTP streams, and YouTube live feeds with automatic reconnection capability for uninterrupted surveillance.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3><i class='bx bx-shield-alt-2'></i> AI-Powered Detection</h3>
+                        <p>YOLO-based object detection for hazards like fire, smoke, crashes, floods, and landslides with configurable confidence levels.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3><i class='bx bx-alarm'></i> Smart Alert System</h3>
+                        <p>Configurable audio alerts with volume control, duration settings, and visual notifications for detected hazards.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3><i class='bx bx-data'></i> Evidence Recording</h3>
+                        <p>Automatically saves images of detected events with timestamps and metadata for later review.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3><i class='bx bx-tachometer'></i> Performance Optimization</h3>
+                        <p>Frame skipping, resolution adjustment, and GPU acceleration for efficient resource usage.</p>
+                    </div>
+                    <!-- <div class="feature-card">
+                        <h3><i class='bx bx-user'></i> Role-Based Access</h3>
+                        <p>Multi-user system with different permission levels (admin, manager, viewer) and secure authentication.</p>
+                    </div> -->
+                </div>
+            </div>
+
+            <div class="feature-section">
+                <h2>Technical Specifications</h2>
+                <div class="tech-specs">
+                    <ul>
+                        <li><i class='bx bx-chip'></i> <strong>Backend: &nbsp;</strong> Python Flask server with SQLite database</li>
+                        <li><i class='bx bx-network-chart'></i> <strong>AI Model: &nbsp;</strong> Ultralytics YOLO</li>
+                        <li><i class='bx bx-slider-alt'></i> <strong>Configurable Settings: &nbsp;</strong> Resolution (144p-1080p), frame rate, detection sensitivity</li>
+                        <li><i class='bx bx-stats'></i> <strong>Performance Metrics: &nbsp;</strong> Real-time FPS, processing time, CPU usage monitoring</li>
+                        <li><i class='bx bx-server'></i> <strong>Stream Handling: &nbsp;</strong> Supports multiple concurrent streams with individual controls</li>
+                        <li><i class='bx bx-bell'></i> <strong>Alert Management: &nbsp;</strong> Event logging with resolution tracking and historical data</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="version-info">
+                <p>System Version: 1.0.0 | Powered by Python, Flask, YOLO, and OpenCV</p>
+            </div>
+        </div>
     </div>
 
     <script src="../js/authenticate.js"></script>
