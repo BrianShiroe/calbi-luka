@@ -268,53 +268,43 @@
                                 <img id="profile-img" src="../img/default.png" alt="Profile Picture">
                             </div>
                             <div class="profile-info">
-                                <label for="profile-upload">John Dela Cruz</label>
-                                <p>Admin</p>
+                                <label for="profile-upload" id="username">John Dela Cruz</label>
+                                <p id="role">Admin</p>
                             </div>    
                         </div>
                     </div>
                 
                     <div class="settings-group">
                         <div class="settings-main-label">Account Information</div>
-                        <p class="sub-label">Modify how your profile appears.</p>
+                        <!-- <p class="sub-label">Modify how your profile appears.</p> -->
                         <div class="settings-row">
                             <div class="setting">
-                                <label>First Name</label>
-                                <p>John</p>
+                                <label>Email:</label>
+                                <p id="email">iamemail@gmail.com</p>
                             </div>
                             <div class="setting">
-                                <label>Last Name</label>
-                                <p>Dela Cruz</p>
-                            </div>
-                        </div>
-                        <div class="settings-row">
-                            <div class="setting">
-                                <label>Email</label>
-                                <p>iamemail@gmail.com</p>
-                            </div>
-                            <div class="setting">
-                                <label>Phone</label>
-                                <p>+63 912 345 6789</p>
+                                <label>Created On:</label>
+                                <p id="created_at">2025/03/07</p>
                             </div>
                         </div>
                     </div> 
                 
-                    <div class="settings-group">
+                    <div class="settings-group" id="password-settings">
                         <p class="settings-main-label">Password Settings</p> 
                         <div class="setting">
                             <label for="old-password">Current Password:</label>
-                            <input type="password" id="old-password" placeholder="Enter current password">
+                            <input type="password" id="old-password" placeholder="Enter current password" required>
                         </div>
                         <div class="setting">
                             <label for="new-password">New Password:</label>
-                            <input type="password" id="new-password" placeholder="Enter new password">
+                            <input type="password" id="new-password" placeholder="Enter new password" required>
                         </div>
                         <div class="setting">
                             <label for="confirm-password">Confirm New Password:</label>
-                            <input type="password" id="confirm-password" placeholder="Re-enter new password">
+                            <input type="password" id="confirm-password" placeholder="Re-enter new password" required>
                         </div>
                         <button id="update-password">Update Password</button>
-                    </div>
+                    </div>                    
                 </div>
             </div>
         </div>

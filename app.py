@@ -581,6 +581,41 @@ def auth_check():
         return jsonify({'logged_in': True, 'username': current_user.username, 'role': current_user.role}), 200
     return jsonify({'logged_in': False}), 401
 
+# SECTION: User and user Settings
+@app.route('/auth/user', methods=['GET'])
+@login_required
+def get_authenticated_user():
+    return jsonify({
+        'id': current_user.id,
+        'username': current_user.username,
+        'email': current_user.email,
+        'role': current_user.role
+    }), 200
+
+@app.route('/auth/change-password', methods=['POST'])
+@login_required
+def change_password():
+    data = request.json
+    old_password = data.get('old_password')
+    new_password = data.get('new_password')
+    confirm_password = data.get('confirm_password')
+
+    if not old_password or not new_password or not confirm_password:
+        return jsonify({'error': 'All fields are required'}), 400
+    
+    if not check_password_hash(current_user.password, old_password):
+        return jsonify({'error': 'Current password is incorrect'}), 400
+
+    if new_password != confirm_password:
+        return jsonify({'error': 'New passwords do not match'}), 400
+    
+    hashed_new_password = generate_password_hash(new_password)
+    db = get_db()
+    db.execute("UPDATE user SET password = ? WHERE id = ?", (hashed_new_password, current_user.id))
+    db.commit()
+    
+    return jsonify({'message': 'Password updated successfully'}), 200
+
 # SECTION: Streaming and Managing Alerts API
 @app.route('/stream_alerts', methods=['GET'])
 def stream_alerts():

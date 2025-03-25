@@ -186,11 +186,11 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
     const tabs = document.querySelectorAll(".tab");
     const title = document.querySelector(".settings-title");
-    
+    const buttonsDiv = document.getElementById("buttons");
+
     const tabData = {
         tab1: { title: "General Settings", icon: "bx bx-cog" },
-        tab2: { title: "Account Settings", icon: "bx bx-user" },
-        tab3: { title: "Security Settings", icon: "bx bx-lock" }
+        tab2: { title: "Account Settings", icon: "bx bx-user", hideButtons: true },
     };
 
     tabs.forEach(tab => {
@@ -198,7 +198,56 @@ document.addEventListener("DOMContentLoaded", function () {
             if (this.checked) {
                 const data = tabData[this.id];
                 title.innerHTML = `<i class='${data.icon}' style="background-color: #453cc622; padding: 10px; border-radius: 20px;"></i> ${data.title}`;
+
+                // Hide or show buttons based on the selected tab
+                if (data.hideButtons) {
+                    buttonsDiv.style.display = "none";
+                } else {
+                    buttonsDiv.style.display = "block";
+                }
             }
         });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Fetch and display authenticated user details
+    fetch("/auth/user")
+        .then(response => response.json())
+        .then(data => {
+            if (data.username) {
+                document.getElementById("username").textContent = data.username;
+                document.getElementById("role").textContent = data.role;
+                document.getElementById("email").textContent = data.email;
+            }
+        })
+        .catch(error => console.error("Error fetching user data:", error));
+
+    // Handle password update
+    document.getElementById("update-password").addEventListener("click", function () {
+        const oldPassword = document.getElementById("old-password").value;
+        const newPassword = document.getElementById("new-password").value;
+        const confirmPassword = document.getElementById("confirm-password").value;
+
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            alert("All fields are required.");
+            return;
+        }
+
+        fetch("/auth/change-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ old_password: oldPassword, new_password: newPassword, confirm_password: confirmPassword }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message || data.error);
+                if (data.message) {
+                    document.getElementById("old-password").value = "";
+                    document.getElementById("new-password").value = "";
+                    document.getElementById("confirm-password").value = "";
+                }
+            })
+            .catch(error => console.error("Error updating password:", error));
     });
 });
