@@ -23,10 +23,14 @@ document.addEventListener("DOMContentLoaded", () => {
             inputField.insertAdjacentElement("afterend", errorElement);
         }
         errorElement.textContent = message;
+        inputField.style.border = "2px solid red";
     };
 
     // Clear error messages
-    const clearErrors = () => document.querySelectorAll(".error-message").forEach(el => el.remove());
+    const clearErrors = () => {
+        document.querySelectorAll(".error-message").forEach(el => el.remove());
+        document.querySelectorAll("input").forEach(input => input.style.border = "");
+    }
 
     // Validate input fields
     const validateInput = (input, type) => {

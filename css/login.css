@@ -27,7 +27,7 @@ h2{
 
 .sub-label{
     margin-top: -10% !important; 
-    margin-bottom: 10%;
+    margin-bottom: 6%;
     font-size: 12px !important; 
     color: #575656;
 }
@@ -72,6 +72,7 @@ h2{
     color: #fff;
     font-size: 12px;
     padding: 10px 45px;
+    margin-top: 15px;
     border: 1px solid transparent;
     border-radius: 20px;
     font-weight: 600;
@@ -216,4 +217,5 @@ h2{
 
 .error-message{
     margin: 0px;
+    font-size: 10px !important;
 }
