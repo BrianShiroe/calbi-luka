@@ -639,6 +639,7 @@ def stream_alerts():
 
     return Response(stream_with_context(event_stream()), content_type='text/event-stream')
 
+# alert notification
 @app.route('/get_alerts', methods=['GET'])
 def get_alerts():
     db = get_db()
@@ -654,6 +655,19 @@ def clear_alerts():
     cursor.execute("UPDATE alert SET resolved = 1 WHERE resolved = 0")
     db.commit()
     return jsonify({"success": True})
+
+# Section: analytics incidents
+@app.route("/api/incidents", methods=["GET"])
+def get_incidents():
+    db = get_db()
+    query = "SELECT detected_at, event_type, location FROM alert ORDER BY detected_at DESC"
+    incidents = db.execute(query).fetchall()
+    
+    results = [
+        {"detected_at": row["detected_at"], "event_type": row["event_type"], "location": row["location"]}
+        for row in incidents
+    ]
+    return jsonify(results)
 
 # Camera Device Management API
 @app.route('/get_devices', methods=['GET'])

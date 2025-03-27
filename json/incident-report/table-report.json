@@ -1,8 +1,12 @@
 [
-    { "date": "2025-03-02", "type": "Fire", "location": "Barangay Hall", "time": "10:01 AM" },
-    { "date": "2025-03-02", "type": "Flood", "location": "Santa Rita Church", "time": "10:01 AM" },
-    { "date": "2025-03-03", "type": "Landslide", "location": "Mayumi Street", "time": "10:01 AM" },
-    { "date": "2025-03-03", "type": "Car Crash", "location": "Purok 1", "time": "10:01 AM" },
-    { "date": "2025-03-03", "type": "Earthquake", "location": "Purok 2", "time": "10:01 AM" },
-    { "date": "2025-03-04", "type": "Fire", "location": "Purok 3", "time": "10:01 AM" }
+    { "detected_at": "03-27-25_10.01.00AM", "event_type": "Person", "location": "Barangay Hall" },
+    { "detected_at": "03-27-25_10.01.00AM", "event_type": "Fire", "location": "Barangay Hall" },
+    { "detected_at": "03-27-25_10.01.00AM", "event_type": "Fire", "location": "Barangay Hall" },
+    { "detected_at": "03-27-25_10.01.00AM", "event_type": "Fire", "location": "Barangay Hall" },
+    { "detected_at": "03-27-25_10.01.00AM", "event_type": "Fire", "location": "Barangay Hall" },
+    { "detected_at": "03-27-25_10.01.00AM", "event_type": "Fire", "location": "Barangay Hall" },
+    { "detected_at": "03-27-25_10.01.00AM", "event_type": "Fire", "location": "Barangay Hall" },
+    { "detected_at": "03-02-25_10.01.00AM", "event_type": "Fire", "location": "Barangay Hall" },
+    { "detected_at": "03-02-25_10.01.00AM", "event_type": "Flood", "location": "Santa Rita Church" },
+    { "detected_at": "01-04-25_10.01.00AM", "event_type": "Fire", "location": "Purok 3" }
 ]
