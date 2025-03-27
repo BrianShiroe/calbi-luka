@@ -85,6 +85,9 @@ function renderDevices() {
         gridContainer.appendChild(deviceCard);
     });
 
+    // Save active device count to localStorage
+    localStorage.setItem("activeDeviceCount", devices.length);
+
     // Add 'Add Device' button at the end of the grid
     const addDeviceCard = document.createElement("div");
     addDeviceCard.className = "device-card add-device-card";

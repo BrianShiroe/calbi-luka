@@ -3,10 +3,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const ctxPie = document.getElementById("pieChart").getContext("2d");
     const incidentCount = document.getElementById("incident-count");
     const timeframeSelect = document.getElementById("timeframe");
+    const incidentThisWeekCount = document.getElementById("incident-this-week-count");
+    const camerasActiveElement = document.getElementById("cameras-active");
+    const mostAffectedLocationName = document.getElementById("most-affected-location-name");
     const incidentTable = document.getElementById("incident-table");
+    const prevButton = document.getElementById("prev-page");
+    const nextButton = document.getElementById("next-page");
+    const pageInfo = document.getElementById("page-info");
     
     let lineChart, pieChart;
     const eventTypes = ["landslide", "flood", "fire", "smoke", "collision", "earthquake"];
+    let currentPage = 1;
+    const rowsPerPage = 10;
+    let incidentData = []; // Stores the table data
     
     function fetchData(timeframe) {
         fetch("/api/incidents") // Fetch from Flask API instead of JSON file
@@ -33,15 +42,25 @@ document.addEventListener("DOMContentLoaded", function () {
     function processIncidentData(data, timeframe) {
         const categorizedData = initializeCategorizedData();
         const today = new Date();
+        const currentYear = today.getFullYear();
     
         data.forEach(incident => {
             const { date, time } = parseCustomDateTime(incident.detected_at);
-            const category = determineCategory(new Date(date), today);
-            updateCategorizedData(categorizedData, category, incident, date, time, today);
+            const incidentDate = new Date(date);
+            const incidentYear = incidentDate.getFullYear();
+    
+            if (incidentYear === currentYear) {
+                updateCategorizedData(categorizedData, "monthly", incident, date, time, today);
+            }
+    
+            const daysDifference = (today - incidentDate) / (1000 * 60 * 60 * 24);
+            if (daysDifference <= 7) {
+                updateCategorizedData(categorizedData, "weekly", incident, date, time, today);
+            }
         });
     
         updateUI(categorizedData, timeframe);
-    }
+    }   
     
     function initializeCategorizedData() {
         return {
@@ -62,18 +81,27 @@ document.addEventListener("DOMContentLoaded", function () {
         categorizedData[category].table.push([date, time, incident.event_type, incident.location]);
     
         const eventIndex = eventTypes.indexOf(incident.event_type);
-        if (eventIndex !== -1) categorizedData[category].events[eventIndex]++;
-    
-        // Track history data
-        const incidentDate = new Date(date);
-        if (category === "weekly") {
-            let weekNum = Math.floor((today - incidentDate) / (1000 * 60 * 60 * 24 * 7));
-            weekNum = Math.max(0, Math.min(4, weekNum)); // Limit to 5 weeks
-            categorizedData[category].history[weekNum]++;
-        } else if (category === "monthly") {
-            let monthNum = incidentDate.getMonth();
-            categorizedData[category].history[monthNum]++;
+        if (eventIndex !== -1) {
+            categorizedData[category].events[eventIndex]++;
         }
+    
+        const incidentDate = new Date(date);
+    
+        if (category === "weekly") {
+            const dayDifference = Math.floor((today - incidentDate) / (1000 * 60 * 60 * 24));
+            const weekIndex = Math.floor(dayDifference / 7); // Get correct week index
+            if (weekIndex < 5) {
+                categorizedData[category].history[4 - weekIndex]++; // Reverse indexing (most recent week last)
+            }
+        } else if (category === "monthly") {
+            const monthIndex = incidentDate.getMonth();
+            categorizedData[category].history[monthIndex]++;
+        }
+    }
+    
+
+    function updateIncidentThisWeekCount(categorizedData) {
+        incidentThisWeekCount.textContent = categorizedData.weekly.count;
     }
     
     function updateUI(categorizedData, timeframe) {
@@ -81,12 +109,23 @@ document.addEventListener("DOMContentLoaded", function () {
         updateLineChart(categorizedData[timeframe].history, timeframe);
         updatePieChart(categorizedData[timeframe].events);
         updateIncidentTable(categorizedData[timeframe].table);
+        updateMostAffectedLocation(categorizedData[timeframe].table);
+        updateIncidentThisWeekCount(categorizedData);
     }
     
     function updateLineChart(data, timeframe) {
-        const labels = timeframe === "weekly" 
-            ? ["Last 5 Weeks", "Week 4", "Week 3", "Week 2", "This Week"] 
-            : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        let labels = [];
+    
+        if (timeframe === "weekly") {
+            const today = new Date();
+            labels = [...Array(5)].map((_, i) => {
+                const pastDate = new Date(today);
+                pastDate.setDate(today.getDate() - (4 - i) * 7);
+                return `Week of ${pastDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+            });
+        } else {
+            labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        }
     
         if (lineChart) {
             lineChart.data.labels = labels;
@@ -128,20 +167,106 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     function updateIncidentTable(data) {
-        incidentTable.innerHTML = "";
-        data.forEach(row => {
-            let tr = document.createElement("tr");
-            row.forEach(cell => {
-                let td = document.createElement("td");
-                td.textContent = cell;
-                tr.appendChild(td);
-            });
-            incidentTable.appendChild(tr);
-        });
+        incidentData = data; // Store new data
+        currentPage = 1; // Reset to first page
+        renderTable();
     }
+    
+    function renderTable() {
+        incidentTable.innerHTML = "";
+    
+        const totalRows = incidentData.length;
+        const totalPages = Math.ceil(totalRows / rowsPerPage);
+        
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const visibleRows = incidentData.slice(start, end);
+    
+        if (visibleRows.length === 0) {
+            incidentTable.innerHTML = "<tr><td colspan='4'>No data available</td></tr>";
+        } else {
+            visibleRows.forEach(row => {
+                let tr = document.createElement("tr");
+                row.forEach(cell => {
+                    let td = document.createElement("td");
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                incidentTable.appendChild(tr);
+            });
+    
+            // Fill remaining rows with empty placeholders to ensure 10 rows
+            for (let i = visibleRows.length; i < rowsPerPage; i++) {
+                let tr = document.createElement("tr");
+                for (let j = 0; j < 4; j++) {
+                    let td = document.createElement("td");
+                    td.textContent = "-"; // Placeholder
+                    td.style.color = "#ccc"; // Gray out empty rows
+                    tr.appendChild(td);
+                }
+                incidentTable.appendChild(tr);
+            }
+        }
+    
+        // Update pagination controls
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages || 1}`;
+        prevButton.disabled = currentPage === 1;
+        nextButton.disabled = currentPage === totalPages || totalRows === 0;
+    }
+    
+    // Pagination controls
+    prevButton.addEventListener("click", () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    });
+    
+    nextButton.addEventListener("click", () => {
+        const totalPages = Math.ceil(incidentData.length / rowsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderTable();
+        }
+    });
     
     timeframeSelect.addEventListener("change", () => fetchData(timeframeSelect.value));
     fetchData("weekly");
+
+    // Function to update the Cameras Active count
+    function updateCamerasActive() {
+        const activeDeviceCount = localStorage.getItem("activeDeviceCount") || 0;
+        camerasActiveElement.textContent = activeDeviceCount;
+    }
+    // Update the Cameras Active count on page load
+    updateCamerasActive();
+    // Listen for storage changes (in case another tab updates the device count)
+    window.addEventListener("storage", updateCamerasActive);
+
+    function updateMostAffectedLocation(data) {
+        const locationCounts = {};
+    
+        data.forEach(([date, time, eventType, location]) => {
+            if (location in locationCounts) {
+                locationCounts[location]++;
+            } else {
+                locationCounts[location] = 1;
+            }
+        });
+    
+        // Determine the most affected location
+        let mostAffectedLocation = "N/A";
+        let maxCount = 0;
+    
+        for (const [location, count] of Object.entries(locationCounts)) {
+            if (count > maxCount) {
+                mostAffectedLocation = location;
+                maxCount = count;
+            }
+        }
+    
+        mostAffectedLocationName.textContent = mostAffectedLocation;
+    }
 
     function setupTabs() {
         const tabs = document.querySelectorAll(".tab-button");
@@ -160,6 +285,5 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
-    
     setupTabs();
 });
