@@ -644,7 +644,7 @@ def stream_alerts():
 def get_alerts():
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM alert WHERE resolved = 0 ORDER BY detected_at DESC")
+    cursor.execute("SELECT * FROM alert WHERE resolved IN (0, 1) ORDER BY detected_at DESC")
     alerts = cursor.fetchall()
     return jsonify([dict(alert) for alert in alerts])
 

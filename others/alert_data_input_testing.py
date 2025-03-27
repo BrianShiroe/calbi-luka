@@ -44,10 +44,10 @@ def insert_random_alerts(total_rows):
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (camera_id, camera_title, event_type, alert_level, location, formatted_date, resolved))
     
-# Insert 2000 random alerts
-insert_random_alerts(2000)
+# Insert # random alerts
+insert_random_alerts(10)
 
 conn.commit()
 conn.close()
 
-print("Inserted 2000 random alerts between January 1 and March 27, 2025.")
+print("Inserted # random alerts between January 1 and March 27, 2025.")

@@ -4,31 +4,68 @@ document.addEventListener('DOMContentLoaded', function () {
     const notificationList = document.getElementById('notification-list');
     const notificationCount = document.getElementById('notification-count');
     const clearNotificationsButton = document.getElementById('clear-notifications');
+    const showUnreadButton = document.getElementById('show-unread');
+    const showAllButton = document.getElementById('show-all');
 
     let notifications = [];
+    
+    // Event listener for 'Unread' button
+    showUnreadButton.addEventListener('click', () => {
+        // Toggle active class
+        showUnreadButton.classList.add('active');
+        showAllButton.classList.remove('active');
+        
+        // Update notifications to show unread only
+        updateNotificationUI(true, 'unread');
+    });
+    
+    // Event listener for 'All' button
+    showAllButton.addEventListener('click', () => {
+        // Toggle active class
+        showAllButton.classList.add('active');
+        showUnreadButton.classList.remove('active');
+        
+        // Update notifications to show all
+        updateNotificationUI(true, 'all');
+    });
 
     // Function to update the notification UI
-    function updateNotificationUI(showBox) {
-        notificationList.innerHTML = '';
-        notifications.forEach(alert => {
-            if (!alert.resolved) {
-                const li = document.createElement('li');
-                li.textContent = `${alert.camera_title}: ${alert.event_type} detected on ${alert.location} at ${alert.detected_at}`;
-                notificationList.appendChild(li);
+    function updateNotificationUI(showBox, filterType = 'unread') {
+        notificationList.innerHTML = '';  // Clear the existing list
+        
+        // Filter notifications based on the selected filter type
+        const filteredNotifications = notifications.filter(alert => {
+            if (filterType === 'unread') {
+                return !alert.resolved; // Only unresolved alerts
+            } else {
+                return alert.resolved === 0 || alert.resolved === 1; // Show both unresolved and resolved alerts
             }
         });
-    
+        
+        filteredNotifications.forEach(alert => {
+            const li = document.createElement('li');
+            
+            // Format the event time to the desired format
+            const rawTime = alert.detected_at; // e.g., '03-26-25_10.37.44PM'
+            const formattedTime = rawTime.replace('_', ' : ').replace(/(\d{2})\.(\d{2})\.(\d{2})(AM|PM)/, '$1:$2:$3 $4');
+            
+            // Create the notification content with event type and camera details
+            const eventText = `${alert.camera_title}: ${alert.event_type} detected on ${alert.location} at ${formattedTime}`;
+            li.textContent = eventText;
+            
+            // Add the notification item to the list
+            notificationList.appendChild(li);
+        });
+        
         // Update the notification count
         const unresolvedCount = notifications.filter(alert => !alert.resolved).length;
         notificationCount.textContent = unresolvedCount;
-        console.log('Current notifications:', notifications); // Debugging
-        console.log('Unresolved count:', unresolvedCount); // Debugging
-    
+        
         // Show or hide the notification box
         if (showBox) {
             notificationBox.classList.add('show');
         }
-    
+        
         // Set visibility of notification count
         if (unresolvedCount > 0) {
             notificationCount.style.visibility = 'visible';
@@ -42,15 +79,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const deviceCard = document.getElementById(`device-${deviceId}`);
         if (deviceCard) {
             deviceCard.classList.add('highlight');
-
+    
             // Retrieve and parse alert duration from "settings" in localStorage
             const settings = JSON.parse(localStorage.getItem('settings')) || {};
             const alertDuration = parseFloat(settings.alert_duration) || 5;
             const duration = alertDuration * 1000;
-
+    
             setTimeout(() => {
                 deviceCard.classList.remove('highlight');
             }, duration);
+    
+            // Ensure the "Unread" button is active when a device is highlighted
+            showUnreadButton.classList.add('active');
+            showAllButton.classList.remove('active');
+    
+            // Update the notification UI to show unread alerts
+            updateNotificationUI(true, 'unread');
         }
     }
 
