@@ -9,6 +9,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const incidentTable = document.getElementById("incident-table");
     const prevButton = document.getElementById("prev-page");
     const nextButton = document.getElementById("next-page");
+    const firstButton = document.getElementById("first-page");
+    const lastButton = document.getElementById("last-page");
+    const next10Button = document.getElementById("next-10-pages");
+    const next100Button = document.getElementById("next-100-pages");
+    const prev10Button = document.getElementById("prev-10-pages");  // Previous 10 Pages
+    const prev100Button = document.getElementById("prev-100-pages");  // Previous 100 Pages
     const pageInfo = document.getElementById("page-info");
     
     let lineChart, pieChart;
@@ -178,8 +184,8 @@ document.addEventListener("DOMContentLoaded", function () {
         incidentTable.innerHTML = "";
     
         const totalRows = incidentData.length;
-        const totalPages = Math.ceil(totalRows / rowsPerPage);
-        
+        const totalPages = Math.ceil(totalRows / rowsPerPage);  // Calculating totalPages once
+    
         const start = (currentPage - 1) * rowsPerPage;
         const end = start + rowsPerPage;
         const visibleRows = incidentData.slice(start, end);
@@ -214,6 +220,12 @@ document.addEventListener("DOMContentLoaded", function () {
         pageInfo.textContent = `Page ${currentPage} of ${totalPages || 1}`;
         prevButton.disabled = currentPage === 1;
         nextButton.disabled = currentPage === totalPages || totalRows === 0;
+        firstButton.disabled = currentPage === 1;
+        lastButton.disabled = currentPage === totalPages;
+        next10Button.disabled = currentPage + 10 > totalPages;
+        next100Button.disabled = currentPage + 100 > totalPages;
+        prev10Button.disabled = currentPage <= 10;
+        prev100Button.disabled = currentPage <= 100;
     }
     
     // Pagination controls
@@ -228,6 +240,46 @@ document.addEventListener("DOMContentLoaded", function () {
         const totalPages = Math.ceil(incidentData.length / rowsPerPage);
         if (currentPage < totalPages) {
             currentPage++;
+            renderTable();
+        }
+    });
+    
+    firstButton.addEventListener("click", () => {
+        currentPage = 1;
+        renderTable();
+    });
+    
+    lastButton.addEventListener("click", () => {
+        currentPage = Math.ceil(incidentData.length / rowsPerPage);
+        renderTable();
+    });
+    
+    next10Button.addEventListener("click", () => {
+        const totalPages = Math.ceil(incidentData.length / rowsPerPage);
+        if (currentPage + 10 <= totalPages) {
+            currentPage += 10;
+            renderTable();
+        }
+    });
+    
+    next100Button.addEventListener("click", () => {
+        const totalPages = Math.ceil(incidentData.length / rowsPerPage);
+        if (currentPage + 100 <= totalPages) {
+            currentPage += 100;
+            renderTable();
+        }
+    });
+    
+    prev10Button.addEventListener("click", () => {
+        if (currentPage > 10) {
+            currentPage -= 10;
+            renderTable();
+        }
+    });
+    
+    prev100Button.addEventListener("click", () => {
+        if (currentPage > 100) {
+            currentPage -= 100;
             renderTable();
         }
     });
