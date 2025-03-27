@@ -164,12 +164,32 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
     
+    function generateColors(length) {
+        return Array.from({ length }, () => `hsl(${Math.random() * 360}, 70%, 60%)`);
+    }
+    
     function updatePieChart(data) {
         if (pieChart) pieChart.destroy();
+    
+        const backgroundColors = generateColors(eventTypes.length);
+    
         pieChart = new Chart(ctxPie, {
             type: "doughnut",
-            data: { labels: eventTypes, datasets: [{ data, backgroundColor: ["#a9a4a4", "#027fff", "#b7d2e4", "#392e96", "#bdfffe", "#ff5733", "#33ff57"], borderColor: ["#fff"] }] },
-            options: { cutout: "80%", responsive: true, plugins: { legend: { position: "bottom" } } },
+            data: { 
+                labels: eventTypes, 
+                datasets: [{ 
+                    data, 
+                    backgroundColor: backgroundColors, 
+                    borderColor: "#fff"
+                }] 
+            },
+            options: { 
+                cutout: "80%", 
+                responsive: true, 
+                plugins: { 
+                    legend: { position: "bottom" } 
+                } 
+            },
             animation: { duration: 0 }
         });
     }
