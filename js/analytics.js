@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
     
             const daysDifference = (today - incidentDate) / (1000 * 60 * 60 * 24);
-            if (daysDifference <= 7) {
+            if (daysDifference <= 30) {
                 updateCategorizedData(categorizedData, "weekly", incident, date, time, today);
             }
         });
@@ -64,16 +64,9 @@ document.addEventListener("DOMContentLoaded", function () {
     
     function initializeCategorizedData() {
         return {
-            weekly: { count: 0, history: [0, 0, 0, 0, 0], events: [0, 0, 0, 0, 0], table: [] },
-            monthly: { count: 0, history: [0, 0, 0, 0, 0], events: [0, 0, 0, 0, 0], table: [] }
+            weekly: { count: 0, history: Array(5).fill(0), events: Array(6).fill(0), table: [] },
+            monthly: { count: 0, history: Array(12).fill(0), events: Array(6).fill(0), table: [] }
         };
-    }
-    
-    function determineCategory(incidentDate, today) {
-        const daysDifference = (today - incidentDate) / (1000 * 60 * 60 * 24);
-        if (daysDifference > 7) return "monthly";
-        if (daysDifference > 1) return "weekly";
-        return "weekly";
     }
     
     function updateCategorizedData(categorizedData, category, incident, date, time, today) {
@@ -88,72 +81,81 @@ document.addEventListener("DOMContentLoaded", function () {
         const incidentDate = new Date(date);
     
         if (category === "weekly") {
-            const dayDifference = Math.floor((today - incidentDate) / (1000 * 60 * 60 * 24));
-            const weekIndex = Math.floor(dayDifference / 7); // Get correct week index
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            const weekIndex = Math.floor((incidentDate - monthStart) / (1000 * 60 * 60 * 24 * 7));
             if (weekIndex < 5) {
-                categorizedData[category].history[4 - weekIndex]++; // Reverse indexing (most recent week last)
+                categorizedData[category].history[weekIndex]++;
             }
         } else if (category === "monthly") {
             const monthIndex = incidentDate.getMonth();
             categorizedData[category].history[monthIndex]++;
         }
     }
-    
 
     function updateIncidentThisWeekCount(categorizedData) {
-        incidentThisWeekCount.textContent = categorizedData.weekly.count;
+        const today = new Date();
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay()); // Set to Sunday of the current week
+        startOfWeek.setHours(0, 0, 0, 0);
+    
+        let thisWeekCount = 0;
+    
+        categorizedData.monthly.table.forEach(([date]) => {
+            const incidentDate = new Date(date);
+    
+            if (incidentDate >= startOfWeek && incidentDate <= today) {
+                thisWeekCount++;
+            }
+        });
+    
+        incidentThisWeekCount.textContent = thisWeekCount;
     }
     
     function updateUI(categorizedData, timeframe) {
         incidentCount.textContent = categorizedData[timeframe].count;
+        updateIncidentThisWeekCount(categorizedData);
         updateLineChart(categorizedData[timeframe].history, timeframe);
         updatePieChart(categorizedData[timeframe].events);
         updateIncidentTable(categorizedData[timeframe].table);
         updateMostAffectedLocation(categorizedData[timeframe].table);
-        updateIncidentThisWeekCount(categorizedData);
     }
     
     function updateLineChart(data, timeframe) {
-        let labels = [];
-    
-        if (timeframe === "weekly") {
-            const today = new Date();
-            labels = [...Array(5)].map((_, i) => {
-                const pastDate = new Date(today);
-                pastDate.setDate(today.getDate() - (4 - i) * 7);
-                return `Week of ${pastDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
-            });
-        } else {
-            labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        }
+        const labels = timeframe === "weekly" 
+            ? ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"] 
+            : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     
         if (lineChart) {
-            lineChart.data.labels = labels;
-            lineChart.data.datasets[0].data = data;
-            lineChart.update();
-        } else {
-            lineChart = new Chart(ctxLine, {
-                type: "line",
-                data: {
-                    labels,
-                    datasets: [{
-                        label: "Detected Incidents",
-                        data,
-                        borderColor: "#fff",
-                        backgroundColor: "#383197",
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: { grid: { display: false } },
-                        y: { beginAtZero: true }
+            lineChart.destroy();
+        }
+    
+        lineChart = new Chart(ctxLine, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Incident Count",
+                    data: data,
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
                     }
                 }
-            });
-        }
+            }
+        });
     }
     
     function updatePieChart(data) {
