@@ -13,7 +13,7 @@ import logging
 import pygame
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from flask import Flask, Response, request, jsonify, g, send_from_directory, stream_with_context, session
+from flask import Flask, Response, request, jsonify, g, send_from_directory, stream_with_context, session, send_file
 from flask_cors import CORS
 from ultralytics import YOLO
 from concurrent.futures import ThreadPoolExecutor
@@ -466,15 +466,15 @@ def stream():
     device_id = request.args.get('device_id', 'Unknown')  # Get the device ID from the request
 
     if not stream_url:
-        return "Stream URL is missing", 400
+        return send_file("img/no-feed-img.png", mimetype='image/png')
 
     if "youtube.com" in stream_url or "youtu.be" in stream_url:
         stream_url = get_youtube_stream_url(stream_url)
         if not stream_url:
-            return "Could not fetch YouTube stream", 400
+            return send_file("img/no-feed-img.png", mimetype='image/png')
 
     if not (stream_url.startswith("rtsp://") or stream_url.startswith("http://") or stream_url.startswith("https://")):
-        return "Invalid stream URL", 400
+        return send_file("img/no-feed-img.png", mimetype='image/png')
 
     return Response(generate_frames(stream_url, device_title, device_location, device_id), mimetype='multipart/x-mixed-replace; boundary=frame')
 

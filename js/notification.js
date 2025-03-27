@@ -17,16 +17,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 notificationList.appendChild(li);
             }
         });
-
+    
         // Update the notification count
         const unresolvedCount = notifications.filter(alert => !alert.resolved).length;
         notificationCount.textContent = unresolvedCount;
         console.log('Current notifications:', notifications); // Debugging
         console.log('Unresolved count:', unresolvedCount); // Debugging
-
+    
         // Show or hide the notification box
         if (showBox) {
             notificationBox.classList.add('show');
+        }
+    
+        // Set visibility of notification count
+        if (unresolvedCount > 0) {
+            notificationCount.style.visibility = 'visible';
+        } else {
+            notificationCount.style.visibility = 'hidden';
         }
     }
 
