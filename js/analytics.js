@@ -18,16 +18,24 @@ document.addEventListener("DOMContentLoaded", function () {
     const pageInfo = document.getElementById("page-info");
     
     let lineChart, pieChart;
-    const eventTypes = ["landslide", "flood", "fire", "smoke", "collision", "earthquake"];
+    let eventTypes = [];
     let currentPage = 1;
     const rowsPerPage = 10;
     let incidentData = []; // Stores the table data
     
     function fetchData(timeframe) {
-        fetch("/api/incidents") // Fetch from Flask API instead of JSON file
+        fetch("/api/incidents")
             .then(response => response.json())
-            .then(data => processIncidentData(data, timeframe))
+            .then(data => {
+                updateEventTypes(data);
+                processIncidentData(data, timeframe);
+            })
             .catch(error => console.error("Error loading incident data:", error));
+    }
+
+    function updateEventTypes(data) {
+        const uniqueEvents = new Set(data.map(incident => incident.event_type));
+        eventTypes = Array.from(uniqueEvents);
     }
     
     function parseCustomDateTime(detected_at) {
@@ -171,15 +179,20 @@ document.addEventListener("DOMContentLoaded", function () {
     function updatePieChart(data) {
         if (pieChart) pieChart.destroy();
     
+        const hasData = data.some(value => value > 0);
         const backgroundColors = generateColors(eventTypes.length);
-    
+        
+        const chartData = hasData ? data : [1];
+        const chartLabels = hasData ? eventTypes : ["No Data"];
+        const chartColors = hasData ? backgroundColors : ["#d3d3d3"];
+        
         pieChart = new Chart(ctxPie, {
             type: "doughnut",
             data: { 
-                labels: eventTypes, 
+                labels: chartLabels, 
                 datasets: [{ 
-                    data, 
-                    backgroundColor: backgroundColors, 
+                    data: chartData, 
+                    backgroundColor: chartColors, 
                     borderColor: "#fff"
                 }] 
             },
