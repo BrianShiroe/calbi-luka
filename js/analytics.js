@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const prev10Button = document.getElementById("prev-10-pages");  // Previous 10 Pages
     const prev100Button = document.getElementById("prev-100-pages");  // Previous 100 Pages
     const pageInfo = document.getElementById("page-info");
+    const activeAnalyticsTab = localStorage.getItem('activeTab') || 'overview'; // Default to 'overview' if no tab is stored
     
     let lineChart, pieChart;
     let eventTypes = [];
@@ -317,9 +318,30 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
     
-    timeframeSelect.addEventListener("change", () => fetchData(timeframeSelect.value));
-    fetchData("weekly");
+    // Persist the selected timeframe when it changes
+    timeframeSelect.addEventListener("change", () => {
+        const selectedTimeframe = timeframeSelect.value;
+        // Save the selected timeframe to localStorage
+        localStorage.setItem("selectedTimeframe", selectedTimeframe);
+        fetchData(selectedTimeframe);
+    });
 
+    // Load the persisted timeframe from localStorage when the page loads
+    function loadPersistedTimeframe() {
+        const savedTimeframe = localStorage.getItem("selectedTimeframe");
+        if (savedTimeframe) {
+            timeframeSelect.value = savedTimeframe; // Set the dropdown to the saved value
+            fetchData(savedTimeframe); // Fetch data based on the saved timeframe
+        } else {
+            // If no saved timeframe, use a default value, e.g., "weekly"
+            timeframeSelect.value = "weekly";
+            fetchData("weekly");
+        }
+    }
+
+    // Call this function when the page loads
+    loadPersistedTimeframe();
+    
     // Function to update the Cameras Active count
     function updateCamerasActive() {
         const activeDeviceCount = localStorage.getItem("activeDeviceCount") || 0;
@@ -355,20 +377,105 @@ document.addEventListener("DOMContentLoaded", function () {
         mostAffectedLocationName.textContent = mostAffectedLocation;
     }
 
+    document.querySelector('#export-current').addEventListener('click', () => {
+        exportTableToExcel(currentPageData(), `page${currentPage}_incident_data.xlsx`);
+    });
+    
+    document.querySelector('#export-whole').addEventListener('click', () => {
+        exportTableToExcel(incidentData, 'whole_incident_data.xlsx'); // Export the whole dataset
+    });
+    
+    function exportTableToExcel(dataToExport, filename) {
+        // Create a new workbook
+        const wb = XLSX.utils.book_new();
+        
+        // Create an array of table rows, including the header
+        const rowData = [];
+        
+        // Get table headers dynamically from the table
+        const headers = [];
+        const table = document.getElementById("incident-table-container");
+        table.querySelectorAll('th').forEach(header => {
+            headers.push(header.textContent.trim());
+        });
+        rowData.push(headers);
+    
+        // Use the passed data (for current page or whole table)
+        dataToExport.forEach(row => {
+            const rowCells = [];
+            row.forEach(cell => {
+                rowCells.push(cell); // Add each cell's data
+            });
+            rowData.push(rowCells);
+        });
+        
+        // Convert rowData into a worksheet
+        const ws = XLSX.utils.aoa_to_sheet(rowData);
+        
+        // Set the column widths for columns 1 to 4 to 130 pixels (roughly 17 characters wide each)
+        ws['!cols'] = [
+            { wch: 13 }, // Column 1
+            { wch: 13 }, // Column 2
+            { wch: 13 }, // Column 3
+            { wch: 13 }, // Column 4
+        ];
+        
+        // Add worksheet to workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Incident Data');
+        
+        // Write workbook to Excel file and download
+        XLSX.writeFile(wb, filename); // Use dynamic filename
+    }
+    
+    function currentPageData() {
+        // Get the rows for the current page from incidentData
+        const totalRows = incidentData.length;
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        return incidentData.slice(start, end); // Return rows for the current page
+    }    
+
+    // container tab setup
     function setupTabs() {
         const tabs = document.querySelectorAll(".tab-button");
         const contents = document.querySelectorAll(".tab-content");
-        let activeTab = document.querySelector(".tab-content.active");
     
+        // Retrieve the active tab from localStorage (if any)
+        let activeAnalyticsTab = localStorage.getItem('activeAnalyticsTab') || '';
+    
+        // Set the active tab from localStorage
+        if (activeAnalyticsTab) {
+            const activeTabButton = document.querySelector(`.tab-button[data-tab="${activeAnalyticsTab}"]`);
+            const targetContent = document.getElementById(activeAnalyticsTab);
+    
+            if (activeTabButton && targetContent) {
+                tabs.forEach(tab => tab.classList.remove("active"));
+                activeTabButton.classList.add("active");
+                contents.forEach(content => content.classList.remove("active"));
+                targetContent.classList.add("active");
+            }
+        } else {
+            // If no tab is saved in localStorage, set the first tab as active by default
+            if (tabs.length > 0 && contents.length > 0) {
+                tabs[0].classList.add("active");
+                contents[0].classList.add("active");
+            }
+        }
+    
+        // Event listener for each tab button
         tabs.forEach(tab => {
             tab.addEventListener("click", function () {
+                // Remove 'active' class from all tabs
                 tabs.forEach(t => t.classList.remove("active"));
                 this.classList.add("active");
-                
+    
+                // Show the corresponding tab content
                 const targetContent = document.getElementById(this.dataset.tab);
-                if (activeTab && activeTab !== targetContent) activeTab.classList.remove("active");
+                contents.forEach(content => content.classList.remove("active"));
                 targetContent.classList.add("active");
-                activeTab = targetContent;
+    
+                // Store the active tab in localStorage
+                localStorage.setItem('activeAnalyticsTab', this.dataset.tab);
             });
         });
     }

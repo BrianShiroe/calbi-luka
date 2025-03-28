@@ -205,7 +205,7 @@ tr:hover {
     padding: 8px 15px;
     border-radius: 5px;
     cursor: pointer;
-    transition: 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
 }
 .page-btn:disabled {
     background: #ccc;
@@ -214,7 +214,39 @@ tr:hover {
 .page-btn:hover:not(:disabled) {
     background: #0056b3;
 }
+.page-btn:active {
+    transform: scale(1.1);
+}
 #page-info {
     font-size: 16px;
     font-weight: bold;
+}
+
+/* Style for the top-buttons container */
+.top-buttons {
+    display: flex;
+    gap: 10px;
+}
+.export {
+    background-color: #007BFF; /* Blue background */
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer; /* Add pointer cursor */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.export:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slight scale effect on hover */
+}
+.export i {
+    font-size: 18px; /* Set the icon size */
+}
+.export:active {
+    transform: scale(0.98); /* Slight shrink effect on click */
 }

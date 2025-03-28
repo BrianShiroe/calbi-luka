@@ -128,7 +128,8 @@
             <!-- Incident List Section -->
             <div id="incident-list" class="tab-content">
                 <div class="top-buttons">
-                    <button class="export"><i class='bx bxs-spreadsheet'></i> Export Table</button>
+                    <button class="export" id="export-current"><i class='bx bxs-spreadsheet'></i> Export Current Page</button>
+                    <button class="export" id="export-whole"><i class='bx bxs-spreadsheet'></i> Export Whole Table</button>
                 </div>
                 
                 <table id="incident-table-container">
@@ -164,5 +165,6 @@
     <script src="../js/sidebar.js"></script>
     <script src="../js/analytics.js"></script>
     <script src="../js/event-list.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 </body>
 </html>

@@ -18,18 +18,24 @@ document.addEventListener('DOMContentLoaded', function () {
             const gridContainer = document.getElementById('record-log-grid');
             gridContainer.innerHTML = ''; // Clear existing content
 
+            if (files.length === 0) {
+                // Show message if there are no recorded files
+                gridContainer.innerHTML = '<p>No recorded data available.</p>';
+                return;
+            }
+
             files.forEach(file => {
                 const fileExtension = file.split('.').pop().toLowerCase();
                 const card = document.createElement('div');
                 card.className = 'record-card';
 
                 if (['jpg', 'jpeg', 'png'].includes(fileExtension)) {
-                    card.innerHTML = `
+                    card.innerHTML = `  
                         <img src="/records/${file}" alt="${file}" loading="lazy">
                         <p>${file}</p>
                     `;
                 } else if (['mp4', 'avi'].includes(fileExtension)) {
-                    card.innerHTML = `
+                    card.innerHTML = `  
                         <video controls preload="none" poster="/records/${file}.jpg">
                             <source data-src="/records/${file}" type="video/${fileExtension}">
                             Your browser does not support the video tag.
