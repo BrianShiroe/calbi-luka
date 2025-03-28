@@ -9,69 +9,142 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let notifications = [];
     
+    // Retrieve persisted filter type from localStorage (default to 'unread' if not set)
+    const persistedFilterType = localStorage.getItem('notificationFilterType') || 'unread';
+
+    // Set the active button on page load based on the persisted filter type
+    if (persistedFilterType === 'unread') {
+        showUnreadButton.classList.add('active');
+        showAllButton.classList.remove('active');
+    } else if (persistedFilterType === 'all') {
+        showAllButton.classList.add('active');
+        showUnreadButton.classList.remove('active');
+    }
+
+    // Initial UI update using the persisted filter type
+    updateNotificationUI(true, persistedFilterType);
+
     // Event listener for 'Unread' button
     showUnreadButton.addEventListener('click', () => {
         // Toggle active class
         showUnreadButton.classList.add('active');
         showAllButton.classList.remove('active');
         
-        // Update notifications to show unread only
+        // Update notifications to show unread only and persist filter type
         updateNotificationUI(true, 'unread');
     });
-    
+
     // Event listener for 'All' button
     showAllButton.addEventListener('click', () => {
         // Toggle active class
         showAllButton.classList.add('active');
         showUnreadButton.classList.remove('active');
         
-        // Update notifications to show all
+        // Update notifications to show all and persist filter type
         updateNotificationUI(true, 'all');
     });
 
     // Function to update the notification UI
-    function updateNotificationUI(showBox, filterType = 'unread') {
-        notificationList.innerHTML = '';  // Clear the existing list
-        
-        // Filter notifications based on the selected filter type
+    function updateNotificationUI(showBox, filterType = null) {
+        // Retrieve settings from localStorage
+        const settings = JSON.parse(localStorage.getItem("settings")) || {};
+        const dateFormat = settings.alert_date_format || "mm-dd-yyyy"; // Default: MM-DD-YYYY
+        const timeFormat = settings.alert_time_format || "12hr-with-seconds"; // Default: 12-hour with seconds
+    
+        // If filterType is not provided, retrieve it from localStorage (or default to 'unread')
+        if (filterType === null) {
+            filterType = localStorage.getItem("notificationFilterType") || "unread";
+        } else {
+            localStorage.setItem("notificationFilterType", filterType);
+        }
+    
+        notificationList.innerHTML = ""; // Clear the existing list
+    
         const filteredNotifications = notifications.filter(alert => {
-            if (filterType === 'unread') {
-                return !alert.resolved; // Only unresolved alerts
+            if (filterType === "unread") {
+                return !alert.resolved;
             } else {
-                return alert.resolved === 0 || alert.resolved === 1; // Show both unresolved and resolved alerts
+                return alert.resolved === 0 || alert.resolved === 1;
             }
         });
-        
-        filteredNotifications.forEach(alert => {
-            const li = document.createElement('li');
-            
-            // Format the event time to the desired format
-            const rawTime = alert.detected_at; // e.g., '03-26-25_10.37.44PM'
-            const formattedTime = rawTime.replace('_', ' : ').replace(/(\d{2})\.(\d{2})\.(\d{2})(AM|PM)/, '$1:$2:$3 $4');
-            
-            // Create the notification content with event type and camera details
-            const eventText = `${alert.camera_title}: ${alert.event_type} detected on ${alert.location} at ${formattedTime}`;
-            li.textContent = eventText;
-            
-            // Add the notification item to the list
-            notificationList.appendChild(li);
-        });
-        
-        // Update the notification count
+    
+        if (filteredNotifications.length === 0) {
+            const noDataLi = document.createElement("li");
+            noDataLi.textContent = "No Alerts at the Moment!";
+            noDataLi.style.textAlign = "center";
+            noDataLi.style.color = "#888";
+            notificationList.appendChild(noDataLi);
+        } else {
+            filteredNotifications.forEach(alert => {
+                const li = document.createElement("li");
+    
+                // Parse detected_at timestamp
+                const [datePart, timePart] = alert.detected_at.split("_");
+                let [month, day, year] = datePart.split("-");
+                year = `20${year}`; // Convert short year to full year
+    
+                let [hours, minutes, secondsWithPeriod] = timePart.split(".");
+                let seconds = secondsWithPeriod.substring(0, 2);
+                let period = secondsWithPeriod.substring(2); // AM/PM
+    
+                // Format date based on settings
+                let formattedDate;
+                switch (dateFormat) {
+                    case "dd-mm-yyyy":
+                        formattedDate = `${day}-${month}-${year}`;
+                        break;
+                    case "yyyy-mm-dd":
+                        formattedDate = `${year}-${month}-${day}`;
+                        break;
+                    default: // "mm-dd-yyyy"
+                        formattedDate = `${month}-${day}-${year}`;
+                        break;
+                }
+    
+                // Format time based on settings
+                let formattedTime;
+                switch (timeFormat) {
+                    case "12hr-no-seconds":
+                        formattedTime = `${hours}:${minutes} ${period}`;
+                        break;
+                    case "24hr-with-seconds":
+                        formattedTime = `${convertTo24Hour(hours, period)}:${minutes}:${seconds}`;
+                        break;
+                    case "24hr-no-seconds":
+                        formattedTime = `${convertTo24Hour(hours, period)}:${minutes}`;
+                        break;
+                    default: // "12hr-with-seconds"
+                        formattedTime = `${hours}:${minutes}:${seconds} ${period}`;
+                        break;
+                }
+    
+                // Create notification content
+                const eventText = `${alert.camera_title}: ${alert.event_type} detected on ${alert.location} at ${formattedDate} ${formattedTime}`;
+                li.textContent = eventText;
+    
+                notificationList.appendChild(li);
+            });
+        }
+    
         const unresolvedCount = notifications.filter(alert => !alert.resolved).length;
         notificationCount.textContent = unresolvedCount;
-        
-        // Show or hide the notification box
+    
         if (showBox) {
-            notificationBox.classList.add('show');
+            notificationBox.classList.add("show");
         }
-        
-        // Set visibility of notification count
-        if (unresolvedCount > 0) {
-            notificationCount.style.visibility = 'visible';
-        } else {
-            notificationCount.style.visibility = 'hidden';
+    
+        notificationCount.style.visibility = unresolvedCount > 0 ? "visible" : "hidden";
+    }
+    
+    // Helper function to convert 12-hour time to 24-hour format
+    function convertTo24Hour(hours, period) {
+        hours = parseInt(hours, 10);
+        if (period === "PM" && hours !== 12) {
+            hours += 12;
+        } else if (period === "AM" && hours === 12) {
+            hours = 0;
         }
+        return hours.toString().padStart(2, "0");
     }
 
     // Function to highlight the corresponding device card

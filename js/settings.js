@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const modelVersion = document.getElementById("model-version");
     // alert
     const enableAlertToggle = document.getElementById("enable-alert-toggle");
+    const alertDateFormat = document.getElementById("alert-date-format");
+    const alertTimeFormat = document.getElementById("alert-time-format");
     const enableRecordLoggingToggle = document.getElementById("enable-record-logging-toggle");
     const alertLoggingDelay = document.getElementById("alert-logging-delay");
     const alertLoggingDelayValue = document.getElementById("alert-logging-delay-value");
@@ -59,6 +61,8 @@ document.addEventListener("DOMContentLoaded", function () {
         show_confidence_value: false,
         confidence_level: 0.7,
         enable_alert: true,
+        alert_date_format: "mm-dd-yyyy",  // Default: MM-DD-YYYY
+        alert_time_format: "12hr-with-seconds",  // Default: 12-hour (HH:MM:SS AM/PM)
         enable_record_logging: true,
         delay_for_alert_and_record_logging: 20,
 
@@ -102,6 +106,8 @@ document.addEventListener("DOMContentLoaded", function () {
         confidenceValue.textContent = `${confidenceLevel.value}%`;
         showConfidenceValueToggle.checked = settings.show_confidence_value;
         enableAlertToggle.checked = settings.enable_alert;
+        alertDateFormat.value = settings.alert_date_format;
+        alertTimeFormat.value = settings.alert_time_format;
         enableRecordLoggingToggle.checked = settings.enable_record_logging;
         alertLoggingDelay.value = settings.delay_for_alert_and_record_logging;
         alertLoggingDelayValue.textContent = `${alertLoggingDelay.value}s`;
@@ -134,6 +140,8 @@ document.addEventListener("DOMContentLoaded", function () {
             show_bounding_box: boundingBoxToggle.checked,
             show_confidence_value: showConfidenceValueToggle.checked,
             enable_alert: enableAlertToggle.checked,
+            alert_date_format: alertDateFormat.value,  
+            alert_time_format: alertTimeFormat.value,
             enable_record_logging: enableRecordLoggingToggle.checked,
             delay_for_alert_and_record_logging: parseInt(alertLoggingDelay.value, 10),
             model_version: modelVersion.value,
