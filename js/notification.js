@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     showUnreadButton.classList.toggle('active', persistedFilterType === 'unread');
     showAllButton.classList.toggle('active', persistedFilterType === 'all');
 
-    updateNotificationUI(true, persistedFilterType);
+    updateNotificationUI(false, persistedFilterType);
 
     showUnreadButton.addEventListener('click', () => toggleFilter('unread'));
     showAllButton.addEventListener('click', () => toggleFilter('all'));

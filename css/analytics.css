@@ -173,22 +173,27 @@ tr:hover {
 /* Define fixed widths for each column */
 #incident-table-container th:nth-child(1),
 #incident-table-container td:nth-child(1) {
-    width: 20%; /* Date */
+    width: 15%; /* Date */
 }
 
 #incident-table-container th:nth-child(2),
 #incident-table-container td:nth-child(2) {
-    width: 20%; /* Time */
+    width: 15%; /* Time */
 }
 
 #incident-table-container th:nth-child(3),
 #incident-table-container td:nth-child(3) {
-    width: 30%; /* Type */
+    width: 25%; /* Event Type */
 }
 
 #incident-table-container th:nth-child(4),
 #incident-table-container td:nth-child(4) {
-    width: 30%; /* Location */
+    width: 25%; /* Location */
+}
+
+#incident-table-container th:nth-child(5),
+#incident-table-container td:nth-child(5) {
+    width: 20%; /* Camera Title */
 }
 
 .pagination {

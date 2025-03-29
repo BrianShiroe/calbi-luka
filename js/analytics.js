@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
     function updateCategorizedData(categorizedData, category, incident, date, time, today) {
         categorizedData[category].count++;
-        categorizedData[category].table.push([date, time, incident.event_type, incident.location]);
+        categorizedData[category].table.push([date, time, incident.event_type, incident.camera_title, incident.location]);
     
         const eventIndex = eventTypes.indexOf(incident.event_type);
         if (eventIndex !== -1) {
@@ -218,14 +218,14 @@ document.addEventListener("DOMContentLoaded", function () {
         incidentTable.innerHTML = "";
     
         const totalRows = incidentData.length;
-        const totalPages = Math.ceil(totalRows / rowsPerPage);  // Calculating totalPages once
+        const totalPages = Math.ceil(totalRows / rowsPerPage);  
     
         const start = (currentPage - 1) * rowsPerPage;
         const end = start + rowsPerPage;
         const visibleRows = incidentData.slice(start, end);
     
         if (visibleRows.length === 0) {
-            incidentTable.innerHTML = "<tr><td colspan='4'>No data available</td></tr>";
+            incidentTable.innerHTML = "<tr><td colspan='5'>No data available</td></tr>";
         } else {
             visibleRows.forEach(row => {
                 let tr = document.createElement("tr");
@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Fill remaining rows with empty placeholders to ensure 10 rows
             for (let i = visibleRows.length; i < rowsPerPage; i++) {
                 let tr = document.createElement("tr");
-                for (let j = 0; j < 4; j++) {
+                for (let j = 0; j < 5; j++) { // Now 5 columns
                     let td = document.createElement("td");
                     td.textContent = "-"; // Placeholder
                     td.style.color = "#ccc"; // Gray out empty rows
@@ -418,6 +418,7 @@ document.addEventListener("DOMContentLoaded", function () {
             { wch: 13 }, // Column 2
             { wch: 13 }, // Column 3
             { wch: 13 }, // Column 4
+            { wch: 13 }, // Column 5
         ];
         
         // Add worksheet to workbook

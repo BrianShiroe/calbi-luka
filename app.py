@@ -667,11 +667,11 @@ def clear_alerts():
 @app.route("/api/incidents", methods=["GET"])
 def get_incidents():
     db = get_db()
-    query = "SELECT detected_at, event_type, location FROM alert ORDER BY detected_at DESC"
+    query = "SELECT detected_at, event_type, camera_title, location FROM alert ORDER BY detected_at DESC"
     incidents = db.execute(query).fetchall()
     
     results = [
-        {"detected_at": row["detected_at"], "event_type": row["event_type"], "location": row["location"]}
+        {"detected_at": row["detected_at"], "event_type": row["event_type"], "camera_title": row["camera_title"], "location": row["location"]}
         for row in incidents
     ]
     return jsonify(results)
