@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const modelVersion = document.getElementById("model-version");
     // alert
     const enableAlertToggle = document.getElementById("enable-alert-toggle");
+    const enableMobileAlertToggle = document.getElementById("enable-mobile-alert-toggle");
     const alertDateFormat = document.getElementById("alert-date-format");
     const alertTimeFormat = document.getElementById("alert-time-format");
     const enableRecordLoggingToggle = document.getElementById("enable-record-logging-toggle");
@@ -61,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
         show_confidence_value: false,
         confidence_level: 0.7,
         enable_alert: true,
+        enable_mobile_alert: false,
         alert_date_format: "mm-dd-yyyy",  // Default: MM-DD-YYYY
         alert_time_format: "12hr-with-seconds",  // Default: 12-hour (HH:MM:SS AM/PM)
         enable_record_logging: true,
@@ -106,6 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
         confidenceValue.textContent = `${confidenceLevel.value}%`;
         showConfidenceValueToggle.checked = settings.show_confidence_value;
         enableAlertToggle.checked = settings.enable_alert;
+        enableMobileAlertToggle.checked = settings.enable_mobile_alert;
         alertDateFormat.value = settings.alert_date_format;
         alertTimeFormat.value = settings.alert_time_format;
         enableRecordLoggingToggle.checked = settings.enable_record_logging;
@@ -140,6 +143,7 @@ document.addEventListener("DOMContentLoaded", function () {
             show_bounding_box: boundingBoxToggle.checked,
             show_confidence_value: showConfidenceValueToggle.checked,
             enable_alert: enableAlertToggle.checked,
+            enable_mobile_alert: enableMobileAlertToggle.checked,
             alert_date_format: alertDateFormat.value,  
             alert_time_format: alertTimeFormat.value,
             enable_record_logging: enableRecordLoggingToggle.checked,

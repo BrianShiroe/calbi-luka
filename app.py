@@ -11,6 +11,8 @@ import psutil
 import json
 import logging
 import pygame
+import http.client, urllib
+from dotenv import load_dotenv
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from flask import Flask, Response, request, jsonify, g, send_from_directory, stream_with_context, session, send_file
@@ -31,6 +33,9 @@ DIRECTORY = "html"  # Directory to serve static files from
 DEFAULT_FILE = "home.html"
 detected_records_path = "records"
 os.makedirs(detected_records_path, exist_ok=True)
+load_dotenv("api.env") #load pushover api key
+APP_TOKEN = os.getenv("PUSHOVER_APP_TOKEN")
+USER_KEY = os.getenv("PUSHOVER_USER_KEY")
 
 # General Settings variables
 performance_metrics_toggle = False
@@ -46,9 +51,10 @@ show_bounding_box = False
 show_confidence_value = False
 confidence_level = 0.7
 enable_alert = True
+enable_mobile_alert = False
 enable_record_logging = True
-
 delay_for_alert_and_record_logging = 20
+
 # Alert sound variables
 alert_sound = True
 alert_duration = 2.5  # Duration in seconds
@@ -75,6 +81,7 @@ setting_vars = {
     "show_confidence_value": "show_confidence_value",
     "confidence_level": "confidence_level",
     "enable_alert": "enable_alert",
+    "enable_mobile_alert": "enable_mobile_alert",
     "enable_record_logging": "enable_record_logging",
     "delay_for_alert_and_record_logging": "delay_for_alert_and_record_logging",
     
@@ -669,6 +676,27 @@ def get_incidents():
     ]
     return jsonify(results)
 
+@app.route('/send_pushover_notification', methods=['POST'])
+def send_pushover_notification():
+    if not enable_mobile_alert:  # Check if mobile alert is enabled
+        return jsonify({"success": False, "message": "Mobile alerts disabled"}), 403
+    
+    data = request.json
+    message = data.get("message", "New alert received")
+
+    conn = http.client.HTTPSConnection("api.pushover.net")
+    conn.request("POST", "/1/messages.json",
+      urllib.parse.urlencode({
+        "token": APP_TOKEN,
+        "user": USER_KEY,
+        "message": message,
+      }), 
+      { "Content-type": "application/x-www-form-urlencoded" })
+
+    response = conn.getresponse()
+    response_data = response.read().decode()
+    return jsonify({"status": response.status, "response": response_data})
+
 # Camera Device Management API
 @app.route('/get_devices', methods=['GET'])
 def get_devices():
@@ -760,7 +788,7 @@ def update_settings():
     global detection_mode, performance_metrics_toggle, update_metric_interval, metric_font_size
     global stream_resolution, stream_frame_skip, max_frame_rate, model_version
     global show_bounding_box, show_confidence_value, confidence_level
-    global enable_alert, enable_record_logging, delay_for_alert_and_record_logging, models
+    global enable_alert, enable_mobile_alert, enable_record_logging, delay_for_alert_and_record_logging, models
     global alert_sound, alert_duration, alert_volume, alert_sound_name
 
     data = request.get_json()
@@ -807,6 +835,7 @@ def print_updated_settings():
          "Confidence Level", confidence_level),
         
         ("Enable Alert", enable_alert, 
+         "Enable Mobile Alert", enable_mobile_alert, 
          "Enable Record Logging", enable_record_logging, 
          "Delay for Logging", delay_for_alert_and_record_logging),
         

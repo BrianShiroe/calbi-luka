@@ -200,14 +200,71 @@ document.addEventListener('DOMContentLoaded', function () {
 
         window.eventSource.onmessage = function (event) {
             const newAlert = JSON.parse(event.data);
+        
             // Check if the alert already exists in the notifications array
             const exists = notifications.some(alert => alert.id === newAlert.id);
+        
             if (!exists) {
                 notifications.unshift(newAlert); // Add to the beginning of the array
+        
+                // Format the alert data properly for UI and notification
+                const [datePart, timePart] = newAlert.detected_at.split("_");
+                let [month, day, year] = datePart.split("-");
+                year = `20${year}`; // Convert short year to full year
+        
+                let [hours, minutes, secondsWithPeriod] = timePart.split(".");
+                let seconds = secondsWithPeriod.substring(0, 2);
+                let period = secondsWithPeriod.substring(2); // AM/PM
+        
+                const settings = JSON.parse(localStorage.getItem("settings")) || {};
+                const dateFormat = settings.alert_date_format || "mm-dd-yyyy"; // Default: MM-DD-YYYY
+                const timeFormat = settings.alert_time_format || "12hr-with-seconds"; // Default: 12-hour with seconds
+        
+                // Format date
+                let formattedDate;
+                switch (dateFormat) {
+                    case "dd-mm-yyyy":
+                        formattedDate = `${day}-${month}-${year}`;
+                        break;
+                    case "yyyy-mm-dd":
+                        formattedDate = `${year}-${month}-${day}`;
+                        break;
+                    default: // "mm-dd-yyyy"
+                        formattedDate = `${month}-${day}-${year}`;
+                        break;
+                }
+        
+                // Format time
+                let formattedTime;
+                switch (timeFormat) {
+                    case "12hr-no-seconds":
+                        formattedTime = `${hours}:${minutes} ${period}`;
+                        break;
+                    case "24hr-with-seconds":
+                        formattedTime = `${convertTo24Hour(hours, period)}:${minutes}:${seconds}`;
+                        break;
+                    case "24hr-no-seconds":
+                        formattedTime = `${convertTo24Hour(hours, period)}:${minutes}`;
+                        break;
+                    default: // "12hr-with-seconds"
+                        formattedTime = `${hours}:${minutes}:${seconds} ${period}`;
+                        break;
+                }
+        
+                // Properly formatted notification message
+                const eventText = `${newAlert.camera_title}: ${newAlert.event_type} detected on ${newAlert.location} at ${formattedDate} ${formattedTime}`;
+        
                 updateNotificationUI(true); // Update the UI and show the notification box
                 highlightDeviceCard(newAlert.camera_id); // Highlight the specific device card
+        
+                // Send Pushover notification using formatted eventText
+                fetch('/send_pushover_notification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: eventText })
+                }).catch(error => console.error('Pushover notification error:', error));
             }
-        };
+        };             
 
         window.eventSource.onerror = function (error) {
             console.error('SSE error:', error);
