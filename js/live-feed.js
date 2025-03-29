@@ -117,12 +117,21 @@ function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceId, de
 
 function createMediaContainer(videoFeedURL) {
     const mediaContainer = document.createElement("div");
-    mediaContainer.style.position = "relative";
-    mediaContainer.style.width = "100%";
-    mediaContainer.style.borderRadius = "10px";
-    mediaContainer.style.cursor = "pointer";
-
+    mediaContainer.id = "image-container";
+    
+    // Create loading animation
+    const loadingSpinner = document.createElement("div");
+    loadingSpinner.className = "loading-spinner";
+    mediaContainer.appendChild(loadingSpinner);
+    
     const mediaElement = createMediaElement(videoFeedURL);
+    mediaElement.style.display = "none"; // Initially hide media
+
+    mediaElement.onload = () => {
+        loadingSpinner.style.display = "none";
+        mediaElement.style.display = "block"; // Show media when loaded
+    };
+
     mediaContainer.appendChild(mediaElement);
     return mediaContainer;
 }
