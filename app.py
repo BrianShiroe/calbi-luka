@@ -465,8 +465,12 @@ def concatenate_videos(device_folder_path, video_files):
     # Use the name of the first video as part of the output file name
     output_file = os.path.join(device_folder_path, f"{os.path.splitext(video_files[0])[0]}_temp.mp4")
 
-    # Run FFmpeg to concatenate the videos
-    subprocess.run([ffmpeg_path, '-f', 'concat', '-safe', '0', '-i', 'file_list.txt', '-c', 'copy', output_file])
+    # Run FFmpeg to concatenate the videos, suppressing output
+    subprocess.run(
+        [ffmpeg_path, '-f', 'concat', '-safe', '0', '-i', 'file_list.txt', '-c', 'copy', output_file],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
 
     # Delete the used video files
     for video in video_files:
