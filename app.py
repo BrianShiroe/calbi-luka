@@ -11,6 +11,7 @@ import psutil
 import json
 import logging
 import pygame
+import subprocess
 import http.client, urllib
 from datetime import datetime
 from dotenv import load_dotenv
@@ -37,6 +38,7 @@ playback_path = "playback"
 load_dotenv("api.env") #load pushover api key
 APP_TOKEN = os.getenv("PUSHOVER_APP_TOKEN")
 USER_KEY = os.getenv("PUSHOVER_USER_KEY")
+ffmpeg_path = os.path.abspath("ffmpeg/ffmpeg-master-latest-win64-gpl-shared/bin/ffmpeg.exe")
 
 # General Settings variables
 performance_metrics_toggle = False
@@ -395,30 +397,50 @@ def overlay_metrics(frame, metrics, model_status_text):
     
     return frame
 
-#SECTION: Recording function that stores streams every 5 seconds
-def store_video_recording(frame, device_id, writer, width, height, frame_count):
+# SECTION: Recording function that stores streams every 5 seconds using FFmpeg
+def store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_count):
     os.makedirs(os.path.join(playback_path, device_id), exist_ok=True)
 
-    if frame_count >= 375 or writer is None:  # 375 frames = 6 seconds at 30 FPS
+    # Initialize FFmpeg writer every 6 seconds (375 frames at 30 FPS)
+    if frame_count >= 375 or writer is None:
         if writer:
-            writer.release()
+            # Close the previous FFmpeg process
+            writer.stdin.close()
 
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         video_path = os.path.join(playback_path, device_id, f"{timestamp}.mp4")
+        
+        # FFmpeg command for encoding the video stream
+        cmd = [
+            ffmpeg_path,
+            '-f', 'rawvideo',
+            '-vcodec', 'rawvideo',
+            '-pix_fmt', 'bgr24',
+            '-s', f'{width}x{height}',
+            '-r', '30',
+            '-i', '-',
+            '-c:v', 'libx264',
+            '-preset', 'ultrafast',  # Use ultrafast preset to reduce CPU usage
+            '-crf', '23',
+            '-y',
+            video_path
+        ]
+        
+        # Start FFmpeg process and redirect both stdout and stderr to subprocess.DEVNULL to suppress the output
+        writer = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        fixed_fps = 30  # Ensure fixed 30 FPS
-        writer = cv2.VideoWriter(video_path, fourcc, fixed_fps, (width, height))
         frame_count = 0  # Reset frame count for the new file
 
-    writer.write(frame)
+    # Write the frame to FFmpeg process
+    writer.stdin.write(frame.tobytes())
     frame_count += 1
+
     return writer, frame_count
 
-#SECTION: Main Streaming Function
+# SECTION: Main Streaming Function
 def generate_frames(stream_url, device_title, device_location, device_id):
     global stream_resolution, active_streams  
-    
+
     active_streams_dict[device_id] = True  
     cap = initialize_stream(get_fresh_stream(stream_url), device_title)
     if cap is None:
@@ -429,7 +451,7 @@ def generate_frames(stream_url, device_title, device_location, device_id):
     frame_count = 0
     active_streams += 1  
 
-    writer = None
+    writer = None  # Initially, no writer (FFmpeg)
     recording_start = time.time()
     
     try:
@@ -469,7 +491,7 @@ def generate_frames(stream_url, device_title, device_location, device_id):
 
             # Store recording only if playback_recording is True
             if playback_recording:
-                writer, frame_count = store_video_recording(frame, device_id, writer, width, height, frame_count)
+                writer, frame_count = store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_count)
     
     finally:
         active_streams -= 1  
@@ -478,7 +500,8 @@ def generate_frames(stream_url, device_title, device_location, device_id):
         active_streams_dict.pop(device_id, None)
 
         if writer:
-            writer.release()
+            # Close the FFmpeg process at the end
+            writer.stdin.close()
 
 # Flask Route for Video Streaming with Device Metadata
 @app.route('/stream')

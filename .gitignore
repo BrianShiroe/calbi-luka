@@ -2,3 +2,4 @@ db\luka.sqlite
 api.env
 playback/*
 records/*
+ffmpeg
