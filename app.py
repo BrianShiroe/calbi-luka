@@ -12,6 +12,7 @@ import json
 import logging
 import pygame
 import http.client, urllib
+from datetime import datetime
 from dotenv import load_dotenv
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -32,7 +33,7 @@ FLASK_PORT = 5500  # Flask serves as the main server
 DIRECTORY = "html"  # Directory to serve static files from
 DEFAULT_FILE = "home.html"
 detected_records_path = "records"
-os.makedirs(detected_records_path, exist_ok=True)
+playback_path = "playback"
 load_dotenv("api.env") #load pushover api key
 APP_TOKEN = os.getenv("PUSHOVER_APP_TOKEN")
 USER_KEY = os.getenv("PUSHOVER_USER_KEY")
@@ -44,6 +45,7 @@ metric_font_size = 8
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
 stream_frame_skip = 0  # Only process 1 out of every 2 frames (adjust as needed)
 max_frame_rate = 30
+playback_recording = False
 # Detection Settings variables
 detection_mode = False
 model_version = "car-fire-5.1.11n"
@@ -392,31 +394,45 @@ def overlay_metrics(frame, metrics, model_status_text):
     
     return frame
 
+#SECTION: Recording function that stores streams every 5 seconds
+def store_video_recording(frame, device_id, writer, fps, width, height, recording_start):
+    os.makedirs(os.path.join(playback_path, device_id), exist_ok=True)
+
+    if time.time() - recording_start >= 5 or writer is None:
+        if writer:
+            writer.release()
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        video_path = os.path.join(playback_path, device_id, f"{timestamp}.mp4")
+        
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        writer = cv2.VideoWriter(video_path, fourcc, fps, (width, height))
+        recording_start = time.time()
+    
+    writer.write(frame)
+    return writer, recording_start
+
 #SECTION: Main Streaming Function
 def generate_frames(stream_url, device_title, device_location, device_id):
     global stream_resolution, active_streams  
-
-    # Register the stream as active
+    
     active_streams_dict[device_id] = True  
-
-    # Initialize the video stream
     cap = initialize_stream(get_fresh_stream(stream_url), device_title)
     if cap is None:
         return
-
-    # Configure stream resolution
+    
     setup_stream_resolution(cap)
-
-    # Initialize performance metrics
     metrics = initialize_metrics()
     frame_count = 0
-    active_streams += 1  # Increment the active stream count
+    active_streams += 1  
 
+    writer = None
+    recording_start = time.time()
+    
     try:
-        while active_streams_dict.get(device_id, False):  # Continue streaming if the stream is active
-            frame_start_time = time.time()  # Record the start time for performance monitoring
+        while active_streams_dict.get(device_id, False):  
+            frame_start_time = time.time()  
 
-            # Read a frame from the video stream
             success, frame = cap.read()
             if not success:
                 print(f"Stream disconnected: {device_title}. Attempting to refresh URL...")
@@ -424,45 +440,42 @@ def generate_frames(stream_url, device_title, device_location, device_id):
                 cap = initialize_stream(get_fresh_stream(stream_url), device_title)
                 if cap is None:
                     print("Failed to reconnect. Stopping stream.")
-                    break  # Exit the loop if reconnection fails
+                    break  
                 setup_stream_resolution(cap)
                 continue  
 
-            # Skip frames based on the configured frame skip value
             frame_count += 1
             if stream_frame_skip > 0 and frame_count % stream_frame_skip != 0:
                 continue  
 
-            # Resize the frame if a valid resolution is set
             if stream_resolution in resolutions:
                 width, height = resolutions[stream_resolution]
                 frame = cv2.resize(frame, (width, height))
+            else:
+                height, width, _ = frame.shape  
 
-            # Process the frame (e.g., object detection, overlay text)
             frame, processing_time, model_status_text = process_frame(frame, stream_url, device_title, device_location, device_id)
-
-            # Update performance metrics
             update_metrics(metrics, frame_start_time, processing_time, active_streams)
-
-            # Overlay performance metrics onto the frame
             frame = overlay_metrics(frame, metrics, model_status_text)
-
-            # Encode the frame as JPEG
             encoded_frame = encode_frame(frame)
 
-            # Yield the encoded frame to be sent to the client
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + encoded_frame + b'\r\n')
 
-            # Maintain the configured frame rate
             enforce_frame_rate(frame_start_time)
 
+            # Store recording only if playback_recording is True
+            if playback_recording:
+                writer, recording_start = store_video_recording(frame, device_id, writer, 10, width, height, recording_start)
+    
     finally:
-        # Decrement the active stream count when the stream stops
         active_streams -= 1  
-        cap.release()  # Release the video capture object
-        cv2.destroyAllWindows()  # Close any OpenCV windows
-        active_streams_dict.pop(device_id, None)  # Remove the stream from active tracking
+        cap.release()
+        cv2.destroyAllWindows()
+        active_streams_dict.pop(device_id, None)
+
+        if writer:
+            writer.release()
 
 # Flask Route for Video Streaming with Device Metadata
 @app.route('/stream')

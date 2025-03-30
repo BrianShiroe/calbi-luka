@@ -1,26 +1,223 @@
-/* Full-Screen Video Container */
-.full-screen-video-container {
+body {
+    margin: 0;
+    padding-top: 10px;
+    padding-right: 17px;
+    background-color: #eeee;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.header img{
+    height:35px;
+}
+
+.content{ 
+    box-shadow: 0px 3px 20px rgba(0, 0, 0, 0.2);
+    padding: 22px;
+    border-radius: 20px;
+    background: #f5f5f5;
+    height: 97vh;
+}
+
+.container {
+    padding-top: 10px;
+    height: 78vh;
+    margin: 15px auto;
+}
+
+.files-sb {
+    background-color: #1d56d1cb !important;
+    box-shadow: 0 4px 8px rgba(60, 67, 196, 0.423);
+}
+
+.folder-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.folder {
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 120px;
+    cursor: pointer;
+    position: relative;
+}
+
+.folder:hover {
+    background-color: #d0d0d0;
+}
+
+.folder-name {
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+}
+
+.folder-name[contenteditable="true"] {
+    outline: none;
+    background-color: #fff;
+    padding: 2px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.add-folder {
+    background-color: #f0f0f0;
+    border: 2px dashed #ccc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    cursor: pointer;
+    width: 120px;
+    border-radius: 8px;
+}
+
+.add-folder:hover {
+    background-color: #e0e0e0;
+}
+
+.add-folder-container p {
+    font-size: 12px;
+    color: grey;
+}
+
+.add-icon {
+    font-size: 20px;
+}
+
+.kebab-menu {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+}
+
+.kebab-menu:hover {
+    color: #453cc6;
+}
+
+.menu-container {
+    position: absolute;
+    background-color: fff;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    width: 120px;
+    z-index: 1000;
+    padding: 5px;
+    background-color: #f5f5f5;
+}
+
+.menu-options p {
+    padding: 8px;
+    margin: 0;
+    cursor: pointer;
+    color: black;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.menu-options p:hover {
+    background-color: #f0f0f0;
+}
+
+.modal {
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: black;
-    display: flex;
+    background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    z-index: 10000;
 }
 
-/* Timestamp Styling */
-.timestamp {
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    width: 400px;
+    position: relative;
+}
+
+.close {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 7px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    background-color: #453cc6;
     color: white;
-    font-size: 25px;
-    font-weight: bold;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 10px;
+    border: none;
     border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #4c3d81;
+}
+
+input {
+    padding: 8px;
+    width: 80%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.sort-container {
+    position: relative;
+}
+
+.sort-button {
+    background: #1d56d1cb;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: -2px;
+    padding: 5px 10px;
+}
+
+.sort-dropdown {
+    display: none;
+    position: absolute;
+    top: 35px;
+    left: 0;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 120px;
+    z-index: 1;
+}
+
+.sort-dropdown p {
+    padding: 8px 10px;
+    margin: 0;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+.sort-dropdown p:hover {
+    background: #ddd;
+}
+
+.sort-dropdown.visible {
+    display: block;
 }

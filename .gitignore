@@ -1,2 +1,3 @@
 db\luka.sqlite
 api.env
+playback/*
