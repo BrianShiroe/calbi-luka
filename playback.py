@@ -3,6 +3,7 @@ import subprocess
 
 # Path to the folder containing the videos
 ffmpeg_path = os.path.abspath("ffmpeg/ffmpeg-master-latest-win64-gpl-shared/bin/ffmpeg.exe")
+ffplay_path = os.path.abspath("ffmpeg/ffmpeg-master-latest-win64-gpl-shared/bin/ffplay.exe")
 folder_path = "playback/37"
 
 # Get all the .mp4 video files in the folder
@@ -26,3 +27,6 @@ subprocess.run([
 os.remove("file_list.txt")
 
 print(f"Videos combined successfully into {output_file}")
+
+# Play the combined video using ffplay
+subprocess.run([ffplay_path, output_file])
