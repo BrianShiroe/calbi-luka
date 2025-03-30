@@ -27,7 +27,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 
 # Logging/Printing Function. INFO to Show all logs, ERROR to show only errors.
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.INFO)
+log.setLevel(logging.ERROR)
 
 # Configuration
 FLASK_PORT = 5500  # Flask serves as the main server
@@ -47,7 +47,7 @@ metric_font_size = 8
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
 stream_frame_skip = 0  # Only process 1 out of every 2 frames (adjust as needed)
 max_frame_rate = 30
-playback_recording = True
+playback_recording = False
 
 # Detection Settings variables
 detection_mode = False
@@ -408,7 +408,7 @@ def store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_
     video_count = len(video_files)
 
     # Initialize FFmpeg writer every 6 seconds (375 frames at 30 FPS)
-    if frame_count >= 375 or writer is None:
+    if frame_count >= 625 or writer is None:
         if writer:
             # Close the previous FFmpeg process
             writer.stdin.close()
@@ -438,7 +438,7 @@ def store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_
         frame_count = 0  # Reset frame count for the new file
 
         # Log the number of videos saved in the folder
-        print(f"Device {device_id}: {video_count + 1} videos saved.")
+        # print(f"Device {device_id}: {video_count + 1} videos saved.")
 
     # Write the frame to FFmpeg process
     writer.stdin.write(frame.tobytes())
@@ -483,7 +483,7 @@ def concatenate_videos(device_folder_path, video_files):
     final_output_file = output_file.replace('_temp', '')
     os.rename(output_file, final_output_file)
 
-    print(f"Videos concatenated successfully into {final_output_file} and the used files have been deleted.")
+    # print(f"Videos concatenated successfully into {final_output_file} and the used files have been deleted.")
 
 # SECTION: Main Streaming Function
 def generate_frames(stream_url, device_title, device_location, device_id):
@@ -508,7 +508,7 @@ def generate_frames(stream_url, device_title, device_location, device_id):
 
             success, frame = cap.read()
             if not success:
-                print(f"Stream disconnected: {device_title}. Attempting to refresh URL...")
+                # print(f"Stream disconnected: {device_title}. Attempting to refresh URL...")
                 cap.release()
                 cap = initialize_stream(get_fresh_stream(stream_url), device_title)
                 if cap is None:
@@ -901,7 +901,7 @@ def update_settings():
             models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Reload model
             for model in models:
                 model.fuse()  # Disable fusion to avoid attribute error
-            print(f"Model {model_version} loaded successfully!")
+            # print(f"Model {model_version} loaded successfully!")
         except Exception as e:
             print(f"Error loading model {model_version}: {e}")
 
