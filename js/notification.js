@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let [month, day, year] = datePart.split("-");
         year = `20${year}`;
 
-        let [hours, minutes, secondsWithPeriod] = timePart.split(".");
+        let [hours, minutes, secondsWithPeriod] = timePart.split("-");
         let seconds = secondsWithPeriod.substring(0, 2);
         let period = secondsWithPeriod.substring(2);
 

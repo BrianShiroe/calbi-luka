@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const [datePart, timePart] = detected_at.split("_");
         const [month, day, year] = datePart.split("-").map(num => parseInt(num, 10));
         let [time, meridian] = [timePart.slice(0, -2), timePart.slice(-2)];
-        let [hours, minutes] = time.split(".").map(num => parseInt(num, 10));
+        let [hours, minutes] = time.split("-").map(num => parseInt(num, 10));
         
         if (meridian === "PM" && hours !== 12) hours += 12;
         if (meridian === "AM" && hours === 12) hours = 0;

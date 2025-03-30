@@ -237,8 +237,8 @@ def save_detected_frame(frame, stream_url, detected_objects, device_title, devic
     if detected_objects and (current_time - last_record_time > delay_for_alert_and_record_logging):
         last_record_times[stream_url] = current_time
         detected_objects_str = "_".join(sorted(detected_objects)) if detected_objects else "no_object"
-        timestamp = time.strftime("%m-%d-%y_%I.%M.%S%p")
-        formatted_timestamp = time.strftime("%m-%d-%y_%I.%M.%S%p")
+        timestamp = time.strftime("%m-%d-%y_%I-%M-%S%p")
+        formatted_timestamp = time.strftime("%m-%d-%y_%I-%M-%S%p")
         
         if enable_record_logging:
             filename = os.path.join(
@@ -399,11 +399,11 @@ def overlay_metrics(frame, metrics, model_status_text):
 def store_video_recording(frame, device_id, writer, width, height, frame_count):
     os.makedirs(os.path.join(playback_path, device_id), exist_ok=True)
 
-    if frame_count >= 375 or writer is None:  # 375 frames = 5 seconds at 30 FPS
+    if frame_count >= 375 or writer is None:  # 375 frames = 6 seconds at 30 FPS
         if writer:
             writer.release()
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         video_path = os.path.join(playback_path, device_id, f"{timestamp}.mp4")
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')

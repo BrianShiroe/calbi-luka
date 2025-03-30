@@ -25,7 +25,7 @@ for _ in range(100):
         randint(0, 59),
         randint(0, 59)
     )
-    formatted_date = random_datetime.strftime('%m-%d-%y_%I.%M.%S%p')
+    formatted_date = random_datetime.strftime('%m-%d-%y_%I-%M-%S%p')
     
     # Generate other random data
     camera_id = randint(1, 10)
