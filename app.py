@@ -491,8 +491,12 @@ def generate_frames(stream_url, device_title, device_location, device_id):
 
             # Store recording only if playback_recording is True
             if playback_recording:
-                writer, frame_count = store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_count)
-    
+                try:
+                    writer, frame_count = store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_count)
+                except Exception as e:
+                    print(f"Error storing video recording for {device_id}: {e}")
+                    # Continue streaming even if the recording fails
+
     finally:
         active_streams -= 1  
         cap.release()
