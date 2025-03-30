@@ -399,7 +399,13 @@ def overlay_metrics(frame, metrics, model_status_text):
 
 # SECTION: Recording function that stores streams every 5 seconds using FFmpeg
 def store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_count):
-    os.makedirs(os.path.join(playback_path, device_id), exist_ok=True)
+    # Initialize the video folder path
+    device_folder_path = os.path.join(playback_path, device_id)
+    os.makedirs(device_folder_path, exist_ok=True)
+
+    # Count the number of video files in the folder to track how many videos are saved
+    video_files = [f for f in os.listdir(device_folder_path) if f.endswith('.mp4')]
+    video_count = len(video_files)
 
     # Initialize FFmpeg writer every 6 seconds (375 frames at 30 FPS)
     if frame_count >= 375 or writer is None:
@@ -408,7 +414,7 @@ def store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_
             writer.stdin.close()
 
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        video_path = os.path.join(playback_path, device_id, f"{timestamp}.mp4")
+        video_path = os.path.join(device_folder_path, f"{timestamp}.mp4")
         
         # FFmpeg command for encoding the video stream
         cmd = [
@@ -431,11 +437,49 @@ def store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_
 
         frame_count = 0  # Reset frame count for the new file
 
+        # Log the number of videos saved in the folder
+        print(f"Device {device_id}: {video_count + 1} videos saved.")
+
     # Write the frame to FFmpeg process
     writer.stdin.write(frame.tobytes())
     frame_count += 1
 
+    # Concatenate videos if there are at least 3 video files saved
+    if len(video_files) >= 3:
+        concatenate_videos(device_folder_path, video_files)
+
     return writer, frame_count
+
+def concatenate_videos(device_folder_path, video_files):
+    # Sort the video files by their names or other criteria
+    video_files.sort()
+
+    # Select the first 3 video files
+    video_files = video_files[:2]
+
+    # Create a temporary text file to hold the file paths for concatenation
+    with open('file_list.txt', 'w') as f:
+        for video in video_files:
+            f.write(f"file '{os.path.join(device_folder_path, video)}'\n")
+
+    # Use the name of the first video as part of the output file name
+    output_file = os.path.join(device_folder_path, f"{os.path.splitext(video_files[0])[0]}_temp.mp4")
+
+    # Run FFmpeg to concatenate the videos
+    subprocess.run([ffmpeg_path, '-f', 'concat', '-safe', '0', '-i', 'file_list.txt', '-c', 'copy', output_file])
+
+    # Delete the used video files
+    for video in video_files:
+        os.remove(os.path.join(device_folder_path, video))
+
+    # Clean up the temporary file
+    os.remove('file_list.txt')
+
+    # Remove '_temp' from the output file name and rename it
+    final_output_file = output_file.replace('_temp', '')
+    os.rename(output_file, final_output_file)
+
+    print(f"Videos concatenated successfully into {final_output_file} and the used files have been deleted.")
 
 # SECTION: Main Streaming Function
 def generate_frames(stream_url, device_title, device_location, device_id):
