@@ -45,7 +45,8 @@ metric_font_size = 8
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
 stream_frame_skip = 0  # Only process 1 out of every 2 frames (adjust as needed)
 max_frame_rate = 30
-playback_recording = False
+playback_recording = True
+
 # Detection Settings variables
 detection_mode = False
 model_version = "car-fire-5.1.11n"
@@ -395,22 +396,24 @@ def overlay_metrics(frame, metrics, model_status_text):
     return frame
 
 #SECTION: Recording function that stores streams every 5 seconds
-def store_video_recording(frame, device_id, writer, fps, width, height, recording_start):
+def store_video_recording(frame, device_id, writer, width, height, frame_count):
     os.makedirs(os.path.join(playback_path, device_id), exist_ok=True)
 
-    if time.time() - recording_start >= 5 or writer is None:
+    if frame_count >= 375 or writer is None:  # 375 frames = 5 seconds at 30 FPS
         if writer:
             writer.release()
-        
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         video_path = os.path.join(playback_path, device_id, f"{timestamp}.mp4")
-        
+
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        writer = cv2.VideoWriter(video_path, fourcc, fps, (width, height))
-        recording_start = time.time()
-    
+        fixed_fps = 30  # Ensure fixed 30 FPS
+        writer = cv2.VideoWriter(video_path, fourcc, fixed_fps, (width, height))
+        frame_count = 0  # Reset frame count for the new file
+
     writer.write(frame)
-    return writer, recording_start
+    frame_count += 1
+    return writer, frame_count
 
 #SECTION: Main Streaming Function
 def generate_frames(stream_url, device_title, device_location, device_id):
@@ -466,7 +469,7 @@ def generate_frames(stream_url, device_title, device_location, device_id):
 
             # Store recording only if playback_recording is True
             if playback_recording:
-                writer, recording_start = store_video_recording(frame, device_id, writer, 10, width, height, recording_start)
+                writer, frame_count = store_video_recording(frame, device_id, writer, width, height, frame_count)
     
     finally:
         active_streams -= 1  
