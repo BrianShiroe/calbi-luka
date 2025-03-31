@@ -13,9 +13,6 @@ import logging
 import pygame
 import subprocess
 import http.client, urllib
-import uuid
-import win32file
-import win32con
 from datetime import datetime
 from dotenv import load_dotenv
 from watchdog.observers import Observer
@@ -37,7 +34,7 @@ FLASK_PORT = 5500  # Flask serves as the main server
 DIRECTORY = "html"  # Directory to serve static files from
 DEFAULT_FILE = "home.html"
 detected_records_path = "records"
-playback_path = os.path.join(os.getcwd(), 'playback')
+playback_path = "playback"
 load_dotenv("api.env") #load pushover api key
 APP_TOKEN = os.getenv("PUSHOVER_APP_TOKEN")
 USER_KEY = os.getenv("PUSHOVER_USER_KEY")
@@ -440,6 +437,9 @@ def store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_
 
         frame_count = 0  # Reset frame count for the new file
 
+        # Log the number of videos saved in the folder
+        # print(f"Device {device_id}: {video_count + 1} videos saved.")
+
     # Write the frame to FFmpeg process
     writer.stdin.write(frame.tobytes())
     frame_count += 1
@@ -449,19 +449,6 @@ def store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_
         concatenate_videos(device_folder_path, video_files)
 
     return writer, frame_count
-
-def open_file_shared_read(filepath):
-    """Open a file in shared read mode on Windows"""
-    handle = win32file.CreateFile(
-        filepath,
-        win32con.GENERIC_READ,
-        win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE,  # Allow reading while writing
-        None,
-        win32con.OPEN_EXISTING,
-        0,
-        None
-    )
-    return handle
 
 def concatenate_videos(device_folder_path, video_files):
     # Sort the video files by their names or other criteria
@@ -504,20 +491,17 @@ def get_video(filename):
 # dynamically changing source path of ui
 @app.route('/api/videos')
 def list_videos():
-    # Prevent playback access if streams are running
-    if active_streams > 0:  
-        return jsonify([])  # Return empty list if streaming is active
-
     video_list = []
+    
     if os.path.exists(playback_path):
-        for folder in sorted(os.listdir(playback_path)):  
+        for folder in sorted(os.listdir(playback_path)):  # Sort to maintain order
             folder_path = os.path.join(playback_path, folder)
-            if os.path.isdir(folder_path):  
+            if os.path.isdir(folder_path):  # Ensure it's a folder
                 videos = sorted(
                     [f for f in os.listdir(folder_path) if f.endswith(".mp4")]
-                )  
+                )  # Sort videos alphabetically
                 if videos:
-                    video_list.append(f"../playback/{folder}/{videos[0]}")  
+                    video_list.append(f"../playback/{folder}/{videos[0]}")  # Pick first video
 
     return jsonify(video_list)
 
