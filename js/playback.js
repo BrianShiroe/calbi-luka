@@ -1,14 +1,19 @@
 document.addEventListener("DOMContentLoaded", async function () {
     try {
-        let response = await fetch("/api/videos");
-        let videoUrls = await response.json();
+        let response = await fetch("/api/concatenated_videos");
+        let devices = await response.json();
 
         let container = document.querySelector(".video-container");
         container.innerHTML = ""; // Clear existing videos
 
-        videoUrls.forEach((url) => {
+        devices.forEach(device => {
             let videoCard = document.createElement("div");
             videoCard.classList.add("video-card");
+            
+            // Add device title
+            let deviceTitle = document.createElement("h3");
+            deviceTitle.textContent = `Device: ${device.device_id}`;
+            videoCard.appendChild(deviceTitle);
 
             let videoElement = document.createElement("video");
             videoElement.style.width = "55vh";
@@ -17,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             videoElement.controls = true;
 
             let source = document.createElement("source");
-            source.src = url;
+            source.src = device.video_url;
             source.type = "video/mp4";
 
             videoElement.appendChild(source);
