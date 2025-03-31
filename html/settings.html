@@ -9,20 +9,14 @@
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/toggle.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="icon" type="image/x-icon" href="../img/logo-no-name.png">
+    <link rel="icon" type="image/x-icon" href="../img/alt-logo-no-name.png">
     <title>Settings | Luka</title>
 </head>
 <body>
-    <script>
-    // Apply sidebar state before rendering
-    let isSidebarClosed = localStorage.getItem("sidebarClosed") === "true";
-    if (isSidebarClosed) {
-        document.body.classList.add("sidebar-closed");
-    }
-    </script>
 
         <div class="sidebar" id="sidebar-container">
             <div class="logo-details">
+                <img src="../img/alt-logo.png" style="height: 70%;">
             </div>
             <ul class="nav-list">
                 <li>
@@ -39,7 +33,7 @@
                 </li>
                 <li>
                     <a href="../html/playback.html">
-                        <i class='bx bx-folder'></i>
+                        <i class='bx bx-play-circle'></i>
                         <span class="links_name">Playback</span>
                     </a>
                 </li>
@@ -65,11 +59,11 @@
             </ul>
         </div>
     <div class="content">
-        <div class="header">
-            <a href="../html/home.html">
-            <img src="../img/logo-no-name.png" alt="logoImg">
-            </a>
-        </div>
+        <header>
+            <p style="font-size: 20px; font-weight: 500; color: #5a5a5a; padding: 0 5px 10px;">
+                Settings
+            </p>
+        </header>
 
         <div class="tab-container" style="margin-top: 15px; font-size: 13px; font-weight: 400; color: #453cc6">
             <input type="radio" name="tab" id="tab1" class="tab tab--1" checked>

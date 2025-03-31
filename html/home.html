@@ -11,20 +11,15 @@
     <link rel="stylesheet" href="../css/record-log.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <title>Home | Luka</title>
-    <link rel="icon" type="image/x-icon" href="../img/logo-no-name.png">
+    <link rel="icon" type="image/x-icon" href="../img/alt-logo-no-name.png">
 </head>
 <head>
 <body>
-    <script>
-        // Apply sidebar state before rendering
-        let isSidebarClosed = localStorage.getItem("sidebarClosed") === "true";
-        if (isSidebarClosed) {
-            document.body.classList.add("sidebar-closed");
-        }
-    </script>
     <div class="sidebar" id="sidebar-container">
         <div class="logo-details">
+            <img src="../img/alt-logo.png" style="height: 70%;">
         </div>
+
         <ul class="nav-list">
             <li>
                 <a href="../html/home.html" class="home-sb">
@@ -40,7 +35,7 @@
             </li>
             <li>
                 <a href="../html/playback.html">
-                    <i class='bx bx-folder'></i>
+                    <i class='bx bx-play-circle'></i>
                     <span class="links_name">Playback</span>
                 </a>
             </li>
@@ -67,11 +62,17 @@
     </div>
     
     <div class="content">
-        <div class="header">
+        <!-- <div class="header">
             <a href="../html/home.html">
                 <img src="../img/logo-no-name.png" alt="logoImg">
             </a>
-        </div>
+        </div> -->
+
+        <header>
+            <p style="font-size: 20px; font-weight: 500; color: #5a5a5a; padding: 0 5px 10px;">
+                Home
+            </p>
+        </header>
         
         <!-- Notification Section -->
         <div class="notification-section">
@@ -97,7 +98,7 @@
                 </ul>
             </div>            
         </div>
-        
+
         <!-- Tab navigation -->
         <div class="tabs">
             <div class="tab active" id="live-feed-tab" onclick="changeTab('live-feed')">

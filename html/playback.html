@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="../css/playback.css">
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
         <title>Playback | Luka</title>
-        <link rel="icon" type="image/x-icon" href="../img/logo-no-name.png">
+        <link rel="icon" type="image/x-icon" href="../img/alt-logo-no-name.png">
         
         <script>
             fetch('/auth/check')
@@ -23,19 +23,15 @@
         </script>
     </head>
 
-<body>
-    <script>
-    let isSidebarClosed = localStorage.getItem("sidebarClosed") === "true";
-    if (isSidebarClosed) {
-        document.body.classList.add("sidebar-closed");
-    }
-    </script>       
+<body>    
     <div class="sidebar" id="sidebar-container">
-        <div class="logo-details"></div>
+        <div class="logo-details">
+            <img src="../img/alt-logo.png" style="height: 70%;">
+        </div>
         <ul class="nav-list">
             <li><a href="../html/home.html" class="home-sb"><i class='bx bx-grid-alt'></i><span class='links_name'>Home</span></a></li>
             <li><a href="../html/analytics.html"><i class='bx bx-pie-chart-alt-2'></i><span class="links_name">Analytics</span></a></li>
-            <li><a href="../html/playback.html" class="files-sb"><i class='bx bx-folder' style="color: #fff !important;"></i><span class="links_name" style="color: #fff !important;">Playback</span></a></li>
+            <li><a href="../html/playback.html" class="files-sb"><i class='bx bx-play-circle' style="color: #fff !important;"></i><span class="links_name" style="color: #fff !important;">Playback</span></a></li>
             <li><a href="../html/settings.html"><i class='bx bx-cog'></i><span class="links_name">Settings</span></a></li>
             <li><a href="../html/about.html"><i class='bx bx-info-circle'></i><span class="links_name">About</span></a></li>
             <li><a class="logout" onclick="logoutUser()"><i class='bx bx-log-out' id="log_out"></i><span class="links_name">Logout</span></a></li>
@@ -43,12 +39,11 @@
     </div>    
 
     <div class="content">
-        <div class="header">
-            <a href="../html/home.html"><img src="../img/logo-no-name.png" alt="logoImg"></a>
-        </div>
-        <div class="header-title">
-            <h2>Stored Videos</h2>
-        </div>
+        <header>
+            <p style="font-size: 20px; font-weight: 500; color: #5a5a5a; padding: 0 5px 10px;">
+                Stored Videos
+            </p>
+        </header>
 
         <div class="video-container">
             <!-- Videos will be inserted here -->

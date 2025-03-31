@@ -7,10 +7,6 @@ body {
     overflow: hidden;
 }
 
-.header img{
-    height:35px;
-}
-
 /*to include/edit sa ibang pages: .content, .notification, .[name]-sb*/
 
 .content{ 
