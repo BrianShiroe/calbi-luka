@@ -29,6 +29,13 @@ document.addEventListener("DOMContentLoaded", async function () {
             videoCard.appendChild(videoElement);
             container.appendChild(videoCard);
         });
+
+        // Stop all videos when the user leaves the page
+        window.addEventListener("beforeunload", function() {
+            let videos = document.querySelectorAll("video");
+            videos.forEach(video => video.pause());
+        });
+
     } catch (error) {
         console.error("Error loading videos:", error);
     }
