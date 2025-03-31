@@ -13,6 +13,7 @@ import logging
 import pygame
 import subprocess
 import http.client, urllib
+import psutil
 from datetime import datetime
 from dotenv import load_dotenv
 from watchdog.observers import Observer
@@ -47,7 +48,7 @@ metric_font_size = 8
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
 stream_frame_skip = 0  # Only process 1 out of every 2 frames (adjust as needed)
 max_frame_rate = 30
-playback_recording = False
+playback_recording = True
 
 # Detection Settings variables
 detection_mode = False
@@ -397,109 +398,6 @@ def overlay_metrics(frame, metrics, model_status_text):
     
     return frame
 
-# SECTION: Recording function that stores streams every ~ seconds using FFmpeg
-def store_video_recording_ffmpeg(frame, device_id, writer, width, height):
-    # Define the directory to store recordings
-    device_folder_path = os.path.join(playback_path, device_id)
-    os.makedirs(device_folder_path, exist_ok=True)
-
-    # Initialize FFmpeg writer if not already running
-    if writer is None:
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        video_path = os.path.join(device_folder_path, f"{timestamp}.mp4")
-        
-        # FFmpeg command to encode and save the video stream
-        cmd = [
-            ffmpeg_path,
-            '-f', 'rawvideo',
-            '-vcodec', 'rawvideo',
-            '-pix_fmt', 'bgr24',
-            '-s', f'{width}x{height}',
-            '-r', '30',  # Frame rate
-            '-i', '-',   # Input from stdin
-            '-c:v', 'libx264',
-            '-preset', 'ultrafast',
-            '-crf', '23',
-            '-y',        # Overwrite output file if exists
-            video_path
-        ]
-        
-        # Start FFmpeg process
-        writer = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-    # Write the frame to the FFmpeg process
-    writer.stdin.write(frame.tobytes())
-
-    return writer
-
-# sending playback directories to ui
-@app.route('/playback/<device_id>/concatenated.mp4')
-def get_concatenated_video(device_id):
-    path = os.path.join(playback_path, device_id, "concatenated.mp4")
-    return send_file(path, mimetype='video/mp4', conditional=True)
-
-@app.route('/api/concatenated_videos')
-def get_concatenated_videos():
-    video_list = []
-    
-    if os.path.exists(playback_path):
-        for folder in sorted(os.listdir(playback_path)):
-            folder_path = os.path.join(playback_path, folder)
-            if os.path.isdir(folder_path):
-                try:
-                    videos = sorted(
-                        [f for f in os.listdir(folder_path) if f.endswith(".mp4") and f != "concatenated.mp4"],
-                        key=lambda x: os.path.getmtime(os.path.join(folder_path, x))
-                    )
-                    
-                    if videos:
-                        concat_file = os.path.join(folder_path, "concat_list.txt")
-                        output_file = os.path.join(folder_path, "concatenated.mp4")
-                        temp_output_file = os.path.join(folder_path, "concatenated_tmp.mp4")
-                        
-                        with open(concat_file, 'w') as f:
-                            for video in videos:
-                                f.write(f"file '{video}'\n")
-                        
-                        cmd = [
-                            ffmpeg_path,
-                            '-f', 'concat',
-                            '-safe', '0',
-                            '-i', concat_file,
-                            '-c', 'copy',
-                            temp_output_file
-                        ]
-                        
-                        try:
-                            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                            
-                            if os.path.exists(output_file):
-                                try:
-                                    os.remove(output_file)
-                                except PermissionError:
-                                    print(f"Could not remove {output_file}, file might be in use. Skipping update.")
-                                    continue
-                            
-                            os.rename(temp_output_file, output_file)
-                            
-                        except subprocess.CalledProcessError as e:
-                            print(f"FFmpeg concatenation failed: {e}")
-                            continue
-                        except Exception as e:
-                            print(f"Unexpected error during concatenation: {e}")
-                            continue
-                        
-                        video_list.append({
-                            'device_id': folder,
-                            'video_url': f"../playback/{folder}/concatenated.mp4"
-                        })
-                
-                except Exception as e:
-                    print(f"Error processing folder {folder}: {e}")
-                    continue
-
-    return jsonify(video_list)
-
 # SECTION: Main Streaming Function
 def generate_frames(stream_url, device_title, device_location, device_id):
     global stream_resolution, active_streams  
@@ -570,6 +468,118 @@ def generate_frames(stream_url, device_title, device_location, device_id):
             writer.stdin.close()
             writer.wait()
             writer = None
+
+# SECTION: Recording function that stores streams every ~ seconds using FFmpeg
+def store_video_recording_ffmpeg(frame, device_id, writer, width, height):
+    # Define the directory to store recordings
+    device_folder_path = os.path.join(playback_path, device_id)
+    os.makedirs(device_folder_path, exist_ok=True)
+
+    # Initialize FFmpeg writer if not already running
+    if writer is None:
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        video_path = os.path.join(device_folder_path, f"{timestamp}.mp4")
+        
+        # FFmpeg command to encode and save the video stream
+        cmd = [
+            ffmpeg_path,
+            '-f', 'rawvideo',
+            '-vcodec', 'rawvideo',
+            '-pix_fmt', 'bgr24',
+            '-s', f'{width}x{height}',
+            '-r', '30',  # Frame rate
+            '-i', '-',   # Input from stdin
+            '-c:v', 'libx264',
+            '-preset', 'ultrafast',
+            '-crf', '23',
+            '-y',        # Overwrite output file if exists
+            video_path
+        ]
+        
+        # Start FFmpeg process
+        writer = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    # Write the frame to the FFmpeg process
+    writer.stdin.write(frame.tobytes())
+
+    return writer
+
+# sending playback directories to ui
+@app.route('/playback/<device_id>/concatenated.mp4')
+def get_concatenated_video(device_id):
+    path = os.path.join(playback_path, device_id, "concatenated.mp4")
+    return send_file(path, mimetype='video/mp4', conditional=True)
+
+@app.route('/api/concatenated_videos')
+def get_concatenated_videos():
+    video_list = []
+    
+    if os.path.exists(playback_path):
+        for folder in sorted(os.listdir(playback_path)):
+            folder_path = os.path.join(playback_path, folder)
+            if os.path.isdir(folder_path):
+                try:
+                    videos = sorted(
+                        [f for f in os.listdir(folder_path) if f.endswith(".mp4") and f != "concatenated.mp4"],
+                        key=lambda x: os.path.getmtime(os.path.join(folder_path, x))
+                    )
+                    
+                    if videos:
+                        concat_file = os.path.join(folder_path, "concat_list.txt")
+                        output_file = os.path.join(folder_path, "concatenated.mp4")
+                        temp_output_file = os.path.join(folder_path, "concatenated_tmp.mp4")
+                        
+                        # Check if the temporary output file already exists
+                        if os.path.exists(temp_output_file):
+                            try:
+                                # Try to remove the file if it's still being used
+                                os.remove(temp_output_file)
+                            except PermissionError:
+                                print(f"Could not remove {temp_output_file}, file might be in use. Skipping concatenation.")
+                                continue  # Skip this folder and move to the next
+
+                        with open(concat_file, 'w') as f:
+                            for video in videos:
+                                f.write(f"file '{video}'\n")
+                        
+                        cmd = [
+                            ffmpeg_path,
+                            '-f', 'concat',
+                            '-safe', '0',
+                            '-i', concat_file,
+                            '-c', 'copy',
+                            temp_output_file
+                        ]
+                        
+                        try:
+                            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                            
+                            if os.path.exists(output_file):
+                                try:
+                                    os.remove(output_file)
+                                except PermissionError:
+                                    print(f"Could not remove {output_file}, file might be in use. Skipping update.")
+                                    continue
+                            
+                            os.rename(temp_output_file, output_file)
+                            
+                        except subprocess.CalledProcessError as e:
+                            print(f"FFmpeg concatenation failed: {e}")
+                            continue
+                        except Exception as e:
+                            print(f"Unexpected error during concatenation: {e}")
+                            continue
+                        
+                        video_list.append({
+                            'device_id': folder,
+                            'video_url': f"../playback/{folder}/concatenated.mp4"
+                        })
+                
+                except Exception as e:
+                    print(f"Error processing folder {folder}: {e}")
+                    continue
+
+    return jsonify(video_list)
 
 # Flask Route for Video Streaming with Device Metadata
 @app.route('/stream')

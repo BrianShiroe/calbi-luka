@@ -29,6 +29,17 @@ document.addEventListener("DOMContentLoaded", async function () {
             videoCard.appendChild(videoElement);
             container.appendChild(videoCard);
         });
+
+        // Stop all videos and processing when the user leaves the page
+        window.addEventListener("beforeunload", function() {
+            let videos = document.querySelectorAll("video");
+            videos.forEach(video => {
+                video.pause();   // Pause the video
+                video.src = "";  // Remove the video source to stop fetching
+                video.load();    // Reset the video and stop processing
+            });
+        });
+
     } catch (error) {
         console.error("Error loading videos:", error);
     }
