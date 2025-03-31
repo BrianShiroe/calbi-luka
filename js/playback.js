@@ -30,10 +30,14 @@ document.addEventListener("DOMContentLoaded", async function () {
             container.appendChild(videoCard);
         });
 
-        // Stop all videos when the user leaves the page
+        // Stop all videos and processing when the user leaves the page
         window.addEventListener("beforeunload", function() {
             let videos = document.querySelectorAll("video");
-            videos.forEach(video => video.pause());
+            videos.forEach(video => {
+                video.pause();   // Pause the video
+                video.src = "";  // Remove the video source to stop fetching
+                video.load();    // Reset the video and stop processing
+            });
         });
 
     } catch (error) {

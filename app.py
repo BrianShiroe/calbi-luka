@@ -13,6 +13,7 @@ import logging
 import pygame
 import subprocess
 import http.client, urllib
+import psutil
 from datetime import datetime
 from dotenv import load_dotenv
 from watchdog.observers import Observer
@@ -47,7 +48,7 @@ metric_font_size = 8
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
 stream_frame_skip = 0  # Only process 1 out of every 2 frames (adjust as needed)
 max_frame_rate = 30
-playback_recording = False
+playback_recording = True
 
 # Detection Settings variables
 detection_mode = False
@@ -528,6 +529,15 @@ def get_concatenated_videos():
                         output_file = os.path.join(folder_path, "concatenated.mp4")
                         temp_output_file = os.path.join(folder_path, "concatenated_tmp.mp4")
                         
+                        # Check if the temporary output file already exists
+                        if os.path.exists(temp_output_file):
+                            try:
+                                # Try to remove the file if it's still being used
+                                os.remove(temp_output_file)
+                            except PermissionError:
+                                print(f"Could not remove {temp_output_file}, file might be in use. Skipping concatenation.")
+                                continue  # Skip this folder and move to the next
+
                         with open(concat_file, 'w') as f:
                             for video in videos:
                                 f.write(f"file '{video}'\n")
