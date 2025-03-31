@@ -122,8 +122,39 @@
             <!-- Incident List Section -->
             <div id="incident-list" class="tab-content">
                 <div class="top-buttons">
-                    <button class="export" id="export-current"><i class='bx bxs-spreadsheet'></i> Export Current Page</button>
-                    <button class="export" id="export-whole"><i class='bx bxs-spreadsheet'></i> Export Whole Table</button>
+                    <div>
+                        <i class='bx bx-search' style="color: #6d6d6d;"></i><input type="text" id="searchInput" placeholder="Search...">
+                    </div>
+                    
+                    <div class="export-dropdown">
+                        <button class="export-btn">
+                            <i class='bx bxs-spreadsheet'></i> Export <i class='bx bx-chevron-down'></i>
+                        </button>
+                        <div class="export-content">
+                            <button id="export-whole">Export Whole Table</button>
+                            <!-- <button id="export-selected">Export Selected Rows</button> -->
+                            <button id="export-current">Export Current Page</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-container">
+                    <i class='bx bx-filter-alt' style="color: #6d6d6d;"></i>
+                    <label for="filterType">Type:</label>
+                    <select id="filterType">
+                        <option value="">All</option>
+                        <option value="Fire">Fire</option>
+                        <option value="Flood">Flood</option>
+                        <option value="Accident">Accident</option>
+                    </select>
+                
+                    <label for="filterLocation">Location:</label>
+                    <input type="text" id="filterLocation" placeholder="Enter location...">
+                    
+                    <label for="filterDate">Date:</label>
+                    <input type="date" id="filterDate">
+                    
+                    <button id="applyFilterBtn">Apply</button>
                 </div>
                 
                 <table id="incident-table-container">
@@ -132,8 +163,8 @@
                             <th>Date</th>
                             <th>Time</th>
                             <th>Type</th>
-                            <th>camera</th>
-                            <th>Location</th>
+                            <th>Camera</th>
+                            <th>Location</i></th>
                         </tr>
                     </thead>
                     <tbody id="incident-table">
@@ -144,13 +175,25 @@
                 <!-- Pagination -->
                 <div class="pagination">
                     <button id="first-page" class="page-btn" disabled>First</button>
-                    <button id="prev-100-pages" class="page-btn" disabled>❮❮❮</button>  <!-- Previous 100 Pages -->
-                    <button id="prev-10-pages" class="page-btn" disabled>❮❮</button>  <!-- Previous 10 Pages -->
-                    <button id="prev-page" class="page-btn" disabled>❮ Prev</button>
+                    <button id="prev-100-pages" class="page-btn" disabled>
+                        <i class='bx bx-skip-previous' ></i>
+                    </button>  <!-- Previous 100 Pages -->
+                    <button id="prev-10-pages" class="page-btn" disabled>
+                        <i class='bx bx-chevrons-left' ></i>
+                    </button>  <!-- Previous 10 Pages -->
+                    <button id="prev-page" class="page-btn" disabled> 
+                        <i class='bx bxs-chevron-left' ></i> Prev
+                    </button>
                     <span id="page-info">Page 1 of 1</span>
-                    <button id="next-page" class="page-btn" disabled>Next ❯</button>
-                    <button id="next-10-pages" class="page-btn" disabled>❯❯</button> <!-- Next 10 Pages -->
-                    <button id="next-100-pages" class="page-btn" disabled>❯❯❯</button> <!-- Next 100 Pages -->
+                    <button id="next-page" class="page-btn" disabled>Next 
+                        <i class='bx bxs-chevron-right' ></i>
+                    </button>
+                    <button id="next-10-pages" class="page-btn" disabled>
+                        <i class='bx bx-chevrons-right' ></i>
+                    </button> <!-- Next 10 Pages -->
+                    <button id="next-100-pages" class="page-btn" disabled>
+                        <i class='bx bx-skip-next' ></i>
+                    </button> <!-- Next 100 Pages -->
                     <button id="last-page" class="page-btn" disabled>Last</button>
                 </div>
             </div>

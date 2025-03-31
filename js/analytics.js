@@ -481,4 +481,48 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
     setupTabs();
+
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+        let filter = this.value.toUpperCase();
+        let table = document.getElementById("incident-table");
+        let tr = table.getElementsByTagName("tr");
+        for (let i = 0; i < tr.length; i++) {
+            let tdArray = tr[i].getElementsByTagName("td");
+            let found = false;
+            for (let j = 0; j < tdArray.length; j++) {
+                if (tdArray[j] && tdArray[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    found = true;
+                    break;
+                }
+            }
+            tr[i].style.display = found ? "" : "none";
+        }
+    });
+    function toggleExportDropdown() {
+        var dropdown = document.getElementById("exportDropdown");
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+    
+    document.addEventListener("click", function(event) {
+        var dropdown = document.getElementById("exportDropdown");
+        var button = document.getElementById("exportButton");
+        if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.style.display = "none";
+        }
+    });
+    function getSelectedRows() {
+        let selected = [];
+        document.querySelectorAll('.row-checkbox:checked').forEach(checkbox => {
+            let row = checkbox.closest('tr');
+            let rowData = Array.from(row.children).slice(1).map(td => td.innerText);
+            selected.push(rowData);
+        });
+        return selected;
+    }
+
+    function deleteSelectedRows() {
+        document.querySelectorAll('.row-checkbox:checked').forEach(checkbox => {
+            checkbox.closest('tr').remove();
+        });
+    }
 });

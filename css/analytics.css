@@ -87,7 +87,7 @@ body {
     font-weight: bold;
 }
 
-.incident-summary select {
+/* .incident-summary select {
     position: absolute;
     bottom: 10px;
     right: 10px;
@@ -96,11 +96,11 @@ body {
     border: 1px solid #ccc;
     border-radius: 4px;
     cursor: pointer;
-}
+} */
 
-.incident-summary select:focus {
+/* .incident-summary select:focus {
     outline: none;
-}
+} */
 
 #timeframe{
     font-size: 10px;
@@ -128,9 +128,19 @@ body {
 } */
 
 th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    padding: 12px;
     text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: #4874d7 !important;
+    color: #fff !important;
+    cursor: pointer;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
 }
 
 .label {
@@ -154,7 +164,7 @@ tr:hover {
 
 #incident-table-container {
     min-height: 400px;
-    width: 95%;
+    width: 96%;
     border-collapse: collapse;
     table-layout: fixed; /* Ensures equal column widths */
 }
@@ -200,58 +210,148 @@ tr:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 10px;
-    gap: 10px;
+    margin-top: 20px;
+    gap: 8px;
 }
+
 .page-btn {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
+    color: #333;
+    border: 2px solid #bcbcbc;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 13px;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
+
 .page-btn:disabled {
-    background: #ccc;
+    color: #b2b2b2;
     cursor: not-allowed;
 }
-.page-btn:hover:not(:disabled) {
-    background: #0056b3;
+
+.page-btn:not(:disabled):hover {
+    background-color: #c8c8c8;
+    transform: translateY(-2px);
 }
-.page-btn:active {
-    transform: scale(1.1);
-}
+
 #page-info {
-    font-size: 16px;
-    font-weight: bold;
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
 }
 
 /* Style for the top-buttons container */
 .top-buttons {
     display: flex;
-    gap: 10px;
-}
-.export {
-    background-color: #007BFF; /* Blue background */
-    color: white;
-    font-size: 16px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer; /* Add pointer cursor */
-    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 8px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    padding: 10px 15px 5px;
+    background: #f4f4f4;
+    border-radius: 8px;
+    width: 170vh;
 }
-.export:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-    transform: scale(1.05); /* Slight scale effect on hover */
+
+#searchInput {
+    width: 86%;
+    height: 32px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 13px;
+    margin: 0 0 0 10px;
 }
+
+.export-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.export-btn {
+    padding: 8px 12px;
+    background: #4874d7 !important;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 0 0 0 70px;
+}
+
+.export-btn:hover {
+    background: #07034c;
+}
+
+.export-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 180px;
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.2);
+    border-radius: 6px;
+    z-index: 1;
+}
+
+.export-content button {
+    width: 100%;
+    padding: 10px;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.export-content button:hover {
+    background: #f1f1f1;
+}
+
+.export-dropdown:hover .export-content {
+    display: block;
+}
+  
 .export i {
     font-size: 18px; /* Set the icon size */
 }
 .export:active {
     transform: scale(0.98); /* Slight shrink effect on click */
+}
+
+.filter-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 15px;
+    background: #f8f8f8;
+    border-radius: 8px;
+}
+
+.filter-container label {
+    font-weight: 500;
+    color: #6d6d6d;
+    font-size: 12px;
+}
+
+.filter-container select,
+.filter-container input {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 10px;
+}
+
+.filter-container button {
+    background: #4874d7;
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 10px;
+    transition: background 0.3s;
+}
+
+.filter-container button:hover {
+    background: #0056b3;
 }
