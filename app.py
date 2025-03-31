@@ -13,6 +13,9 @@ import logging
 import pygame
 import subprocess
 import http.client, urllib
+import uuid
+import win32file
+import win32con
 from datetime import datetime
 from dotenv import load_dotenv
 from watchdog.observers import Observer
@@ -397,28 +400,6 @@ def overlay_metrics(frame, metrics, model_status_text):
     
     return frame
 
-# sending playback directories to ui
-@app.route('/playback/<path:filename>')
-def get_video(filename):
-    return send_from_directory(playback_path, filename)
-
-# dynamically changing source path of ui
-@app.route('/api/videos')
-def list_videos():
-    video_list = []
-    
-    if os.path.exists(playback_path):
-        for folder in sorted(os.listdir(playback_path)):  # Sort to maintain order
-            folder_path = os.path.join(playback_path, folder)
-            if os.path.isdir(folder_path):  # Ensure it's a folder
-                videos = sorted(
-                    [f for f in os.listdir(folder_path) if f.endswith(".mp4")]
-                )  # Sort videos alphabetically
-                if videos:
-                    video_list.append(f"../playback/{folder}/{videos[0]}")  # Pick first video
-
-    return jsonify(video_list)
-
 # SECTION: Recording function that stores streams every 5 seconds using FFmpeg
 def store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_count):
     # Initialize the video folder path
@@ -468,6 +449,19 @@ def store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_
         concatenate_videos(device_folder_path, video_files)
 
     return writer, frame_count
+
+def open_file_shared_read(filepath):
+    """Open a file in shared read mode on Windows"""
+    handle = win32file.CreateFile(
+        filepath,
+        win32con.GENERIC_READ,
+        win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE,  # Allow reading while writing
+        None,
+        win32con.OPEN_EXISTING,
+        0,
+        None
+    )
+    return handle
 
 def concatenate_videos(device_folder_path, video_files):
     # Sort the video files by their names or other criteria
