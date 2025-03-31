@@ -397,6 +397,28 @@ def overlay_metrics(frame, metrics, model_status_text):
     
     return frame
 
+# sending playback directories to ui
+@app.route('/playback/<path:filename>')
+def get_video(filename):
+    return send_from_directory(playback_path, filename)
+
+# dynamically changing source path of ui
+@app.route('/api/videos')
+def list_videos():
+    video_list = []
+    
+    if os.path.exists(playback_path):
+        for folder in sorted(os.listdir(playback_path)):  # Sort to maintain order
+            folder_path = os.path.join(playback_path, folder)
+            if os.path.isdir(folder_path):  # Ensure it's a folder
+                videos = sorted(
+                    [f for f in os.listdir(folder_path) if f.endswith(".mp4")]
+                )  # Sort videos alphabetically
+                if videos:
+                    video_list.append(f"../playback/{folder}/{videos[0]}")  # Pick first video
+
+    return jsonify(video_list)
+
 # SECTION: Recording function that stores streams every 5 seconds using FFmpeg
 def store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_count):
     # Initialize the video folder path
@@ -448,53 +470,37 @@ def store_video_recording_ffmpeg(frame, device_id, writer, width, height, frame_
     return writer, frame_count
 
 def concatenate_videos(device_folder_path, video_files):
-    # Sort the video files
+    # Sort the video files by their names or other criteria
     video_files.sort()
 
-    # Select the first 2 video files (ensure at least 2 are available)
-    if len(video_files) < 2:
-        print("Not enough videos to concatenate.")
-        return
-
+    # Select the first 3 video files
     video_files = video_files[:2]
 
-    file_list_path = os.path.join(device_folder_path, 'file_list.txt')
-
-    try:
-        # Create a temporary text file to hold the file paths for concatenation
-        with open(file_list_path, 'w') as f:
-            for video in video_files:
-                f.write(f"file '{os.path.join(device_folder_path, video)}'\n")
-
-        # Ensure the file was created before proceeding
-        if not os.path.exists(file_list_path):
-            raise FileNotFoundError("file_list.txt was not created successfully.")
-
-        output_file = os.path.join(device_folder_path, f"{os.path.splitext(video_files[0])[0]}_temp.mp4")
-
-        # Run FFmpeg to concatenate the videos, suppressing output
-        subprocess.run(
-            [ffmpeg_path, '-f', 'concat', '-safe', '0', '-i', file_list_path, '-c', 'copy', output_file],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
-
-        # Wait for FFmpeg to fully release the file
-        time.sleep(1)
-
-        # Delete the used video files
+    # Create a temporary text file to hold the file paths for concatenation
+    with open('file_list.txt', 'w') as f:
         for video in video_files:
-            os.remove(os.path.join(device_folder_path, video))
+            f.write(f"file '{os.path.join(device_folder_path, video)}'\n")
 
-        # Clean up the temporary file
-        os.remove(file_list_path)
+    # Use the name of the first video as part of the output file name
+    output_file = os.path.join(device_folder_path, f"{os.path.splitext(video_files[0])[0]}_temp.mp4")
 
-        # Rename the output file
-        final_output_file = output_file.replace('_temp', '')
-        os.rename(output_file, final_output_file)
+    # Run FFmpeg to concatenate the videos, suppressing output
+    subprocess.run(
+        [ffmpeg_path, '-f', 'concat', '-safe', '0', '-i', 'file_list.txt', '-c', 'copy', output_file],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
 
-    except Exception as e:
-        print(f"Error during video concatenation: {e}")
+    # Delete the used video files
+    for video in video_files:
+        os.remove(os.path.join(device_folder_path, video))
+
+    # Clean up the temporary file
+    os.remove('file_list.txt')
+
+    # Remove '_temp' from the output file name and rename it
+    final_output_file = output_file.replace('_temp', '')
+    os.rename(output_file, final_output_file)
 
 # sending playback directories to ui
 @app.route('/playback/<path:filename>')
@@ -504,17 +510,20 @@ def get_video(filename):
 # dynamically changing source path of ui
 @app.route('/api/videos')
 def list_videos():
+    # Prevent playback access if streams are running
+    if active_streams > 0:  
+        return jsonify([])  # Return empty list if streaming is active
+
     video_list = []
-    
     if os.path.exists(playback_path):
-        for folder in sorted(os.listdir(playback_path)):  # Sort to maintain order
+        for folder in sorted(os.listdir(playback_path)):  
             folder_path = os.path.join(playback_path, folder)
-            if os.path.isdir(folder_path):  # Ensure it's a folder
+            if os.path.isdir(folder_path):  
                 videos = sorted(
                     [f for f in os.listdir(folder_path) if f.endswith(".mp4")]
-                )  # Sort videos alphabetically
+                )  
                 if videos:
-                    video_list.append(f"../playback/{folder}/{videos[0]}")  # Pick first video
+                    video_list.append(f"../playback/{folder}/{videos[0]}")  
 
     return jsonify(video_list)
 
