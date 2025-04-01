@@ -56,13 +56,13 @@ model_version = "car-fire-5.1.11n"
 show_bounding_box = False
 show_confidence_value = False
 confidence_level = 0.7
-enable_alert = True
+enable_alert = False
 enable_mobile_alert = False
-enable_record_logging = True
+enable_record_logging = False
 delay_for_alert_and_record_logging = 20
 
 # Alert sound variables
-alert_sound = True
+alert_sound = False
 alert_duration = 2.5  # Duration in seconds
 alert_volume = 30  # Volume percentage (0 to 100)
 alert_sound_name = "red_alert"
@@ -79,6 +79,7 @@ setting_vars = {
     "stream_resolution": "stream_resolution",
     "stream_frame_skip": "stream_frame_skip",
     "max_frame_rate": "max_frame_rate",
+    "playback_recording": "playback_recording",
     
     # Model
     "detection_mode": "detection_mode",
@@ -420,7 +421,7 @@ def store_video_recording_ffmpeg(frame, device_id, writer, width, height):
             "-r", "30",  # Adjust FPS if needed
             "-i", "-",
             "-c:v", "libx264",
-            "-preset", "veryfast",
+            "-preset", "medium",
             "-g", "60",
             "-f", "hls",
             "-hls_time", "5",  # Adjust segment duration
@@ -880,7 +881,7 @@ def update_alert_sound_path():
 # SECTION: Dynamic System Settings Updater with Model Reloading
 @app.route('/update_settings', methods=['POST'])
 def update_settings():
-    global detection_mode, performance_metrics_toggle, update_metric_interval, metric_font_size
+    global detection_mode, performance_metrics_toggle, update_metric_interval, metric_font_size, playback_recording
     global stream_resolution, stream_frame_skip, max_frame_rate, model_version
     global show_bounding_box, show_confidence_value, confidence_level
     global enable_alert, enable_mobile_alert, enable_record_logging, delay_for_alert_and_record_logging, models
@@ -916,7 +917,8 @@ def print_updated_settings():
     settings = [
         ("Detection Mode", detection_mode, 
          "Performance Metrics", performance_metrics_toggle, 
-         "Metric Update Interval", update_metric_interval),
+         "Metric Update Interval", update_metric_interval,
+         "Playback Recording Mode", playback_recording),
         
         ("Metric Font Size", metric_font_size, 
          "Stream Resolution", stream_resolution, 

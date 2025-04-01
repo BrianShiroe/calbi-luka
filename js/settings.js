@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const streamFrameSkipValue = document.getElementById("stream-frame-skip-value");
     const showConfidenceValueToggle = document.getElementById("toggle-confidence-value");
     const modelVersion = document.getElementById("model-version");
+    const playbackRecording = document.getElementById("toggle-playback-recording");
     // alert
     const enableAlertToggle = document.getElementById("enable-alert-toggle");
     const enableMobileAlertToggle = document.getElementById("enable-mobile-alert-toggle");
@@ -54,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
         stream_resolution: "720p",
         stream_frame_skip: 0,
         max_frame_rate: 30,
+        playback_recording: false,
         
         //model
         detection_mode: false,
@@ -102,6 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
         streamResolution.value = settings.stream_resolution;
         streamFrameSkip.value = settings.stream_frame_skip;
         streamFrameSkipValue.textContent = `${streamFrameSkip.value} frames`;
+        playbackRecording.checked = settings.playback_recording;
         //model
         detectionToggle.checked = settings.detection_mode;
         confidenceLevel.value = settings.confidence_level * 100;
@@ -138,6 +141,7 @@ document.addEventListener("DOMContentLoaded", function () {
             metric_font_size: parseInt(metricFontSize.value, 10),
             stream_resolution: streamResolution.value,
             stream_frame_skip: parseInt(streamFrameSkip.value, 10),
+            playback_recording: playbackRecording.checked,
             //model
             detection_mode: detectionToggle.checked,
             show_bounding_box: boundingBoxToggle.checked,
