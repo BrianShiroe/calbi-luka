@@ -1,46 +1,76 @@
-document.addEventListener("DOMContentLoaded", async function () {
-    try {
-        let response = await fetch("/api/concatenated_videos");
-        let devices = await response.json();
-
-        let container = document.querySelector(".video-container");
-        container.innerHTML = ""; // Clear existing videos
-
-        devices.forEach(device => {
-            let videoCard = document.createElement("div");
-            videoCard.classList.add("video-card");
-            
-            // Add device title
-            let deviceTitle = document.createElement("h3");
-            deviceTitle.textContent = `Device: ${device.device_id}`;
-            videoCard.appendChild(deviceTitle);
-
-            let videoElement = document.createElement("video");
-            videoElement.style.width = "55vh";
-            videoElement.style.height = "30vh";
-            videoElement.style.borderRadius = "8px";
-            videoElement.controls = true;
-
-            let source = document.createElement("source");
-            source.src = device.video_url;
-            source.type = "video/mp4";
-
-            videoElement.appendChild(source);
-            videoCard.appendChild(videoElement);
-            container.appendChild(videoCard);
+document.addEventListener('DOMContentLoaded', function() {
+    const videoContainer = document.querySelector('.video-container');
+    const eventSource = new EventSource('/sse');
+    
+    // Track currently displayed videos to avoid duplicates
+    const activeVideos = new Set();
+    
+    eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        updateVideoList(data.devices);
+    };
+    
+    function updateVideoList(devices) {
+        // Remove videos that are no longer available
+        Array.from(videoContainer.children).forEach(child => {
+            const deviceId = child.id.replace('container-', '');
+            if (!devices.includes(deviceId)) {
+                child.remove();
+                activeVideos.delete(deviceId);
+            }
         });
-
-        // Stop all videos and processing when the user leaves the page
-        window.addEventListener("beforeunload", function() {
-            let videos = document.querySelectorAll("video");
-            videos.forEach(video => {
-                video.pause();   // Pause the video
-                video.src = "";  // Remove the video source to stop fetching
-                video.load();    // Reset the video and stop processing
-            });
+        
+        // Add new videos
+        devices.forEach(deviceId => {
+            if (!activeVideos.has(deviceId)) {
+                activeVideos.add(deviceId);
+                createVideoPlayer(deviceId);
+            }
         });
-
-    } catch (error) {
-        console.error("Error loading videos:", error);
+    }
+    
+    function createVideoPlayer(deviceId) {
+        // Create video element
+        const videoElement = document.createElement("video");
+        videoElement.id = `video-${deviceId}`;
+        videoElement.style.width = "55vh";
+        videoElement.style.height = "30vh";
+        videoElement.style.borderRadius = "8px";
+        videoElement.style.backgroundColor = "#000";
+        videoElement.controls = true; // Enable default controls
+        videoElement.playsInline = true;
+        videoElement.preload = "none"; // Prevents autoplay and loading until manually played
+        
+        // Set up HLS playback
+        if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+            // Native HLS support (Safari)
+            videoElement.src = `/playback/${deviceId}/${deviceId}.m3u8`;
+        } else if (Hls.isSupported()) {
+            // hls.js for other browsers
+            const hls = new Hls();
+            hls.loadSource(`/playback/${deviceId}/${deviceId}.m3u8`);
+            hls.attachMedia(videoElement);
+        } else {
+            console.error('HLS not supported in this browser');
+            return;
+        }
+        
+        // Create container div for the video and its title
+        const container = document.createElement("div");
+        container.id = `container-${deviceId}`;
+        container.style.margin = "10px";
+        container.style.display = "inline-block";
+        
+        // Add device ID as title
+        const title = document.createElement("p");
+        title.textContent = deviceId;
+        title.style.margin = "5px 0";
+        title.style.textAlign = "center";
+        title.style.color = "#5a5a5a";
+        
+        // Assemble the elements
+        container.appendChild(title);
+        container.appendChild(videoElement);
+        videoContainer.appendChild(container);
     }
 });
