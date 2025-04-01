@@ -208,8 +208,8 @@ body {
     position: relative;
     background-color: #f5f5f5;
     color: #000000;
-    padding: 10px;
-    border-radius: 8px;
+    /* padding: 10px; */
+    border-radius: 10px;
     box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
@@ -221,18 +221,40 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease;
 }
 
+.device-card-texts {
+    position: absolute;
+    bottom: 0px; /* Positions text near the bottom */
+    left: 50%;
+    transform: translateX(-50%); /* Centers it horizontally */
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7); /* Enhances readability */
+    z-index: 2;
+    width: 100%;
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.3); /* Optional: Adds a semi-transparent background */
+    border-radius: 5px; /* Soft edges */
+}
+
 .device-card h3 {
     margin-top: 5px;
     cursor: pointer;
     font-size: 14px;
-    color: #313131;
+    color: white; /* Changed to white */
     text-align: center;
     transition: color 0.3s ease;
 }
 
 .device-card p {
     font-size: 12px;
-    color: rgb(41, 41, 41);
+    color: white; /* Changed to white */
+    transition: color 0.3s ease;
+}
+
+.add-device-card p {
+    font-size: 12px;
+    color: rgb(0, 0, 0); /* Changed to white */
     transition: color 0.3s ease;
 }
 
@@ -242,28 +264,28 @@ body {
     background: linear-gradient(135deg, #f0f0f0, #f7f7f7); /* Soft contrast gradient */
     color: white;
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2); /* Subtle depth */
-    transform: scale(1.02); /* Minimal scaling for a refined effect */
+    transform: scale(1.01); /* Minimal scaling for a refined effect */
     transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
 :root {
     --device-card-width: 55vh;
-    --device-card-min-height: 40vh;
+    --device-card-min-height: 30vh;
 }
 
 .small {
     --device-card-width: 40vh;
-    --device-card-min-height: 30vh;
+    --device-card-min-height: 25vh;
 }
 
 .regular {
     --device-card-width: 55vh;
-    --device-card-min-height: 40vh;
+    --device-card-min-height: 30vh;
 }
 
 .large {
-    --device-card-width: 70vh;
-    --device-card-min-height: 50vh;
+    --device-card-width: 80vh;
+    --device-card-min-height: 45vh;
 }
 
 .device-card:hover .menu-container {
@@ -273,8 +295,8 @@ body {
 #image-container {
     position: relative;
     width: 100%;
-    height: 100%;
-    border-radius: 10px;
+    height: auto;
+    border-radius: 0px;
     cursor: pointer;
     background-color: #000000;
     display: flex;
@@ -286,8 +308,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 10px;
-    display: none;
+    display: block; /* Ensure media is visible */
 }
 
 .loading-spinner {
@@ -371,9 +392,9 @@ body {
 
 .menu-options {
     position: absolute;
-    top: 25px;
+    top: 35px;
     right: 0;
-    background: white;
+    background: rgb(0, 0, 0);
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     display: none;
@@ -599,6 +620,21 @@ h2{
     border-bottom-left-radius: 10px;
 }
 
+.fullscreen .device-card-texts {
+    position: absolute;
+    bottom: 0px; /* Positions text near the bottom */
+    left: 50%;
+    transform: translateX(-50%); /* Centers it horizontally */
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    text-shadow: transparent; /* Enhances readability */
+    z-index: 2;
+    width: 100%;
+    padding: 5px;
+    background: transparent; /* Optional: Adds a semi-transparent background */
+}
+
 .fullscreen .add-device-card {
     display: none !important;
 }
@@ -628,7 +664,7 @@ h2{
 /* Highlight effect */
 .highlight {
     background-color: #d97706; /* Deep orange */
-    box-shadow: 0 0 10px 2px rgba(217, 119, 6, 0.8);
+    box-shadow: 0 0 10px 2px rgba(217, 119, 6, 0.955);
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     border-radius: 5px; /* Rounded corners */
 }

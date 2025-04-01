@@ -107,13 +107,21 @@ function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceId, de
     deviceCard.className = "device-card";
 
     const mediaContainer = createMediaContainer(videoFeedURL);
+
+    // Create a wrapper for text elements
+    const textContainer = document.createElement("div");
+    textContainer.className = "device-card-texts";
+
     const nameElement = createTextElement("h3", deviceName);
     const locationElement = createTextElement("p", `Location: ${deviceLocation}`);
+
+    textContainer.append(nameElement, locationElement);
     const menuContainer = createMenuContainer(deviceIndex, deviceId); // Pass deviceId to menu container
 
-    deviceCard.append(mediaContainer, nameElement, locationElement, menuContainer);
+    deviceCard.append(mediaContainer, textContainer, menuContainer);
     return deviceCard;
 }
+
 
 function createMediaContainer(videoFeedURL) {
     const mediaContainer = document.createElement("div");
@@ -146,7 +154,7 @@ function createMediaElement(videoFeedURL) {
     }
     mediaElement.src = videoFeedURL;
     mediaElement.style.width = "100%";
-    mediaElement.style.borderRadius = "10px";
+    mediaElement.style.borderRadius = "0px";
     mediaElement.onclick = () => openFullscreen(videoFeedURL);
     return mediaElement;
 }
