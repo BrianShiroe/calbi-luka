@@ -94,11 +94,11 @@
                         <h3 id="cameras-active">0</h3>
                     </div>
 
-                    <!-- <div class="incident-summary">
+                    <div class="incident-summary">
                         <i class='bx bx-radar'></i>
                         <p>IoT Sensors Online</p>
                         <h3 id="iot-sensors">0</h3>
-                    </div> -->
+                    </div>
 
                     <div class="incident-summary">
                         <i class='bx bxs-car-crash'></i>
@@ -106,9 +106,9 @@
                         <h3 id="incident-this-week-count">0</h3>
                     </div>
 
-                    <div class="incident-summary">
+                    <div class="incident-summary affected-area">
                         <i class='bx bx-map-pin' ></i>
-                        <p>Most Affected Area</p>
+                        <p style="font-weight:500;">Most Affected Area</p>
                         <h3 id="most-affected-location-name">--</h3>
                     </div>
                 </div>
@@ -143,9 +143,11 @@
                     <label for="filterType">Type:</label>
                     <select id="filterType">
                         <option value="">All</option>
+                        <option value="Collision">Collision</option>
                         <option value="Fire">Fire</option>
+                        <option value="Smoke">Smoke</option>
+                        <option value="Smoke">Landslide</option>
                         <option value="Flood">Flood</option>
-                        <option value="Accident">Accident</option>
                     </select>
                 
                     <label for="filterLocation">Location:</label>
