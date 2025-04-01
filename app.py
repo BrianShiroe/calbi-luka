@@ -398,77 +398,6 @@ def overlay_metrics(frame, metrics, model_status_text):
     
     return frame
 
-# SECTION: Main Streaming Function
-def generate_frames(stream_url, device_title, device_location, device_id):
-    global stream_resolution, active_streams  
-
-    active_streams_dict[device_id] = True  
-    cap = initialize_stream(get_fresh_stream(stream_url), device_title)
-    if cap is None:
-        return
-    
-    setup_stream_resolution(cap)
-    metrics = initialize_metrics()
-    frame_count = 0
-    active_streams += 1  
-
-    writer = None  # Initially, no writer (FFmpeg)
-    recording_start = time.time()
-    
-    try:
-        while active_streams_dict.get(device_id, False):  
-            frame_start_time = time.time()  
-
-            success, frame = cap.read()
-            if not success:
-                # print(f"Stream disconnected: {device_title}. Attempting to refresh URL...")
-                cap.release()
-                cap = initialize_stream(get_fresh_stream(stream_url), device_title)
-                if cap is None:
-                    print("Failed to reconnect. Stopping stream.")
-                    break  
-                setup_stream_resolution(cap)
-                continue  
-
-            frame_count += 1
-            if stream_frame_skip > 0 and frame_count % stream_frame_skip != 0:
-                continue  
-
-            if stream_resolution in resolutions:
-                width, height = resolutions[stream_resolution]
-                frame = cv2.resize(frame, (width, height))
-            else:
-                height, width, _ = frame.shape  
-
-            frame, processing_time, model_status_text = process_frame(frame, stream_url, device_title, device_location, device_id)
-            update_metrics(metrics, frame_start_time, processing_time, active_streams)
-            frame = overlay_metrics(frame, metrics, model_status_text)
-            encoded_frame = encode_frame(frame)
-
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + encoded_frame + b'\r\n')
-
-            enforce_frame_rate(frame_start_time)
-
-            # Store recording only if playback_recording is True
-            if playback_recording:
-                try:
-                    writer = store_video_recording_ffmpeg(frame, device_id, writer, width, height)
-                except Exception as e:
-                    print(f"Error storing video recording for {device_id}: {e}")
-                    # Continue streaming even if the recording fails
-
-    finally:
-        active_streams -= 1  
-        cap.release()
-        cv2.destroyAllWindows()
-        active_streams_dict.pop(device_id, None)
-
-        if writer:
-            writer.stdin.close()
-            writer.wait()
-            writer = None
-
 def store_video_recording_ffmpeg(frame, device_id, writer, width, height):
     """
     Stores video recording in small .ts segments and maintains an .m3u8 playlist.
@@ -558,6 +487,77 @@ def sse():
             time.sleep(2)
 
     return Response(generate_sse(), mimetype='text/event-stream')
+
+# SECTION: Main Streaming Function
+def generate_frames(stream_url, device_title, device_location, device_id):
+    global stream_resolution, active_streams  
+
+    active_streams_dict[device_id] = True  
+    cap = initialize_stream(get_fresh_stream(stream_url), device_title)
+    if cap is None:
+        return
+    
+    setup_stream_resolution(cap)
+    metrics = initialize_metrics()
+    frame_count = 0
+    active_streams += 1  
+
+    writer = None  # Initially, no writer (FFmpeg)
+    recording_start = time.time()
+    
+    try:
+        while active_streams_dict.get(device_id, False):  
+            frame_start_time = time.time()  
+
+            success, frame = cap.read()
+            if not success:
+                # print(f"Stream disconnected: {device_title}. Attempting to refresh URL...")
+                cap.release()
+                cap = initialize_stream(get_fresh_stream(stream_url), device_title)
+                if cap is None:
+                    print("Failed to reconnect. Stopping stream.")
+                    break  
+                setup_stream_resolution(cap)
+                continue  
+
+            frame_count += 1
+            if stream_frame_skip > 0 and frame_count % stream_frame_skip != 0:
+                continue  
+
+            if stream_resolution in resolutions:
+                width, height = resolutions[stream_resolution]
+                frame = cv2.resize(frame, (width, height))
+            else:
+                height, width, _ = frame.shape  
+
+            frame, processing_time, model_status_text = process_frame(frame, stream_url, device_title, device_location, device_id)
+            update_metrics(metrics, frame_start_time, processing_time, active_streams)
+            frame = overlay_metrics(frame, metrics, model_status_text)
+            encoded_frame = encode_frame(frame)
+
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + encoded_frame + b'\r\n')
+
+            enforce_frame_rate(frame_start_time)
+
+            # Store recording only if playback_recording is True
+            if playback_recording:
+                try:
+                    writer = store_video_recording_ffmpeg(frame, device_id, writer, width, height)
+                except Exception as e:
+                    print(f"Error storing video recording for {device_id}: {e}")
+                    # Continue streaming even if the recording fails
+
+    finally:
+        active_streams -= 1  
+        cap.release()
+        cv2.destroyAllWindows()
+        active_streams_dict.pop(device_id, None)
+
+        if writer:
+            writer.stdin.close()
+            writer.wait()
+            writer = None
 
 # Flask Route for Video Streaming with Device Metadata
 @app.route('/stream')
