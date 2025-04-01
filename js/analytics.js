@@ -181,32 +181,87 @@ document.addEventListener("DOMContentLoaded", function () {
         if (pieChart) pieChart.destroy();
     
         const hasData = data.some(value => value > 0);
-        const backgroundColors = generateColors(eventTypes.length);
-        
         const chartData = hasData ? data : [1];
         const chartLabels = hasData ? eventTypes : ["No Data"];
-        const chartColors = hasData ? backgroundColors : ["#d3d3d3"];
+        const chartColors = ["#87b6d6", "#8a93a4", "#27405e", "#4BC0C0", "#e2e4da"];
+    
+        // Determine the most frequent event
+        let maxIndex = data.indexOf(Math.max(...data));
+        let mostFrequentEvent = hasData ? eventTypes[maxIndex] : "No Data";
         
-        pieChart = new Chart(ctxPie, {
-            type: "doughnut",
-            data: { 
-                labels: chartLabels, 
-                datasets: [{ 
-                    data: chartData, 
-                    backgroundColor: chartColors, 
-                    borderColor: "#fff"
-                }] 
-            },
-            options: { 
-                cutout: "80%", 
-                responsive: true, 
-                plugins: { 
-                    legend: { position: "bottom" } 
-                } 
+        // Event images mapping
+        const eventImages = {
+            "fire": "../img/fire.png",
+            "smoke": "../img/smoke.png",
+            "collision": "../img/collision.png",
+            "landslide": "../img/landslide.png",
+            "flood": "flood.png"
+        };
+        
+        let eventImageSrc = hasData && eventImages[mostFrequentEvent] ? eventImages[mostFrequentEvent] : "default.png";
+    let eventImage = new Image();
+    eventImage.src = eventImageSrc;
+    
+    eventImage.onload = function () {
+        if (pieChart) pieChart.update(); // Force chart re-render after image loads
+    };
+    
+    pieChart = new Chart(ctxPie, {
+        type: "doughnut",
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                data: chartData,
+                backgroundColor: chartColors,
+                borderColor: "#fff"
+            }]
+        },
+        options: {
+            cutout: "90%",
+            responsive: true,
+            plugins: {
+                legend: { position: "bottom" }
             },
             animation: { duration: 0 }
-        });
-    }
+        },
+        plugins: [{
+            // Draw title, icon, and event name inside the pie chart
+            afterDraw: function(chart) {
+                let ctx = chart.ctx;
+                let width = chart.width;
+                let height = chart.height;
+
+                ctx.restore();
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+
+                // Title Position
+                let titleX = width / 2;
+                let titleY = 60;
+                ctx.font = "16px Montserrat";
+                ctx.fillStyle = "#333";
+                ctx.fillText("Most Frequent Event", titleX, titleY);
+
+                // Center position for image
+                let imgSize = 170; // Further enlarged image size
+                let imgX = (width / 2) - (imgSize / 2);
+                let imgY = (height / 3) - (imgSize / 3.5);
+                
+                // Draw event image only if fully loaded
+                if (eventImage.complete) {
+                    ctx.drawImage(eventImage, imgX, imgY, imgSize, imgSize);
+                }
+                
+                // Draw most frequent event text below image
+                ctx.font = "bold 14px Montserrat";
+                ctx.fillStyle = "#555";
+                ctx.fillText(mostFrequentEvent, width / 2, imgY + imgSize + 10);
+                
+                ctx.save();
+            }
+        }]
+    });
+}
     
     function updateIncidentTable(data) {
         incidentData = data; // Store new data
