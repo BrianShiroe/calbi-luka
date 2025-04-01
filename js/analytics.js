@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "flood": "flood.png"
         };
         
-        let eventImageSrc = hasData && eventImages[mostFrequentEvent] ? eventImages[mostFrequentEvent] : "default.png";
+    let eventImageSrc = hasData && eventImages[mostFrequentEvent] ? eventImages[mostFrequentEvent] : "default.png";
     let eventImage = new Image();
     eventImage.src = eventImageSrc;
     
@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", function () {
             plugins: {
                 legend: { position: "bottom" }
             },
-            animation: { duration: 0 }
+            animation: { duration: 800, easing: "easeInOutCubic" }
         },
         plugins: [{
             // Draw title, icon, and event name inside the pie chart
@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 ctx.fillText("Most Frequent Event", titleX, titleY);
 
                 // Center position for image
-                let imgSize = 170; // Further enlarged image size
+                let imgSize = 160
                 let imgX = (width / 2) - (imgSize / 2);
                 let imgY = (height / 3) - (imgSize / 3.5);
                 
