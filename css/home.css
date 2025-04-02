@@ -206,7 +206,7 @@ body {
     height: var(--device-card-height);
     min-height: var(--device-card-min-height);
     position: relative;
-    background-color: #f5f5f5;
+    background: rgb(41, 38, 38);
     color: #000000;
     /* padding: 10px; */
     border-radius: 10px;
@@ -221,20 +221,24 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease;
 }
 
+.add-device-card {
+    background: #f5f5f5;
+}
+
 .device-card-texts {
     position: absolute;
-    bottom: 0px; /* Positions text near the bottom */
+    bottom: 0px;
     left: 50%;
-    transform: translateX(-50%); /* Centers it horizontally */
+    transform: translateX(-50%);
     text-align: center;
     color: white;
     font-weight: bold;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7); /* Enhances readability */
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
     z-index: 2;
     width: 100%;
     padding: 5px;
-    background: rgba(0, 0, 0, 0.3); /* Optional: Adds a semi-transparent background */
-    border-radius: 5px; /* Soft edges */
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
 }
 
 .device-card h3 {
@@ -616,23 +620,21 @@ h2{
     text-align: center;
     font-size: 14px;
     padding: 3px 0;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
 }
 
 .fullscreen .device-card-texts {
     position: absolute;
-    bottom: 0px; /* Positions text near the bottom */
+    bottom: 0px;
     left: 50%;
-    transform: translateX(-50%); /* Centers it horizontally */
+    transform: translateX(-50%);
     text-align: center;
     color: white;
     font-weight: bold;
-    text-shadow: transparent; /* Enhances readability */
+    text-shadow: transparent;
     z-index: 2;
     width: 100%;
     padding: 5px;
-    background: transparent; /* Optional: Adds a semi-transparent background */
+    background: transparent;
 }
 
 .fullscreen .add-device-card {

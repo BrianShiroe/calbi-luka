@@ -106,7 +106,11 @@ function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceId, de
     const deviceCard = document.createElement("div");
     deviceCard.className = "device-card";
 
-    const mediaContainer = createMediaContainer(videoFeedURL);
+    // Create loading animation
+    const loadingSpinner = document.createElement("div");
+    loadingSpinner.className = "loading-spinner";
+
+    const mediaContainer = createMediaContainer(videoFeedURL, loadingSpinner);
 
     // Create a wrapper for text elements
     const textContainer = document.createElement("div");
@@ -118,19 +122,13 @@ function createDeviceCard(videoFeedURL, deviceName, deviceLocation, deviceId, de
     textContainer.append(nameElement, locationElement);
     const menuContainer = createMenuContainer(deviceIndex, deviceId); // Pass deviceId to menu container
 
-    deviceCard.append(mediaContainer, textContainer, menuContainer);
+    deviceCard.append(mediaContainer, textContainer, menuContainer, loadingSpinner);
     return deviceCard;
 }
 
-
-function createMediaContainer(videoFeedURL) {
+function createMediaContainer(videoFeedURL, loadingSpinner) {
     const mediaContainer = document.createElement("div");
     mediaContainer.id = "image-container";
-    
-    // Create loading animation
-    const loadingSpinner = document.createElement("div");
-    loadingSpinner.className = "loading-spinner";
-    mediaContainer.appendChild(loadingSpinner);
     
     const mediaElement = createMediaElement(videoFeedURL);
     mediaElement.style.display = "none"; // Initially hide media
