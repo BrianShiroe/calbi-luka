@@ -665,15 +665,15 @@ h2{
 /* Highlight effect */
 .highlight {
     background-color: #d97706; /* Deep orange */
-    box-shadow: 0 0 10px 2px rgba(217, 119, 6, 0.955);
+    box-shadow: 0 0 10px 4px rgba(217, 119, 6, 0.955);
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     border-radius: 5px; /* Rounded corners */
 }
 
 /* Ensure it works in fullscreen mode */
 .grid-container.fullscreen .device-card.highlight {
-    background-color: #d97706; /* Same deep orange */
-    box-shadow: 0 0 15px 4px rgba(217, 119, 6, 0.8); /* Slightly stronger glow */
+    background-color: #d97706;
+    box-shadow: 0 0 15px 4px rgba(217, 119, 6, 0.8);
     border-radius: 5px;
 }
 
