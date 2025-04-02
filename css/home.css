@@ -265,8 +265,6 @@ body {
 /* Enhanced hover effect */
 .device-card:hover, 
 .add-device-card:hover {
-    background: linear-gradient(135deg, #f0f0f0, #f7f7f7); /* Soft contrast gradient */
-    color: white;
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2); /* Subtle depth */
     transform: scale(1.01); /* Minimal scaling for a refined effect */
     transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
@@ -414,7 +412,8 @@ body {
 }
 
 .menu-options p:hover {
-    background: #f0f0f0;
+    background: #5d5d5d;
+    border-radius: 5px;
 }
 
 h2{
