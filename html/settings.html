@@ -100,18 +100,18 @@
                             <p class="sub-label">Choose what best suits your monitoring needs.</p>
                             <div class="setting">
                                 <div class="toggle">
+                                    <label class="toggle-label"> Show Performance Metrics</label>
                                     <label class="toggle-label">
                                         <input class="toggle-switch" type="checkbox" id="toggle-performance-metrics" checked>
-                                        Show Performance Metrics
                                         <span class="slider"></span>
                                     </label>
                                 </div>                                
                             </div>
                             <div class="setting">
                                 <div class="toggle">
+                                    <label class="toggle-label"> Playback Recording</label>
                                     <label class="toggle-label">
                                         <input class="toggle-switch" type="checkbox" id="toggle-playback-recording" checked>
-                                        Playback Recording
                                         <span class="slider"></span>
                                     </label>
                                 </div>  
@@ -127,6 +127,16 @@
                                 <span id="metric-font-size-value">8px</span>
                             </div>
                             <div class="setting">
+                                <label>Frame Skip</label>
+                                <input type="range" id="stream-frame-skip" min="0" max="10" value="1" oninput="document.getElementById('stream-frame-skip-value').textContent = this.value">
+                                <span id="stream-frame-skip-value">1</span>
+                            </div>
+                            <div class="setting">
+                                <label>Max Frame Rate</label>
+                                <input type="range" id="frame-rate" min="1" max="60" value="60" oninput="document.getElementById('frame-rate-value').textContent = this.value + ' FPS'">
+                                <span id="frame-rate-value">60 FPS</span>
+                            </div>
+                            <div class="setting">
                                 <label>Stream Resolution</label>
                                 <select id="stream-resolution">
                                     <option value="144p">144p</option>
@@ -139,39 +149,32 @@
                                     <option value="1080p">1080p</option>
                                 </select>
                             </div>
-                            <div class="setting">
-                                <label>Frame Skip</label>
-                                <input type="range" id="stream-frame-skip" min="0" max="10" value="1" oninput="document.getElementById('stream-frame-skip-value').textContent = this.value">
-                                <span id="stream-frame-skip-value">1</span>
-                            </div>
-                            <div class="setting">
-                                <label>Max Frame Rate</label>
-                                <input type="range" id="frame-rate" min="1" max="60" value="60" oninput="document.getElementById('frame-rate-value').textContent = this.value + ' FPS'">
-                                <span id="frame-rate-value">60 FPS</span>
-                            </div>
                         </div>
 
                         <div class="settings-group">
                             <p class="settings-main-label">Detection Settings</p>  
                             <p class="sub-label">Configure how the incident detection behaves.</p> 
                             <div class="setting">
+                                <label class="toggle-label"> Detection Mode</label>
                                 <label class="toggle-label">
                                     <input class="toggle-switch" type="checkbox" id="toggle-detection" checked>
-                                     Detection Mode
+                                     <!-- Detection Mode -->
                                     <span class="slider"></span>
                                 </label>
                             </div>
                             <div class="setting">
+                                <label class="toggle-label"> Show Bounding Box</label>
                                 <label class="toggle-label">
                                     <input class="toggle-switch" type="checkbox" id="toggle-bounding-box" checked>
-                                     Show Bounding Box
+                                     <!-- Show Bounding Box -->
                                     <span class="slider"></span>
                                 </label>
                             </div>
                             <div class="setting">
+                                <label class="toggle-label"> Show Confidence Value</label>
                                 <label class="toggle-label">
                                     <input class="toggle-switch" type="checkbox" id="toggle-confidence-value" checked>
-                                      Show Confidence Value
+                                      <!-- Show Confidence Value -->
                                     <span class="slider"></span>
                                 </label>
                             </div>  
@@ -199,18 +202,20 @@
                         
                             <!-- Enable Alert -->
                             <div class="setting">
+                                <label class="toggle-label"> Enable Alert</label>
                                 <label class="toggle-label">
                                     <input class="toggle-switch" type="checkbox" id="enable-alert-toggle" checked>
-                                    Enable Alert
+                                    <!-- Enable Alert -->
                                     <span class="slider"></span>
                                 </label>
                             </div>
 
                             <!-- Enable Mobile -->
                             <div class="setting">
+                                <label class="toggle-label"> Enable Mobile Alert</label>
                                 <label class="toggle-label">
                                     <input class="toggle-switch" type="checkbox" id="enable-mobile-alert-toggle">
-                                    Enable Mobile Alert
+                                    <!-- Enable Mobile Alert -->
                                     <span class="slider"></span>
                                 </label>
                             </div>
@@ -240,9 +245,10 @@
                         
                             <!-- Enable Record Logging -->
                             <div class="setting">
+                                <label class="toggle-label"> Enable Record Logging</label>
                                 <label class="toggle-label">
                                     <input class="toggle-switch" type="checkbox" id="enable-record-logging-toggle" checked>
-                                    Enable Record Logging
+                                    <!-- Enable Record Logging -->
                                     <span class="slider"></span>
                                 </label>
                             </div>
@@ -257,9 +263,10 @@
                         
                             <!-- Enable Alert Sound -->
                             <div class="setting">
+                                <label class="toggle-label"> Enable Alert Sound</label>
                                 <label class="toggle-label">
                                     <input class="toggle-switch" type="checkbox" id="alert-sound-toggle" checked>
-                                    Enable Alert Sound
+                                    <!-- Enable Alert Sound -->
                                     <span class="slider"></span>
                                 </label>
                             </div>
@@ -315,11 +322,11 @@
                         <!-- <p class="sub-label">Modify how your profile appears.</p> -->
                         <div class="settings-row">
                             <div class="setting">
-                                <label>Email:</label>
+                                <label id="email-header">Email:</label>
                                 <p id="email">iamemail@gmail.com</p>
                             </div>
                             <div class="setting">
-                                <label>Created On:</label>
+                                <label id="created-header">Created On:</label>
                                 <p id="created_at">2025/03/07</p>
                             </div>
                         </div>
