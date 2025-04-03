@@ -21,6 +21,9 @@ body {
     transition: width 0.3s ease, left 0.3s ease;
     margin-left: 5px;
     margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;  /* Ensures content is spaced out */
 }
 
 /* .sidebar.closed {
@@ -84,9 +87,10 @@ body {
     line-height: 60px;
 }
 
-.sidebar .nav-list {
+.nav-list {
     margin-top: 25px;
     height: 100%;
+    flex-grow: 1; /* Allow nav-list to take up remaining space */
 }
 
 .sidebar li {
@@ -182,6 +186,6 @@ body {
     margin: 18px;
 }
 
-.logout{
-    margin-top: 40vh;
+.logout {
+    margin-top: auto; /* Push the logout button to the bottom */
 }
