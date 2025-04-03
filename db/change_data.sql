@@ -17,6 +17,3 @@ FROM alert;
 DROP TABLE alert;
 
 ALTER TABLE alert_new RENAME TO alert;
-
-UPDATE user
-SET role = 'admin';
