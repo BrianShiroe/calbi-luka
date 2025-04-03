@@ -51,9 +51,9 @@ document.addEventListener('DOMContentLoaded', function () {
         notificationCount.textContent = unresolvedCount;
         notificationCount.style.visibility = unresolvedCount > 0 ? "visible" : "hidden";
 
-        if (showBox) {
-            notificationBox.classList.add("show");
-        }
+        // if (showBox) {
+        //     notificationBox.classList.add("show");
+        // }
     }
 
     function formatDateTime(alert) {
