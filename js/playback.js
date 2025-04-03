@@ -9,34 +9,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const data = JSON.parse(event.data);
         fetch('/list_videos')
             .then(response => response.json())
-            .then(videos => updateVideoList(videos))
+            .then(videos => {
+                videos.sort((a, b) => b.device_id - a.device_id); // Sort by highest to lowest ID
+                updateVideoList(videos);
+            })
             .catch(error => console.error('Error fetching video list:', error));
     };
     
     function updateVideoList(videos) {
-        // First pass: update existing videos and remove deleted ones
-        activeVideos.forEach((videoInfo, deviceId) => {
-            const currentVideo = videos.find(v => v.device_id === deviceId);
-            if (!currentVideo) {
-                // Video was removed
-                const container = document.getElementById(`container-${videoInfo.folder_name}`);
-                if (container) container.remove();
-                activeVideos.delete(deviceId);
-            } else if (currentVideo.folder_name !== videoInfo.folder_name || 
-                      currentVideo.title !== videoInfo.title || 
-                      currentVideo.location !== videoInfo.location) {
-                // Video metadata changed - update UI
-                updateVideoPlayer(currentVideo);
-                activeVideos.set(deviceId, currentVideo);
-            }
-        });
+        // Clear container before updating
+        videoContainer.innerHTML = '';
         
-        // Second pass: add new videos
+        // First pass: update existing videos and remove deleted ones
+        activeVideos.clear();
         videos.forEach(video => {
-            if (!activeVideos.has(video.device_id)) {
-                activeVideos.set(video.device_id, video);
-                createVideoPlayer(video);
-            }
+            activeVideos.set(video.device_id, video);
+            createVideoPlayer(video);
         });
     }
     
@@ -44,12 +32,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById(`container-${videoInfo.folder_name}`);
         if (!container) return;
         
-        // Update title and location
+        // Update title
         const titleElement = container.querySelector('h3');
-        const locationElement = container.querySelector('p');
-        
-        if (titleElement) titleElement.textContent = videoInfo.title || videoInfo.device_id;
-        if (locationElement) locationElement.textContent = videoInfo.location || "Location not specified";
+        const formattedTitle = `${videoInfo.device_id} | ${videoInfo.title || 'Unknown'} | ${videoInfo.location || 'Location not specified'}`;
+        if (titleElement) titleElement.textContent = formattedTitle;
         
         // Update container ID if folder name changed
         if (container.id !== `container-${videoInfo.folder_name}`) {
@@ -84,29 +70,20 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create container div for the video and its info
         const container = document.createElement("div");
         container.id = `container-${videoInfo.folder_name}`;
-        container.style.margin = "10px";
+        container.style.margin = "5px";
         container.style.display = "inline-block";
         container.style.verticalAlign = "top";
         
         // Add device info as title
         const title = document.createElement("h3");
-        title.textContent = videoInfo.title || videoInfo.device_id;
+        title.textContent = `${videoInfo.device_id} | ${videoInfo.title || 'Unknown'} | ${videoInfo.location || 'Location not specified'}`;
         title.style.margin = "5px 0";
         title.style.textAlign = "center";
         title.style.color = "#333";
         
-        // Add location info
-        const location = document.createElement("p");
-        location.textContent = videoInfo.location || "Location not specified";
-        location.style.margin = "5px 0";
-        location.style.textAlign = "center";
-        location.style.color = "#5a5a5a";
-        location.style.fontSize = "0.9em";
-        
         // Assemble the elements
         container.appendChild(title);
-        container.appendChild(location);
         container.appendChild(videoElement);
-        videoContainer.appendChild(container);
+        videoContainer.appendChild(container); // Append at the end (highest ID first)
     }
 });

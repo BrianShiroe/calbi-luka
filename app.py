@@ -14,6 +14,7 @@ import pygame
 import subprocess
 import http.client, urllib
 import psutil
+import torch
 from datetime import datetime
 from dotenv import load_dotenv
 from watchdog.observers import Observer
@@ -101,7 +102,9 @@ setting_vars = {
 }
 
 MODEL_PATHS = [f"model/{model_version}.pt"]
-models = [YOLO(path).to('cuda') for path in MODEL_PATHS]  # Use GPU if available
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print(f"YOLO is running on: {device.upper()}")
+model = YOLO(MODEL_PATHS[0]).to(device)
 
 # constant varaibles (Do Not Touch)
 active_streams = 0
@@ -602,6 +605,7 @@ def generate_frames(stream_url, device_title, device_location, device_id):
                 # Default to output resolution if invalid setting
                 frame = cv2.resize(frame, output_resolution)
 
+            # Now only one model is used for all streams
             frame, processing_time, model_status_text = process_frame(frame, stream_url, device_title, device_location, device_id)
             update_metrics(metrics, frame_start_time, processing_time, active_streams)
             frame = overlay_metrics(frame, metrics, model_status_text)
