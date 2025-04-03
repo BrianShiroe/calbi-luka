@@ -38,6 +38,51 @@ document.addEventListener("DOMContentLoaded", function () {
         const uniqueEvents = new Set(data.map(incident => incident.event_type));
         eventTypes = Array.from(uniqueEvents);
     }
+
+    function setupTabs() {
+        const tabs = document.querySelectorAll(".tab-button");
+        const contents = document.querySelectorAll(".tab-content");
+    
+        // Retrieve the active tab from localStorage (if any)
+        let activeAnalyticsTab = localStorage.getItem('activeAnalyticsTab') || '';
+    
+        // Set the active tab from localStorage
+        if (activeAnalyticsTab) {
+            const activeTabButton = document.querySelector(`.tab-button[data-tab="${activeAnalyticsTab}"]`);
+            const targetContent = document.getElementById(activeAnalyticsTab);
+    
+            if (activeTabButton && targetContent) {
+                tabs.forEach(tab => tab.classList.remove("active"));
+                activeTabButton.classList.add("active");
+                contents.forEach(content => content.classList.remove("active"));
+                targetContent.classList.add("active");
+            }
+        } else {
+            // If no tab is saved in localStorage, set the first tab as active by default
+            if (tabs.length > 0 && contents.length > 0) {
+                tabs[0].classList.add("active");
+                contents[0].classList.add("active");
+            }
+        }
+    
+        // Event listener for each tab button
+        tabs.forEach(tab => {
+            tab.addEventListener("click", function () {
+                // Remove 'active' class from all tabs
+                tabs.forEach(t => t.classList.remove("active"));
+                this.classList.add("active");
+    
+                // Show the corresponding tab content
+                const targetContent = document.getElementById(this.dataset.tab);
+                contents.forEach(content => content.classList.remove("active"));
+                targetContent.classList.add("active");
+    
+                // Store the active tab in localStorage
+                localStorage.setItem('activeAnalyticsTab', this.dataset.tab);
+            });
+        });
+    }
+    setupTabs();
     
     function parseCustomDateTime(detected_at) {
         const [datePart, timePart] = detected_at.split("_");
@@ -125,6 +170,57 @@ document.addEventListener("DOMContentLoaded", function () {
     
         incidentThisWeekCount.textContent = thisWeekCount;
     }
+
+    // Load the persisted timeframe from localStorage when the page loads
+    function loadPersistedTimeframe() {
+        const savedTimeframe = localStorage.getItem("selectedTimeframe");
+        if (savedTimeframe) {
+            timeframeSelect.value = savedTimeframe; // Set the dropdown to the saved value
+            fetchData(savedTimeframe); // Fetch data based on the saved timeframe
+        } else {
+            // If no saved timeframe, use a default value, e.g., "weekly"
+            timeframeSelect.value = "weekly";
+            fetchData("weekly");
+        }
+    }
+
+    // Call this function when the page loads
+    loadPersistedTimeframe();
+    
+    // Function to update the Cameras Active count
+    function updateCamerasActive() {
+        const activeDeviceCount = localStorage.getItem("activeDeviceCount") || 0;
+        camerasActiveElement.textContent = activeDeviceCount;
+    }
+    // Update the Cameras Active count on page load
+    updateCamerasActive();
+    // Listen for storage changes (in case another tab updates the device count)
+    window.addEventListener("storage", updateCamerasActive);
+
+    function updateMostAffectedLocation(data) {
+        const locationCounts = {};
+    
+        data.forEach(([date, time, eventType, location]) => {
+            if (location in locationCounts) {
+                locationCounts[location]++;
+            } else {
+                locationCounts[location] = 1;
+            }
+        });
+    
+        // Determine the most affected location
+        let mostAffectedLocation = "N/A";
+        let maxCount = 0;
+    
+        for (const [location, count] of Object.entries(locationCounts)) {
+            if (count > maxCount) {
+                mostAffectedLocation = location;
+                maxCount = count;
+            }
+        }
+    
+        mostAffectedLocationName.textContent = mostAffectedLocation;
+    }
     
     function updateUI(categorizedData, timeframe) {
         incidentCount.textContent = categorizedData[timeframe].count;
@@ -173,10 +269,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
     
-    function generateColors(length) {
-        return Array.from({ length }, () => `hsl(${Math.random() * 360}, 70%, 60%)`);
-    }
-    
     function updatePieChart(data) {
         if (pieChart) pieChart.destroy();
     
@@ -185,11 +277,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const chartLabels = hasData ? eventTypes : ["No Data"];
         const chartColors = ["#87b6d6", "#8a93a4", "#27405e", "#4BC0C0", "#e2e4da"];
     
-        // Determine the most frequent event
         let maxIndex = data.indexOf(Math.max(...data));
         let mostFrequentEvent = hasData ? eventTypes[maxIndex] : "No Data";
-        
-        // Event images mapping
+    
         const eventImages = {
             "fire": "../img/fire.png",
             "smoke": "../img/smoke.png",
@@ -197,71 +287,71 @@ document.addEventListener("DOMContentLoaded", function () {
             "landslide": "../img/landslide.png",
             "flood": "flood.png"
         };
-        
-    let eventImageSrc = hasData && eventImages[mostFrequentEvent] ? eventImages[mostFrequentEvent] : "default.png";
-    let eventImage = new Image();
-    eventImage.src = eventImageSrc;
     
-    eventImage.onload = function () {
-        if (pieChart) pieChart.update(); // Force chart re-render after image loads
-    };
+        let eventImageSrc = eventImages[mostFrequentEvent] || "../img/default-obj-img.png";
+        let eventImage = new Image();
+        eventImage.src = eventImageSrc;
     
-    pieChart = new Chart(ctxPie, {
-        type: "doughnut",
-        data: {
-            labels: chartLabels,
-            datasets: [{
-                data: chartData,
-                backgroundColor: chartColors,
-                borderColor: "#fff"
-            }]
-        },
-        options: {
-            cutout: "90%",
-            responsive: true,
-            plugins: {
-                legend: { position: "bottom" }
-            },
-            animation: { duration: 800, easing: "easeInOutCubic" }
-        },
-        plugins: [{
-            // Draw title, icon, and event name inside the pie chart
-            afterDraw: function(chart) {
-                let ctx = chart.ctx;
-                let width = chart.width;
-                let height = chart.height;
-
-                ctx.restore();
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-
-                // Title Position
-                let titleX = width / 2;
-                let titleY = 60;
-                ctx.font = "16px Montserrat";
-                ctx.fillStyle = "#333";
-                ctx.fillText("Most Frequent Event", titleX, titleY);
-
-                // Center position for image
-                let imgSize = 160
-                let imgX = (width / 2) - (imgSize / 2);
-                let imgY = (height / 3) - (imgSize / 3.5);
-                
-                // Draw event image only if fully loaded
-                if (eventImage.complete) {
-                    ctx.drawImage(eventImage, imgX, imgY, imgSize, imgSize);
-                }
-                
-                // Draw most frequent event text below image
-                ctx.font = "bold 14px Montserrat";
-                ctx.fillStyle = "#555";
-                ctx.fillText(mostFrequentEvent, width / 2, imgY + imgSize + 10);
-                
-                ctx.save();
-            }
-        }]
-    });
-}
+        eventImage.onload = function () {
+            drawChart(eventImage);
+        };
+    
+        eventImage.onerror = function () {
+            eventImage.src = "../img/default-obj-img.png";
+            drawChart(eventImage);
+        };
+    
+        function drawChart(image) {
+            pieChart = new Chart(ctxPie, {
+                type: "doughnut",
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        data: chartData,
+                        backgroundColor: chartColors,
+                        borderColor: "#fff"
+                    }]
+                },
+                options: {
+                    cutout: "90%",
+                    responsive: true,
+                    plugins: {
+                        legend: { position: "bottom" }
+                    },
+                    animation: { duration: 800, easing: "easeInOutCubic" }
+                },
+                plugins: [{
+                    afterDraw: function (chart) {
+                        let ctx = chart.ctx;
+                        let width = chart.width;
+                        let height = chart.height;
+    
+                        ctx.restore();
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+    
+                        let titleX = width / 2;
+                        let titleY = 60;
+                        ctx.font = "16px Montserrat";
+                        ctx.fillStyle = "#333";
+                        ctx.fillText("Most Frequent Event", titleX, titleY);
+    
+                        let imgSize = 160;
+                        let imgX = (width / 2) - (imgSize / 2);
+                        let imgY = (height / 3) - (imgSize / 3.5);
+    
+                        ctx.drawImage(image, imgX, imgY, imgSize, imgSize);
+    
+                        ctx.font = "bold 14px Montserrat";
+                        ctx.fillStyle = "#555";
+                        ctx.fillText(mostFrequentEvent, width / 2, imgY + imgSize + 10);
+    
+                        ctx.save();
+                    }
+                }]
+            });
+        }
+    }
     
     function updateIncidentTable(data) {
         incidentData = data; // Store new data
@@ -381,57 +471,6 @@ document.addEventListener("DOMContentLoaded", function () {
         fetchData(selectedTimeframe);
     });
 
-    // Load the persisted timeframe from localStorage when the page loads
-    function loadPersistedTimeframe() {
-        const savedTimeframe = localStorage.getItem("selectedTimeframe");
-        if (savedTimeframe) {
-            timeframeSelect.value = savedTimeframe; // Set the dropdown to the saved value
-            fetchData(savedTimeframe); // Fetch data based on the saved timeframe
-        } else {
-            // If no saved timeframe, use a default value, e.g., "weekly"
-            timeframeSelect.value = "weekly";
-            fetchData("weekly");
-        }
-    }
-
-    // Call this function when the page loads
-    loadPersistedTimeframe();
-    
-    // Function to update the Cameras Active count
-    function updateCamerasActive() {
-        const activeDeviceCount = localStorage.getItem("activeDeviceCount") || 0;
-        camerasActiveElement.textContent = activeDeviceCount;
-    }
-    // Update the Cameras Active count on page load
-    updateCamerasActive();
-    // Listen for storage changes (in case another tab updates the device count)
-    window.addEventListener("storage", updateCamerasActive);
-
-    function updateMostAffectedLocation(data) {
-        const locationCounts = {};
-    
-        data.forEach(([date, time, eventType, location]) => {
-            if (location in locationCounts) {
-                locationCounts[location]++;
-            } else {
-                locationCounts[location] = 1;
-            }
-        });
-    
-        // Determine the most affected location
-        let mostAffectedLocation = "N/A";
-        let maxCount = 0;
-    
-        for (const [location, count] of Object.entries(locationCounts)) {
-            if (count > maxCount) {
-                mostAffectedLocation = location;
-                maxCount = count;
-            }
-        }
-    
-        mostAffectedLocationName.textContent = mostAffectedLocation;
-    }
-
     document.querySelector('#export-current').addEventListener('click', () => {
         exportTableToExcel(currentPageData(), `page${currentPage}_incident_data.xlsx`);
     });
@@ -491,52 +530,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return incidentData.slice(start, end); // Return rows for the current page
     }    
 
-    // container tab setup
-    function setupTabs() {
-        const tabs = document.querySelectorAll(".tab-button");
-        const contents = document.querySelectorAll(".tab-content");
-    
-        // Retrieve the active tab from localStorage (if any)
-        let activeAnalyticsTab = localStorage.getItem('activeAnalyticsTab') || '';
-    
-        // Set the active tab from localStorage
-        if (activeAnalyticsTab) {
-            const activeTabButton = document.querySelector(`.tab-button[data-tab="${activeAnalyticsTab}"]`);
-            const targetContent = document.getElementById(activeAnalyticsTab);
-    
-            if (activeTabButton && targetContent) {
-                tabs.forEach(tab => tab.classList.remove("active"));
-                activeTabButton.classList.add("active");
-                contents.forEach(content => content.classList.remove("active"));
-                targetContent.classList.add("active");
-            }
-        } else {
-            // If no tab is saved in localStorage, set the first tab as active by default
-            if (tabs.length > 0 && contents.length > 0) {
-                tabs[0].classList.add("active");
-                contents[0].classList.add("active");
-            }
-        }
-    
-        // Event listener for each tab button
-        tabs.forEach(tab => {
-            tab.addEventListener("click", function () {
-                // Remove 'active' class from all tabs
-                tabs.forEach(t => t.classList.remove("active"));
-                this.classList.add("active");
-    
-                // Show the corresponding tab content
-                const targetContent = document.getElementById(this.dataset.tab);
-                contents.forEach(content => content.classList.remove("active"));
-                targetContent.classList.add("active");
-    
-                // Store the active tab in localStorage
-                localStorage.setItem('activeAnalyticsTab', this.dataset.tab);
-            });
-        });
-    }
-    setupTabs();
-
     document.getElementById('searchInput').addEventListener('keyup', function () {
         let filter = this.value.toUpperCase();
         let table = document.getElementById("incident-table");
@@ -553,10 +546,6 @@ document.addEventListener("DOMContentLoaded", function () {
             tr[i].style.display = found ? "" : "none";
         }
     });
-    function toggleExportDropdown() {
-        var dropdown = document.getElementById("exportDropdown");
-        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-    }
     
     document.addEventListener("click", function(event) {
         var dropdown = document.getElementById("exportDropdown");
@@ -565,19 +554,4 @@ document.addEventListener("DOMContentLoaded", function () {
             dropdown.style.display = "none";
         }
     });
-    function getSelectedRows() {
-        let selected = [];
-        document.querySelectorAll('.row-checkbox:checked').forEach(checkbox => {
-            let row = checkbox.closest('tr');
-            let rowData = Array.from(row.children).slice(1).map(td => td.innerText);
-            selected.push(rowData);
-        });
-        return selected;
-    }
-
-    function deleteSelectedRows() {
-        document.querySelectorAll('.row-checkbox:checked').forEach(checkbox => {
-            checkbox.closest('tr').remove();
-        });
-    }
 });
