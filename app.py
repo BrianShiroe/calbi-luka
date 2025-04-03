@@ -46,6 +46,7 @@ performance_metrics_toggle = False
 update_metric_interval = 1
 metric_font_size = 8
 stream_resolution = "720p"  # 144p, 160p, 180p, 240p, 360p, 480p, 720p, 1080p
+output_resolution = (1280, 720)
 stream_frame_skip = 0  # Only process 1 out of every 2 frames (adjust as needed)
 max_frame_rate = 30
 playback_recording = False
@@ -313,13 +314,10 @@ def enforce_frame_rate(frame_start_time):
             time.sleep(time_to_wait)
 
 def setup_stream_resolution(cap):
-    if stream_resolution in resolutions:
-        width, height = resolutions[stream_resolution]
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-        #print(f"Stream resolution set to {stream_resolution} ({width}x{height})")
-    else:
-        print(f"Invalid resolution: {stream_resolution}. Keeping default.")
+    """Initialize the capture device with optimal settings"""
+    # We'll set to highest possible and handle scaling in processing
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
 #SECTION: Performance Metrics Tracking and Overlay for Video Streams
 def initialize_metrics():
@@ -512,7 +510,6 @@ def generate_frames(stream_url, device_title, device_location, device_id):
 
             success, frame = cap.read()
             if not success:
-                # print(f"Stream disconnected: {device_title}. Attempting to refresh URL...")
                 cap.release()
                 cap = initialize_stream(get_fresh_stream(stream_url), device_title)
                 if cap is None:
@@ -525,11 +522,19 @@ def generate_frames(stream_url, device_title, device_location, device_id):
             if stream_frame_skip > 0 and frame_count % stream_frame_skip != 0:
                 continue  
 
+            # Apply pixelation effect based on stream_resolution
             if stream_resolution in resolutions:
+                # Step 1: Downscale to target resolution
                 width, height = resolutions[stream_resolution]
-                frame = cv2.resize(frame, (width, height))
+                small_frame = cv2.resize(frame, (width, height), 
+                                        interpolation=cv2.INTER_NEAREST)
+                
+                # Step 2: Upscale back to output resolution
+                frame = cv2.resize(small_frame, output_resolution, 
+                                  interpolation=cv2.INTER_NEAREST)
             else:
-                height, width, _ = frame.shape  
+                # Default to output resolution if invalid setting
+                frame = cv2.resize(frame, output_resolution)
 
             frame, processing_time, model_status_text = process_frame(frame, stream_url, device_title, device_location, device_id)
             update_metrics(metrics, frame_start_time, processing_time, active_streams)
@@ -541,13 +546,12 @@ def generate_frames(stream_url, device_title, device_location, device_id):
 
             enforce_frame_rate(frame_start_time)
 
-            # Store recording only if playback_recording is True
             if playback_recording:
                 try:
-                    writer = store_video_recording_ffmpeg(frame, device_id, writer, width, height)
+                    writer = store_video_recording_ffmpeg(frame, device_id, writer, 
+                                                        output_resolution[0], output_resolution[1])
                 except Exception as e:
                     print(f"Error storing video recording for {device_id}: {e}")
-                    # Continue streaming even if the recording fails
 
     finally:
         active_streams -= 1  
