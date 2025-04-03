@@ -339,7 +339,7 @@ def update_metrics(metrics, frame_start_time, processing_time, active_streams):
     elapsed_time = time.time() - metrics["start_time"]
 
     fps = metrics["frame_count"] / elapsed_time if elapsed_time > 0 else 0
-    frame_rate = 1 / (frame_start_time - metrics["last_frame_time"]) if metrics["last_frame_time"] else 0
+    # frame_rate = 1 / (frame_start_time - metrics["last_frame_time"]) if metrics["last_frame_time"] else 0
     real_time_lag = time.time() - frame_start_time  
     cpu_usage = psutil.cpu_percent()  # Get current CPU usage
 
@@ -349,7 +349,7 @@ def update_metrics(metrics, frame_start_time, processing_time, active_streams):
     if time.time() - metrics["last_update_time"] > update_metric_interval:
         metrics["last_update_time"] = time.time()
         metrics["displayed_fps"] = fps
-        metrics["displayed_frame_rate"] = frame_rate
+        # metrics["displayed_frame_rate"] = frame_rate
         metrics["displayed_processing_time"] = processing_time
         metrics["displayed_real_time_lag"] = real_time_lag
         metrics["displayed_cpu_usage"] = cpu_usage  # Store CPU usage
@@ -372,7 +372,7 @@ def overlay_metrics(frame, metrics, model_status_text):
             f"Timestamp: {current_time}",
             model_status_text,
             f"FPS: {metrics['displayed_fps']:.2f}",
-            f"Frame Rate: {metrics['displayed_frame_rate']:.2f} FPS",
+            # f"Frame Rate: {metrics['displayed_frame_rate']:.2f} FPS",
             f"Processing Time: {metrics['displayed_processing_time']:.3f}s",
             f"Streaming Delay: {metrics['displayed_real_time_lag']:.3f}s",
             f"Resolution: {stream_resolution}",
@@ -397,18 +397,67 @@ def overlay_metrics(frame, metrics, model_status_text):
     
     return frame
 
-def store_video_recording_ffmpeg(frame, device_id, writer, width, height):
+def store_video_recording_ffmpeg(frame, device_id, device_title, device_location, writer, width, height):
     """
     Stores video recording in small .ts segments and maintains an .m3u8 playlist.
     Continuously appends new segments to the playlist.
+    Handles dynamic updates of title and location while keeping device_id as constant.
     """
-    device_folder_path = os.path.join(playback_path, device_id)
-    os.makedirs(device_folder_path, exist_ok=True)
+    # Find existing folder by device_id (first part of folder name)
+    existing_folder = None
+    for folder in os.listdir(playback_path):
+        if folder.startswith(f"{device_id}_"):
+            existing_folder = folder
+            break
+    
+    if existing_folder:
+        folder_name = existing_folder
+        # Update metadata if title or location changed
+        metadata_path = os.path.join(playback_path, folder_name, "metadata.json")
+        try:
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
+            
+            if metadata.get('device_title') != device_title or metadata.get('device_location') != device_location:
+                # Update metadata
+                metadata['device_title'] = device_title
+                metadata['device_location'] = device_location
+                with open(metadata_path, 'w') as f:
+                    json.dump(metadata, f)
+                
+                # Rename folder if title or location changed
+                sanitized_title = "".join(c for c in device_title if c.isalnum() or c in (' ', '_')).rstrip()
+                sanitized_location = "".join(c for c in device_location if c.isalnum() or c in (' ', '_')).rstrip()
+                new_folder_name = f"{device_id}_{sanitized_title}_{sanitized_location}"
+                
+                if new_folder_name != folder_name:
+                    old_path = os.path.join(playback_path, folder_name)
+                    new_path = os.path.join(playback_path, new_folder_name)
+                    os.rename(old_path, new_path)
+                    folder_name = new_folder_name
+        except Exception as e:
+            print(f"Error updating metadata for {device_id}: {e}")
+    else:
+        # Create new folder if doesn't exist
+        sanitized_title = "".join(c for c in device_title if c.isalnum() or c in (' ', '_')).rstrip()
+        sanitized_location = "".join(c for c in device_location if c.isalnum() or c in (' ', '_')).rstrip()
+        folder_name = f"{device_id}_{sanitized_title}_{sanitized_location}"
+        os.makedirs(os.path.join(playback_path, folder_name), exist_ok=True)
+        
+        # Save initial metadata
+        metadata_path = os.path.join(playback_path, folder_name, "metadata.json")
+        with open(metadata_path, 'w') as f:
+            json.dump({
+                'device_id': device_id,
+                'device_title': device_title,
+                'device_location': device_location
+            }, f)
 
+    device_folder_path = os.path.join(playback_path, folder_name)
     segment_filename = os.path.join(device_folder_path, f"{device_id}_%03d.ts")
     playlist_filename = os.path.join(device_folder_path, f"{device_id}.m3u8")
 
-    # Create the FFmpeg command if writer is not initialized
+    # Rest of the FFmpeg writer initialization remains the same...
     if writer is None:
         ffmpeg_cmd = [
             ffmpeg_path,
@@ -416,22 +465,22 @@ def store_video_recording_ffmpeg(frame, device_id, writer, width, height):
             "-f", "rawvideo",
             "-pix_fmt", "bgr24",
             "-s", f"{width}x{height}",
-            "-r", "30",  # Adjust FPS if needed
+            "-r", "30",
             "-i", "-",
             "-c:v", "libx264",
             "-preset", "medium",
             "-g", "60",
             "-f", "hls",
-            "-hls_time", "5",  # Adjust segment duration
+            "-hls_time", "5",
             "-hls_flags", "append_list",
             "-hls_segment_filename", segment_filename,
-            "-hls_list_size", "0",  # Keep all segments in the playlist
+            "-hls_list_size", "0",
             playlist_filename
         ]
         writer = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     
     try:
-        writer.stdin.write(frame.tobytes())  # Write the new frame to FFmpeg
+        writer.stdin.write(frame.tobytes())
     except Exception as e:
         print(f"Error writing frame to FFmpeg for {device_id}: {e}")
         writer.stdin.close()
@@ -440,12 +489,11 @@ def store_video_recording_ffmpeg(frame, device_id, writer, width, height):
     
     return writer
 
-@app.route('/playback/<device_id>/<path:filename>')
-def playback_segment(device_id, filename):
+@app.route('/playback/<folder_name>/<path:filename>')
+def playback_segment(folder_name, filename):
     """Serve HLS video segments with proper caching headers."""
-    device_folder_path = os.path.join(playback_path, device_id)
+    device_folder_path = os.path.join(playback_path, folder_name)
     response = send_from_directory(device_folder_path, filename)
-    # Set cache control for segments (important for HLS)
     if filename.endswith('.ts'):
         response.headers['Cache-Control'] = 'public, max-age=60'
     return response
@@ -454,15 +502,32 @@ def playback_segment(device_id, filename):
 def list_videos():
     """Returns a list of available video streams with metadata."""
     videos = []
-    for d in os.listdir(playback_path):
-        if os.path.isdir(os.path.join(playback_path, d)):
-            m3u8_path = os.path.join(playback_path, d, f"{d}.m3u8")
+    for folder_name in os.listdir(playback_path):
+        folder_path = os.path.join(playback_path, folder_name)
+        if os.path.isdir(folder_path):
+            m3u8_path = os.path.join(folder_path, f"{folder_name.split('_')[0]}.m3u8")
+            metadata_path = os.path.join(folder_path, "metadata.json")
+            
             if os.path.exists(m3u8_path):
-                videos.append({
-                    'id': d,
-                    'url': f'/playback/{d}/{d}.m3u8',
+                video_info = {
+                    'folder_name': folder_name,
+                    'device_id': folder_name.split('_')[0],
+                    'url': f'/playback/{folder_name}/{folder_name.split("_")[0]}.m3u8',
                     'last_modified': os.path.getmtime(m3u8_path)
-                })
+                }
+                
+                if os.path.exists(metadata_path):
+                    with open(metadata_path, 'r') as f:
+                        try:
+                            metadata = json.load(f)
+                            video_info.update({
+                                'title': metadata.get('device_title', ''),
+                                'location': metadata.get('device_location', '')
+                            })
+                        except json.JSONDecodeError:
+                            pass
+                
+                videos.append(video_info)
     return json.dumps(videos)
 
 @app.route('/sse')
@@ -473,11 +538,12 @@ def sse():
         while True:
             current_videos = []
             version = 0
-            for d in os.listdir(playback_path):
-                if os.path.isdir(os.path.join(playback_path, d)):
-                    m3u8_path = os.path.join(playback_path, d, f"{d}.m3u8")
+            for folder_name in os.listdir(playback_path):
+                folder_path = os.path.join(playback_path, folder_name)
+                if os.path.isdir(folder_path):
+                    m3u8_path = os.path.join(folder_path, f"{folder_name.split('_')[0]}.m3u8")
                     if os.path.exists(m3u8_path):
-                        current_videos.append(d)
+                        current_videos.append(folder_name)
                         version += int(os.path.getmtime(m3u8_path))
             
             if version != last_version:
@@ -548,7 +614,7 @@ def generate_frames(stream_url, device_title, device_location, device_id):
 
             if playback_recording:
                 try:
-                    writer = store_video_recording_ffmpeg(frame, device_id, writer, 
+                    writer = store_video_recording_ffmpeg(frame, device_id, device_title, device_location, writer, 
                                                         output_resolution[0], output_resolution[1])
                 except Exception as e:
                     print(f"Error storing video recording for {device_id}: {e}")
