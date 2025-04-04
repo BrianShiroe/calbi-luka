@@ -689,3 +689,7 @@ h2{
 .highlight:hover p {
     color: rgb(41, 41, 41); /* Slightly different dark gray */
 }
+
+.sub-stream{
+    margin-bottom: 10px;
+}
