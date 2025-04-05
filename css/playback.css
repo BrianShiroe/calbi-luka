@@ -43,3 +43,7 @@ body {
 .video-controls button:hover {
     transform: scale(1.2);
 }
+
+h3{
+    font-size: 15px;
+}
