@@ -111,16 +111,35 @@ body {
     outline: none;
 } */
 
-#timeframe{
-    font-size: 10px;
-    height: 10px;
-    border-width: 0px;
-    top: 6px;
-    background: #f5f5f5;
+#timeframe {
+    padding: 10px;
+    border: 1px solid #dddddd00;
+    border-radius: 6px;
+    color: #333;
+    cursor: pointer;
+    background-color: #f5f5f500;
+    font-size: 12px;
+    transition: all 0.2s ease;
 }
 
-#timeframe :hover{
-    background: #6f6a6a60;
+#timeframe:hover {
+    background-color: #f0f0f0;
+}
+
+/* Subtle focus/active style */
+#timeframe:focus,
+#timeframe:active {
+    /* border-color: #bfbfee; */
+    background-color: #f5f5f500;
+    /* box-shadow: 0 0 0 2px rgba(69, 60, 198, 0.1); */
+    outline: none;
+}
+
+/* Optional: slight visual cue when a value is selected */
+#timeframe.active {
+    /* color: #453cc6; */
+    border-color: #d4d2f5;
+    background-color: #f7f7ff;
 }
 
 /* #lineChart, #pieChart{

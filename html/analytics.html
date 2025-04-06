@@ -69,6 +69,10 @@
         <div class="tabs">
             <button class="tab-button active" data-tab="overview">Overview</button>
             <button class="tab-button" data-tab="incident-list">Incident List</button>
+            <select id="timeframe">
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+            </select>
         </div>
 
         <div class="container">
@@ -79,10 +83,6 @@
                         <i class='bx bxs-analyse'></i>
                         <p>Total Detections</p>
                         <h3 id="incident-count">0</h3>
-                        <select id="timeframe">
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                        </select>
                     </div>
 
                     <div class="incident-summary">
@@ -135,7 +135,7 @@
                     </div>
                 </div>
 
-                <div class="filter-container">
+                <!-- <div class="filter-container">
                     <i class='bx bx-filter-alt' style="color: #6d6d6d;"></i>
                     <label for="filterType">Type:</label>
                     <select id="filterType">
@@ -154,7 +154,7 @@
                     <input type="date" id="filterDate">
                     
                     <button id="applyFilterBtn">Apply</button>
-                </div>
+                </div> -->
                 
                 <table id="incident-table-container">
                     <thead>

@@ -23,8 +23,16 @@ body {
     height: 78vh;
     margin: 15px auto;
     overflow: hidden;
-    overflow-x: hidden;
     overflow-y: auto;
+    overflow-x: hidden;
+
+    /* Hide scrollbar for WebKit browsers */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.content::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
 .home-sb{
