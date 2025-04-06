@@ -1,0 +1,9 @@
+The prototyping model begins with requirement analysis. The team then iterates through design, prototyping, client evaluation, and refinement. Once the client approves the plan, development begins, followed by testing and final release.
+
+The stream algorithm operates by running a Flask server, accepting an input stream, and attempting to access that stream. If the URL is not accessible, it continuously retries until it becomes available. Once accessed, the system generates frames from the stream and sends them to the browser, where they are looped continuously until stopped.
+
+The object-detection algorithm works by running flask and checking if the toggle detection is turned on,  if no, generate the frames, then send it to the web continuesly until stopped. If detection toggle is on, turn on the model detection, then generate the frames, if the model detects an object, highlight that object before sending to the web, then continuesly loop it until stopped.
+
+The alert system works by first analyzing the generated frame. If no accident is detected, the frame is sent to the web untouched. If an accident is detected, the system captures a screenshot, sends an alert to the browser and mobile phone, highlights the frame, and then sends it to the browser. This process runs in a loop until stopped.
+
+Stream recording or playback operates by saving video frames. It begins by checking if the recording toggle is on or off. If off, video recording is stopped. If on, the system captures the generated frames and checks if the recording duration is at least 5 seconds. If not, it continues capturing frames. Once the recorded frames exceed 5 seconds, they are saved as a 5-second video chunk. The system then checks if at least two video chunks are saved. If not, the video is sent to the web for playback. If two or more chunks are saved, they are combined before being sent for playback.
