@@ -26,13 +26,6 @@ from tabulate import tabulate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
-# Try to load environment variables from .env file
-try:
-    from dotenv import load_dotenv
-    load_dotenv()  # Load environment variables from .env
-except ImportError:
-    print("Warning: 'python-dotenv' not installed. Falling back to default environment variables.")
-
 # Logging/Printing Function. INFO to Show all logs, ERROR to show only errors.
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
