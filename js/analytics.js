@@ -226,10 +226,17 @@ document.addEventListener("DOMContentLoaded", function () {
         incidentCount.textContent = categorizedData[timeframe].count;
         updateIncidentThisWeekCount(categorizedData);
         updateLineChart(categorizedData[timeframe].history, timeframe);
-        updatePieChart(categorizedData[timeframe].events);
+    
+        // Ensure pie chart data is aligned with eventTypes
+        const alignedEventData = eventTypes.map(type => {
+            return categorizedData[timeframe].table.filter(row => row[2] === type).length;
+        });
+    
+        updatePieChart(alignedEventData);
         updateIncidentTable(categorizedData[timeframe].table);
         updateMostAffectedLocation(categorizedData[timeframe].table);
     }
+    
     
     function updateLineChart(data, timeframe) {
         const labels = timeframe === "weekly" 
