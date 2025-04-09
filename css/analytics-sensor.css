@@ -30,6 +30,7 @@
 }
 
 .sensor-card {
+    color: #333;
     background: white;
     padding: 15px;
     border-radius: 8px;
@@ -161,19 +162,19 @@
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    .content {
+    /* .content {
         margin-left: 0;
         padding: 10px;
-    }
+    } */
     
     body.sidebar-closed .content {
         margin-left: 0;
     }
     
-    .tabs {
+    /* .tabs {
         overflow-x: auto;
         white-space: nowrap;
-    }
+    } */
     
     .charts-container, .sensor-charts {
         grid-template-columns: 1fr;
@@ -183,13 +184,13 @@
         grid-template-columns: 1fr 1fr;
     }
     
-    #searchInput {
+    /* #searchInput {
         width: 150px;
     }
     
     .pagination {
         flex-wrap: wrap;
-    }
+    } */
 }
 
 @media (max-width: 480px) {
@@ -197,26 +198,26 @@
         grid-template-columns: 1fr;
     }
     
-    .top-buttons {
+    /* .top-buttons {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
-    }
+    } */
     
-    #searchInput {
+    /* #searchInput {
         width: 100%;
-    }
+    } */
     
-    .export-dropdown {
+    /* .export-dropdown {
         width: 100%;
     }
     
     .export-btn {
         width: 100%;
         justify-content: center;
-    }
+    } */
     
-    .export-content {
+    /* .export-content {
         width: 100%;
-    }
+    } */
 }
