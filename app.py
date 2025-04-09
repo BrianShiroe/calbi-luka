@@ -14,6 +14,7 @@ import pygame
 import subprocess
 import http.client, urllib
 import torch
+import pkg_resources
 from datetime import datetime
 from dotenv import load_dotenv
 from watchdog.observers import Observer
@@ -124,6 +125,32 @@ resolutions = {
 
 #DONT TOUCH (TO INCLUDE)
 target_objects = {"crash", "smoke", "fire", "landslide", "flood"} #to detect objects for yolo
+
+def check_and_update_yt_dlp():
+    # Check installed version of yt-dlp
+    try:
+        installed_version = pkg_resources.get_distribution("yt-dlp").version
+    except pkg_resources.DistributionNotFound:
+        installed_version = None
+
+    # Get the latest available version of yt-dlp
+    result = subprocess.run(["pip", "search", "yt-dlp"], capture_output=True, text=True)
+    latest_version_line = [line for line in result.stdout.splitlines() if "yt-dlp" in line]
+    
+    if latest_version_line:
+        latest_version = latest_version_line[0].split()[1]
+    else:
+        latest_version = None
+
+    # Compare versions and update if necessary
+    if installed_version and installed_version != latest_version:
+        print(f"Updating yt-dlp from version {installed_version} to {latest_version}...")
+        subprocess.run(["pip", "install", "--upgrade", "yt-dlp"])
+    else:
+        print("yt-dlp is already up to date or not installed.")
+        
+# Run the function
+check_and_update_yt_dlp()
 
 #Flask App Initialization with CORS and Pygame
 app = Flask(__name__, static_folder=".") # Initialize Flask application
