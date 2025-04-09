@@ -1017,8 +1017,191 @@ def print_updated_settings():
     print("Updated Settings:\n")
     print(tabulate(settings, headers=["Setting", "Value", "Setting", "Value", "Setting", "Value"], tablefmt="grid"))
 
+#Section: Sensor Codes
+def init_sensor_db():
+    # Ensure the 'db' folder exists
+    os.makedirs("db", exist_ok=True)
+
+    # Define the database path inside the 'db' folder
+    db_path = os.path.join("db", "sensor_data.db")
+
+    sensor_db = sqlite3.connect(db_path, check_same_thread=False)
+    cursor = sensor_db.cursor()
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS SensorReadings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp INTEGER,
+            accel_x REAL,
+            accel_y REAL,
+            accel_z REAL,
+            rain_percentage REAL,
+            temperature REAL,
+            humidity REAL,
+            rainfall_mm REAL,
+            earthquake_magnitude REAL
+        )
+        """
+    )
+    sensor_db.commit()
+    return sensor_db
+
+# Initialize sensor database
+sensor_db = init_sensor_db()
+
+# Add new routes for sensor data handling
+@app.route("/sensor/data", methods=["POST"])
+def receive_sensor_data():
+    """Receive data from ESP32"""
+    try:
+        data = request.json
+        print("Received sensor data:", data)
+
+        cursor = sensor_db.cursor()
+        cursor.execute(
+            """INSERT INTO SensorReadings 
+            (timestamp, accel_x, accel_y, accel_z, rain_percentage, temperature, humidity, rainfall_mm, earthquake_magnitude) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                data["timestamp"],
+                data["accel_x"],
+                data["accel_y"],
+                data["accel_z"],
+                data["rain_percentage"],
+                data["temperature"],
+                data["humidity"],
+                data["rainfall_mm"],
+                data["earthquake_magnitude"],
+            ),
+        )
+        sensor_db.commit()
+        
+        # Check for critical conditions and trigger alerts
+        if float(data["earthquake_magnitude"]) > 3.0:  # Example threshold
+            trigger_earthquake_alert(data)
+            
+        if float(data["rainfall_mm"]) > 50.0:  # Example threshold
+            trigger_flood_alert(data)
+            
+        return jsonify({"status": "success"}), 201
+
+    except Exception as e:
+        print("Error processing sensor data:", e)
+        return jsonify({"error": str(e)}), 500
+    
+def trigger_earthquake_alert(data):
+    """Handle earthquake alert logic"""
+    magnitude = data["earthquake_magnitude"]
+    message = f"Earthquake detected! Magnitude: {magnitude}"
+    
+    # Format datetime to MM-DD-YY_HH-MM-SSAM/PM
+    detected_at = datetime.now().strftime("%m-%d-%y_%I-%M-%S%p")
+    
+    # Add to alerts database
+    with app.app_context():
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute(
+            "INSERT INTO alert (camera_id, camera_title, event_type, location, detected_at) VALUES (?, ?, ?, ?, ?)",
+            (0, "Seismic Sensor", "earthquake", "Sensor Network", detected_at)
+        )
+        db.commit()
+    
+    # Play alert sound
+    if alert_sound:
+        play_alert_sound()
+    
+    # Send mobile notification
+    if enable_mobile_alert:
+        send_pushover_notification(message)
+
+def trigger_flood_alert(data):
+    """Handle flood alert logic"""
+    rainfall = data["rainfall_mm"]
+    message = f"Heavy rainfall detected! Accumulated: {rainfall}mm"
+    
+    # Format datetime to MM-DD-YY_HH-MM-SSAM/PM
+    detected_at = datetime.now().strftime("%m-%d-%y_%I-%M-%S%p")
+    
+    # Add to alerts database
+    with app.app_context():
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute(
+            "INSERT INTO alert (camera_id, camera_title, event_type, location, detected_at) VALUES (?, ?, ?, ?, ?)",
+            (0, "Rain Sensor", "flood", "Sensor Network", detected_at)
+        )
+        db.commit()
+    
+    # Play alert sound
+    if alert_sound:
+        play_alert_sound()
+    
+    # Send mobile notification
+    if enable_mobile_alert:
+        send_pushover_notification(message)
+
+@app.route("/sensor/fetch_data", methods=["GET"])
+def fetch_sensor_data():
+    """Fetch latest sensor readings"""
+    cursor = sensor_db.cursor()
+    cursor.execute("SELECT * FROM SensorReadings ORDER BY timestamp DESC LIMIT 20")
+    results = cursor.fetchall()
+
+    data = [
+        {
+            "id": row[0],
+            "timestamp": row[1],
+            "accel_x": row[2],
+            "accel_y": row[3],
+            "accel_z": row[4],
+            "rain_percentage": row[5],
+            "temperature": row[6],
+            "humidity": row[7],
+            "rainfall_mm": row[8],
+            "earthquake_magnitude": row[9],
+        }
+        for row in results
+    ]
+    return jsonify(data)
+
+@app.route("/sensor/stats", methods=["GET"])
+def get_sensor_statistics():
+    """Fetch min, max, and average values for each sensor"""
+    cursor = sensor_db.cursor()
+    cursor.execute(
+        """
+        SELECT 
+            AVG(accel_x), MAX(accel_x), MIN(accel_x),
+            AVG(accel_y), MAX(accel_y), MIN(accel_y),
+            AVG(accel_z), MAX(accel_z), MIN(accel_z),
+            AVG(rain_percentage), MAX(rain_percentage), MIN(rain_percentage),
+            AVG(temperature), MAX(temperature), MIN(temperature),
+            AVG(humidity), MAX(humidity), MIN(humidity),
+            AVG(rainfall_mm), MAX(rainfall_mm), MIN(rainfall_mm),
+            AVG(earthquake_magnitude), MAX(earthquake_magnitude), MIN(earthquake_magnitude)
+        FROM SensorReadings
+        """
+    )
+    row = cursor.fetchone()
+    
+    stats = {
+        "accel_x": {"avg": row[0], "max": row[1], "min": row[2]},
+        "accel_y": {"avg": row[3], "max": row[4], "min": row[5]},
+        "accel_z": {"avg": row[6], "max": row[7], "min": row[8]},
+        "rain_percentage": {"avg": row[9], "max": row[10], "min": row[11]},
+        "temperature": {"avg": row[12], "max": row[13], "min": row[14]},
+        "humidity": {"avg": row[15], "max": row[16], "min": row[17]},
+        "rainfall_mm": {"avg": row[18], "max": row[19], "min": row[20]},
+        "earthquake_magnitude": {"avg": row[21], "max": row[22], "min": row[23]},
+    }
+    return jsonify(stats)
+
 # Main entry point for the application execution
 if __name__ == "__main__":
+    # Initialize sensor database
+    init_sensor_db()
+
     # Start the Flask server in a separate thread to keep the main thread available for other tasks.
     flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=FLASK_PORT, threaded=True, use_reloader=False))
     flask_thread.daemon = True  # Mark the thread as a daemon, so it will exit when the main program ends.

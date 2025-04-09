@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="../css/font.css">
     <link rel="stylesheet" href="../css/analytics.css">
+    <link rel="stylesheet" href="../css/analytics-sensor.css">
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/overview.css">
     <link rel="stylesheet" href="../css/report.css">
@@ -69,6 +70,7 @@
         <div class="tabs">
             <button class="tab-button active" data-tab="overview">Overview</button>
             <button class="tab-button" data-tab="incident-list">Incident List</button>
+            <button class="tab-button" data-tab="sensor-data">Sensor Data</button>
             <select id="timeframe">
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
@@ -162,7 +164,7 @@
                             <th>Date</th>
                             <th>Time</th>
                             <th>Type</th>
-                            <th>Camera</th>
+                            <th>Device</th>
                             <th>Location</i></th>
                         </tr>
                     </thead>
@@ -196,11 +198,97 @@
                     <button id="last-page" class="page-btn" disabled>Last</button>
                 </div>
             </div>
+
+            <!-- Sensor -->
+            <div id="sensor-data" class="tab-content">
+                <div class="sensor-header">
+                    <h2><i class='bx bx-radar'></i> Environmental Sensor Dashboard</h2>
+                    <div class="sensor-status">
+                        <span id="sensor-connection-status" class="status-offline">Offline</span>
+                        <span id="last-updated">Last updated: --</span>
+                    </div>
+                </div>
+
+                <div class="sensor-grid">
+                    <div class="sensor-card">
+                        <div class="sensor-icon temp">
+                            <i class='bx bx-thermometer'></i>
+                        </div>
+                        <div class="sensor-info">
+                            <h3>Temperature</h3>
+                            <div class="sensor-value" id="temperature-value">-- °C</div>
+                            <div class="sensor-stats">
+                                <span>Max: <span id="temp-max">--</span></span>
+                                <span>Min: <span id="temp-min">--</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sensor-card">
+                        <div class="sensor-icon humidity">
+                            <i class='bx bx-droplet'></i>
+                        </div>
+                        <div class="sensor-info">
+                            <h3>Humidity</h3>
+                            <div class="sensor-value" id="humidity-value">-- %</div>
+                            <div class="sensor-stats">
+                                <span>Max: <span id="humidity-max">--</span></span>
+                                <span>Min: <span id="humidity-min">--</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sensor-card">
+                        <div class="sensor-icon rain">
+                            <i class='bx bx-cloud-rain'></i>
+                        </div>
+                        <div class="sensor-info">
+                            <h3>Rainfall</h3>
+                            <div class="sensor-value" id="rainfall-value">-- mm</div>
+                            <div class="sensor-stats">
+                                <span>Max: <span id="rainfall-max">--</span></span>
+                                <span>Min: <span id="rainfall-min">--</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sensor-card">
+                        <div class="sensor-icon seismic">
+                            <i class='bx bx-shield-quarter'></i>
+                        </div>
+                        <div class="sensor-info">
+                            <h3>Seismic Activity</h3>
+                            <div class="sensor-value" id="seismic-value">-- M</div>
+                            <div class="sensor-stats">
+                                <span>Max: <span id="seismic-max">--</span></span>
+                                <span>Min: <span id="seismic-min">--</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sensor-charts">
+                    <div class="chart-container">
+                        <canvas id="rainfallChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="seismicChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="sensor-alerts">
+                    <h3><i class='bx bx-bell'></i> Recent Sensor Alerts</h3>
+                    <div class="alert-list" id="sensor-alert-list">
+                        <div class="no-alerts">No recent alerts</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <script src="../js/authenticate.js"></script>
     <script src="../js/sidebar.js"></script>
     <script src="../js/analytics.js"></script>
+    <script src="../js/analytics-sensor.js"></script>
     <script src="../js/event-list.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 </body>
