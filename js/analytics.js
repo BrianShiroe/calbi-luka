@@ -254,9 +254,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 datasets: [{
                     label: "Incident Count",
                     data: data,
-                    borderColor: "rgba(75, 192, 192, 1)",
-                    backgroundColor: "rgba(75, 192, 192, 0.2)",
-                    borderWidth: 2,
+                    borderColor: "rgb(141, 201, 241)",
+                    backgroundColor: "rgba(127, 198, 234, 0.2)",
+                    borderWidth: 3,
                     fill: true,
                     tension: 0.3
                 }]

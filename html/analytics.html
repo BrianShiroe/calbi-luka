@@ -69,17 +69,21 @@
         
         <div class="tabs">
             <button class="tab-button active" data-tab="overview">Overview</button>
-            <button class="tab-button" data-tab="incident-list">Incident List</button>
             <button class="tab-button" data-tab="sensor-data">Sensor Data</button>
-            <select id="timeframe">
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-            </select>
+            <button class="tab-button" data-tab="incident-list">Incident List</button>
         </div>
 
         <div class="container">
             <!-- Overview Section -->
             <div id="overview" class="tab-content active">
+                <div class="dashboard-de-header">
+                    <p><i class='bx bx-line-chart-down'></i> Overview Dashboard</p>
+                    <select id="timeframe">
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+                
                 <div class="summary-container">
                     <div class="incident-summary">
                         <i class='bx bxs-analyse'></i>
@@ -118,91 +122,10 @@
                 </div> 
             </div>
 
-            <!-- Incident List Section -->
-            <div id="incident-list" class="tab-content">
-                <div class="top-buttons">
-                    <div>
-                        <i class='bx bx-search' style="color: #6d6d6d;"></i><input type="text" id="searchInput" placeholder="Search...">
-                    </div>
-                    
-                    <div class="export-dropdown">
-                        <button class="export-btn">
-                            <i class='bx bxs-spreadsheet'></i> Export <i class='bx bx-chevron-down'></i>
-                        </button>
-                        <div class="export-content">
-                            <button id="export-whole">Export Whole Table</button>
-                            <!-- <button id="export-selected">Export Selected Rows</button> -->
-                            <button id="export-current">Export Current Page</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- <div class="filter-container">
-                    <i class='bx bx-filter-alt' style="color: #6d6d6d;"></i>
-                    <label for="filterType">Type:</label>
-                    <select id="filterType">
-                        <option value="">All</option>
-                        <option value="Collision">Collision</option>
-                        <option value="Fire">Fire</option>
-                        <option value="Smoke">Smoke</option>
-                        <option value="Smoke">Landslide</option>
-                        <option value="Flood">Flood</option>
-                    </select>
-                
-                    <label for="filterLocation">Location:</label>
-                    <input type="text" id="filterLocation" placeholder="Enter location...">
-                    
-                    <label for="filterDate">Date:</label>
-                    <input type="date" id="filterDate">
-                    
-                    <button id="applyFilterBtn">Apply</button>
-                </div> -->
-                
-                <table id="incident-table-container">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Type</th>
-                            <th>Device</th>
-                            <th>Location</i></th>
-                        </tr>
-                    </thead>
-                    <tbody id="incident-table">
-                        <tr><td colspan="4">No data available</td></tr>
-                    </tbody>
-                </table>
-
-                <!-- Pagination -->
-                <div class="pagination">
-                    <button id="first-page" class="page-btn" disabled>First</button>
-                    <button id="prev-100-pages" class="page-btn" disabled>
-                        <i class='bx bx-skip-previous' ></i>
-                    </button>  <!-- Previous 100 Pages -->
-                    <button id="prev-10-pages" class="page-btn" disabled>
-                        <i class='bx bx-chevrons-left' ></i>
-                    </button>  <!-- Previous 10 Pages -->
-                    <button id="prev-page" class="page-btn" disabled> 
-                        <i class='bx bxs-chevron-left' ></i> Prev
-                    </button>
-                    <span id="page-info">Page 1 of 1</span>
-                    <button id="next-page" class="page-btn" disabled>Next 
-                        <i class='bx bxs-chevron-right' ></i>
-                    </button>
-                    <button id="next-10-pages" class="page-btn" disabled>
-                        <i class='bx bx-chevrons-right' ></i>
-                    </button> <!-- Next 10 Pages -->
-                    <button id="next-100-pages" class="page-btn" disabled>
-                        <i class='bx bx-skip-next' ></i>
-                    </button> <!-- Next 100 Pages -->
-                    <button id="last-page" class="page-btn" disabled>Last</button>
-                </div>
-            </div>
-
             <!-- Sensor -->
             <div id="sensor-data" class="tab-content">
                 <div class="sensor-header">
-                    <h2><i class='bx bx-radar'></i> Environmental Sensor Dashboard</h2>
+                    <p style="color: #5a5a5a; font-size: 18px; font-weight: 500;"><i class='bx bx-radar'></i> Environmental Sensor Dashboard</p>
                     <div class="sensor-status">
                         <span id="sensor-connection-status" class="status-offline">Offline</span>
                         <span id="last-updated">Last updated: --</span>
@@ -267,20 +190,113 @@
                     </div>
                 </div>
 
-                <div class="sensor-charts">
+                <div class="sensor-bottom-row">
                     <div class="chart-container">
-                        <canvas id="rainfallChart"></canvas>
+                        <div class="sensor-chart-tabs">
+                            <div class="sensor-chart-buttons">
+                                <button class="sensor-chart-tab-button active" data-tab="rainfall-chart">Rainfall</button>
+                                <button class="sensor-chart-tab-button" data-tab="seismic-chart">Seismic</button>
+                            </div>
+                
+                            <div class="sensor-chart-contents">
+                                <div id="rainfall-chart" class="sensor-chart-tab active">
+                                    <canvas id="rainfallChart"></canvas>
+                                </div>
+                                <div id="seismic-chart" class="sensor-chart-tab">
+                                    <canvas id="seismicChart"></canvas>
+                                </div>
+                            </div>
+                        </div>            
+                    </div>    
+                
+                    <!-- Sensor Alerts -->
+                    <div class="sensor-alerts">
+                        <p><i class='bx bx-bell'></i> Recent Sensor Alerts</p>
+                        <div class="alert-list" id="sensor-alert-list">
+                            <div class="no-alerts">No recent alerts</div>
+                        </div>
                     </div>
-                    <div class="chart-container">
-                        <canvas id="seismicChart"></canvas>
+                </div>                
+            </div>
+
+            <!-- Incident List Section -->
+            <div id="incident-list" class="tab-content">
+                <div class="top-buttons">
+                    <div>
+                        <i class='bx bx-search' style="color: #6d6d6d;"></i><input type="text" id="searchInput" placeholder="Search...">
+                    </div>
+                    
+                    <div class="export-dropdown">
+                        <button class="export-btn">
+                            <i class='bx bxs-spreadsheet'></i> Export <i class='bx bx-chevron-down'></i>
+                        </button>
+                        <div class="export-content">
+                            <button id="export-whole">Export Whole Table</button>
+                            <!-- <button id="export-selected">Export Selected Rows</button> -->
+                            <button id="export-current">Export Current Page</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="sensor-alerts">
-                    <h3><i class='bx bx-bell'></i> Recent Sensor Alerts</h3>
-                    <div class="alert-list" id="sensor-alert-list">
-                        <div class="no-alerts">No recent alerts</div>
-                    </div>
+                <div class="filter-container">
+                    <i class='bx bx-filter-alt' style="color: #6d6d6d;"></i>
+                    <label for="filterType">Type:</label>
+                    <select id="filterType">
+                        <option value="">All</option>
+                        <option value="Collision">Collision</option>
+                        <option value="Fire">Fire</option>
+                        <option value="Smoke">Smoke</option>
+                        <option value="Landslide">Landslide</option>
+                        <option value="Flood">Flood</option>
+                    </select>
+                
+                    <label for="filterLocation">Location:</label>
+                    <input type="text" id="filterLocation" placeholder="Enter location...">
+                    
+                    <label for="filterDate">Date:</label>
+                    <input type="date" id="filterDate">
+                    
+                    <button id="applyFilterBtn">Apply</button>
+                </div>
+                
+                <table id="incident-table-container">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Device</th>
+                            <th>Location</i></th>
+                        </tr>
+                    </thead>
+                    <tbody id="incident-table">
+                        <tr><td colspan="4">No data available</td></tr>
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button id="first-page" class="page-btn" disabled>First</button>
+                    <button id="prev-100-pages" class="page-btn" disabled>
+                        <i class='bx bx-skip-previous' ></i>
+                    </button>  <!-- Previous 100 Pages -->
+                    <button id="prev-10-pages" class="page-btn" disabled>
+                        <i class='bx bx-chevrons-left' ></i>
+                    </button>  <!-- Previous 10 Pages -->
+                    <button id="prev-page" class="page-btn" disabled> 
+                        <i class='bx bxs-chevron-left' ></i> Prev
+                    </button>
+                    <span id="page-info">Page 1 of 1</span>
+                    <button id="next-page" class="page-btn" disabled>Next 
+                        <i class='bx bxs-chevron-right' ></i>
+                    </button>
+                    <button id="next-10-pages" class="page-btn" disabled>
+                        <i class='bx bx-chevrons-right' ></i>
+                    </button> <!-- Next 10 Pages -->
+                    <button id="next-100-pages" class="page-btn" disabled>
+                        <i class='bx bx-skip-next' ></i>
+                    </button> <!-- Next 100 Pages -->
+                    <button id="last-page" class="page-btn" disabled>Last</button>
                 </div>
             </div>
         </div>

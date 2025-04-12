@@ -15,6 +15,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    document.querySelectorAll(".sensor-chart-tab-button").forEach(button => {
+        button.addEventListener("click", () => {
+            const tabId = button.getAttribute("data-tab");
+    
+            // Toggle active button
+            document.querySelectorAll(".sensor-chart-tab-button").forEach(btn => 
+                btn.classList.remove("active")
+            );
+            button.classList.add("active");
+    
+            // Toggle chart tabs
+            document.querySelectorAll(".sensor-chart-tab").forEach(tab => 
+                tab.classList.remove("active")
+            );
+            document.getElementById(tabId).classList.add("active");
+        });
+    });
+    
+
     // Common chart options
     const commonChartOptions = {
         responsive: true,
@@ -57,9 +76,9 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Rainfall (mm)',
                 data: Array.from({length: 24}, () => Math.random() * 10),
-                borderColor: '#34a853',
-                backgroundColor: 'rgba(52, 168, 83, 0.1)',
-                tension: 0.1,
+                borderColor: 'rgba(117, 130, 193, 0.7)',
+                backgroundColor: 'rgba(52, 93, 168, 0.17)',
+                tension: 0.3,
                 fill: true
             }]
         },
@@ -86,9 +105,9 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Seismic Activity (Magnitude)',
                 data: Array.from({length: 24}, () => Math.random() * 3),
-                backgroundColor: 'rgba(251, 188, 5, 0.7)',
-                borderColor: '#fbbc05',
-                borderWidth: 1
+                backgroundColor: 'rgba(157, 168, 249, 0.7)',
+                borderColor: 'rgba(65, 78, 174, 0.7)',
+                borderWidth: 3
             }]
         },
         options: {
