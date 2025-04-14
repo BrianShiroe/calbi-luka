@@ -553,28 +553,34 @@ document.addEventListener("DOMContentLoaded", function () {
     
     let filterActive = false;
     
-    applyFilterBtn.addEventListener("click", () => {
-        const type = document.getElementById("filterType").value.toLowerCase();
-        const location = document.getElementById("filterLocation").value.toLowerCase();
-        const date = document.getElementById("filterDate").value.toLowerCase();
-    
-        const formattedDate = date.split('/').join('-');
-        
-        filteredData = incidentData.filter(row => {
-            const [rowDate, , rowType, , rowLocation] = row;
-            
-            const formattedRowDate = rowDate.split('-').reverse().join('-');
-            
-            const matchType = !type || rowType.toLowerCase() === type;
-            const matchLocation = !location || rowLocation.toUpperCase().includes(location);
-            const matchDate = !date || formattedRowDate === formattedDate;
-    
-            return matchType && matchLocation && matchDate;
-        });
+applyFilterBtn.addEventListener("click", () => {
+    const type = document.getElementById("filterType").value.toLowerCase();
+    const location = document.getElementById("filterLocation").value.toLowerCase();
+
+    // Input is dd-mm-yyyy, convert to mm-dd-yyyy
+    const rawDate = document.getElementById("filterDate").value;
+    let formattedDate = "";
+    if (rawDate) {
+        const [day, month, year] = rawDate.split("/");
+        formattedDate = `${month}-${day}-${year}`.toLowerCase();
+    }
+
+    filteredData = incidentData.filter(row => {
+        const [rowDate, , rowType, , rowLocation] = row;
+
+        // Ensure rowDate is in mm-dd-yyyy (if it isn't already, adjust here)
+        const formattedRowDate = rowDate.toLowerCase();
+
+        const matchType = !type || rowType.toLowerCase() === type;
+        const matchLocation = !location || rowLocation.toLowerCase().includes(location);
+        const matchDate = !formattedDate || formattedRowDate === formattedDate;
+
+        return matchType && matchLocation && matchDate;
+    });
     
         filterActive = true;
         currentPage = 1;
-        searchInput.disabled = true;
+        searchInput.disabled = false;
         renderTable();
     });    
         
@@ -640,10 +646,12 @@ document.addEventListener("DOMContentLoaded", () => {
         event.stopPropagation();
         const isVisible = filterContent.style.display === "block";
         filterContent.style.display = isVisible ? "none" : "block";
+        searchInput.disabled = true;
     });
 
     document.addEventListener("click", function () {
         filterContent.style.display = "none";
+        searchInput.disabled = false;
     });
 
     filterContent.addEventListener("click", function (event) {
