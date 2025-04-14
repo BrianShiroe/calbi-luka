@@ -222,8 +222,34 @@
             <!-- Incident List Section -->
             <div id="incident-list" class="tab-content">
                 <div class="top-buttons">
-                    <div>
+                    <div class="search-filter-wrap">
                         <i class='bx bx-search' style="color: #6d6d6d;"></i><input type="text" id="searchInput" placeholder="Search...">
+                        <div class="dropdown-filter">
+                                <button class="filter-btn">
+                                    <i class='bx bx-filter'></i><i class='bx bx-chevron-down'></i>
+                                </button>
+                                <div class="filter-dropdown-content">
+                                    <i class='bx bx-filter-alt' style="color: #6d6d6d;"></i>
+                                    <label for="filterType">Type:</label>
+                                    <select id="filterType">
+                                        <option value="">All</option>
+                                        <option value="Collision">Collision</option>
+                                        <option value="Fire">Fire</option>
+                                        <option value="Smoke">Smoke</option>
+                                        <option value="Landslide">Landslide</option>
+                                        <option value="Flood">Flood</option>
+                                    </select>
+                            
+                                    <label for="filterLocation">Location:</label>
+                                    <input type="text" id="filterLocation" placeholder="Enter location...">
+                                    
+                                    <label for="filterDate">Date:</label>
+                                    <input type="date" id="filterDate">
+                                    
+                                    <button id="applyFilterBtn">Apply</button>
+                                    <button id="resetFilterBtn">Reset</button>
+                                </div>
+                        </div>
                     </div>
                     
                     <div class="export-dropdown">
@@ -236,27 +262,6 @@
                             <button id="export-current">Export Current Page</button>
                         </div>
                     </div>
-                </div>
-
-                <div class="filter-container">
-                    <i class='bx bx-filter-alt' style="color: #6d6d6d;"></i>
-                    <label for="filterType">Type:</label>
-                    <select id="filterType">
-                        <option value="">All</option>
-                        <option value="Collision">Collision</option>
-                        <option value="Fire">Fire</option>
-                        <option value="Smoke">Smoke</option>
-                        <option value="Landslide">Landslide</option>
-                        <option value="Flood">Flood</option>
-                    </select>
-                
-                    <label for="filterLocation">Location:</label>
-                    <input type="text" id="filterLocation" placeholder="Enter location...">
-                    
-                    <label for="filterDate">Date:</label>
-                    <input type="date" id="filterDate">
-                    
-                    <button id="applyFilterBtn">Apply</button>
                 </div>
                 
                 <table id="incident-table-container">

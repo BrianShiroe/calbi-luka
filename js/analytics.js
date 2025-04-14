@@ -23,7 +23,10 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentPage = 1;
     const rowsPerPage = 10;
     let incidentData = []; // Stores the table data
-    
+    let filteredData = [];
+    let searchResults = [];  
+    let searchActive = false;
+
     function fetchData(timeframe) {
         fetch("/api/incidents")
             .then(response => response.json())
@@ -369,12 +372,19 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderTable() {
         incidentTable.innerHTML = "";
     
-        const totalRows = incidentData.length;
+        let dataSource = incidentData;
+        if (searchActive) {
+            dataSource = searchResults;
+        } else if (filterActive) {
+            dataSource = filteredData;
+        }
+    
+        const totalRows = dataSource.length;
         const totalPages = Math.ceil(totalRows / rowsPerPage);  
     
         const start = (currentPage - 1) * rowsPerPage;
         const end = start + rowsPerPage;
-        const visibleRows = incidentData.slice(start, end);
+        const visibleRows = dataSource.slice(start, end);
     
         if (visibleRows.length === 0) {
             incidentTable.innerHTML = "<tr><td colspan='5'>No data available</td></tr>";
@@ -389,20 +399,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 incidentTable.appendChild(tr);
             });
     
-            // Fill remaining rows with empty placeholders to ensure 10 rows
             for (let i = visibleRows.length; i < rowsPerPage; i++) {
                 let tr = document.createElement("tr");
-                for (let j = 0; j < 5; j++) { // Now 5 columns
+                for (let j = 0; j < 5; j++) {
                     let td = document.createElement("td");
-                    td.textContent = "-"; // Placeholder
-                    td.style.color = "#ccc"; // Gray out empty rows
+                    td.textContent = "-";
+                    td.style.color = "#ccc";
                     tr.appendChild(td);
                 }
                 incidentTable.appendChild(tr);
             }
         }
     
-        // Update pagination controls
         pageInfo.textContent = `Page ${currentPage} of ${totalPages || 1}`;
         prevButton.disabled = currentPage === 1;
         nextButton.disabled = currentPage === totalPages || totalRows === 0;
@@ -412,7 +420,7 @@ document.addEventListener("DOMContentLoaded", function () {
         next100Button.disabled = currentPage + 100 > totalPages;
         prev10Button.disabled = currentPage <= 10;
         prev100Button.disabled = currentPage <= 100;
-    }
+    }       
     
     // Pagination controls
     prevButton.addEventListener("click", () => {
@@ -479,12 +487,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     document.querySelector('#export-current').addEventListener('click', () => {
-        exportTableToExcel(currentPageData(), `page${currentPage}_incident_data.xlsx`);
+        const dataSource = filterActive ? filteredData : incidentData;
+        exportTableToExcel(dataSource.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage), `page${currentPage}_incident_data.xlsx`);
     });
     
     document.querySelector('#export-whole').addEventListener('click', () => {
-        exportTableToExcel(incidentData, 'whole_incident_data.xlsx'); // Export the whole dataset
-    });
+        const dataSource = filterActive ? filteredData : incidentData;
+        exportTableToExcel(dataSource, 'whole_incident_data.xlsx');
+    });    
     
     function exportTableToExcel(dataToExport, filename) {
         // Create a new workbook
@@ -537,28 +547,106 @@ document.addEventListener("DOMContentLoaded", function () {
         return incidentData.slice(start, end); // Return rows for the current page
     }    
 
-    document.getElementById('searchInput').addEventListener('keyup', function () {
-        let filter = this.value.toUpperCase();
-        let table = document.getElementById("incident-table");
-        let tr = table.getElementsByTagName("tr");
-        for (let i = 0; i < tr.length; i++) {
-            let tdArray = tr[i].getElementsByTagName("td");
-            let found = false;
-            for (let j = 0; j < tdArray.length; j++) {
-                if (tdArray[j] && tdArray[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
-                    found = true;
-                    break;
-                }
-            }
-            tr[i].style.display = found ? "" : "none";
-        }
-    });
+    const searchInput = document.getElementById("searchInput");
+    const applyFilterBtn = document.getElementById("applyFilterBtn");
+    const resetFilterBtn = document.getElementById("resetFilterBtn");
     
-    document.addEventListener("click", function(event) {
-        var dropdown = document.getElementById("exportDropdown");
-        var button = document.getElementById("exportButton");
-        if (!button.contains(event.target) && !dropdown.contains(event.target)) {
-            dropdown.style.display = "none";
+    let filterActive = false;
+    
+    applyFilterBtn.addEventListener("click", () => {
+        const type = document.getElementById("filterType").value.toLowerCase();
+        const location = document.getElementById("filterLocation").value.toLowerCase();
+        const date = document.getElementById("filterDate").value.toLowerCase();
+    
+        const formattedDate = date.split('/').join('-');
+        
+        filteredData = incidentData.filter(row => {
+            const [rowDate, , rowType, , rowLocation] = row;
+            
+            const formattedRowDate = rowDate.split('-').reverse().join('-');
+            
+            const matchType = !type || rowType.toLowerCase() === type;
+            const matchLocation = !location || rowLocation.toUpperCase().includes(location);
+            const matchDate = !date || formattedRowDate === formattedDate;
+    
+            return matchType && matchLocation && matchDate;
+        });
+    
+        filterActive = true;
+        currentPage = 1;
+        searchInput.disabled = true;
+        renderTable();
+    });    
+        
+    resetFilterBtn.addEventListener("click", () => {
+        document.getElementById("filterType").value = "";
+        document.getElementById("filterLocation").value = "";
+        document.getElementById("filterDate").value = "";
+        searchInput.value = "";
+    
+        filterActive = false;
+        filteredData = [];
+        searchActive = false;
+        searchResults = [];
+        currentPage = 1;
+        searchInput.disabled = false;
+        renderTable();
+    });       
+
+    searchInput.addEventListener("input", () => {
+        const query = searchInput.value.trim().toLowerCase();
+    
+        if (query === "") {
+            searchActive = false;
+            searchResults = [];
+        } else {
+            // Use filteredData if filter is active, otherwise incidentData
+            const baseData = filterActive ? filteredData : incidentData;
+            searchResults = baseData.filter(row =>
+                row.some(cell => cell.toLowerCase().includes(query))
+            );
+            searchActive = true;
         }
+    
+        currentPage = 1;
+        renderTable();
+    });    
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const exportBtn = document.querySelector(".export-btn");
+    const exportContent = document.querySelector(".export-content");
+
+    exportBtn.addEventListener("click", function (event) {
+        event.stopPropagation();
+        const isVisible = exportContent.style.display === "block";
+        exportContent.style.display = isVisible ? "none" : "block";
+    });
+
+    document.addEventListener("click", function () {
+        exportContent.style.display = "none";
+    });
+
+    exportContent.addEventListener("click", function (event) {
+        event.stopPropagation();
+    });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const filterBtn = document.querySelector(".filter-btn");
+    const filterContent = document.querySelector(".filter-dropdown-content");
+
+    filterBtn.addEventListener("click", function (event) {
+        event.stopPropagation();
+        const isVisible = filterContent.style.display === "block";
+        filterContent.style.display = isVisible ? "none" : "block";
+    });
+
+    document.addEventListener("click", function () {
+        filterContent.style.display = "none";
+    });
+
+    filterContent.addEventListener("click", function (event) {
+        event.stopPropagation();
     });
 });
