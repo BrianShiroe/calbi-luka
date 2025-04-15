@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
     
-    // Event listeners for login and sign-up
+    // Event listeners for login and sign-up buttons
     loginSubmitBtn?.addEventListener("click", (e) => {
         e.preventDefault();
         handleSubmit([
@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
             { id: "login-password", type: "password", errorMsg: "Password must be at least 6 characters long and contain 1 special character." }
         ], "/login", "home.html");
     });
-    
+
     signUpSubmitBtn?.addEventListener("click", (e) => {
         e.preventDefault();
         handleSubmit([
@@ -110,4 +110,20 @@ document.addEventListener("DOMContentLoaded", () => {
             { id: "register-password", type: "password", errorMsg: "Password must be at least 6 characters long and contain 1 special character." }
         ], "/register", "login.html");
     });
+
+    function enableEnterKey(inputs, button) {
+        inputs.forEach(id => {
+            const input = document.getElementById(id);
+            input?.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    button?.click();
+                }
+            });
+        });
+    }
+
+    enableEnterKey(["login-email", "login-password"], loginSubmitBtn);
+    enableEnterKey(["username", "register-email", "register-password"], signUpSubmitBtn);
+
 });
