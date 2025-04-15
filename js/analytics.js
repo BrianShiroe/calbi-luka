@@ -553,31 +553,31 @@ document.addEventListener("DOMContentLoaded", function () {
     
     let filterActive = false;
     
-applyFilterBtn.addEventListener("click", () => {
-    const type = document.getElementById("filterType").value.toLowerCase();
-    const location = document.getElementById("filterLocation").value.toLowerCase();
-
-    // Input is dd-mm-yyyy, convert to mm-dd-yyyy
-    const rawDate = document.getElementById("filterDate").value;
-    let formattedDate = "";
-    if (rawDate) {
-        const [day, month, year] = rawDate.split("/");
-        formattedDate = `${month}-${day}-${year}`.toLowerCase();
-    }
-
-    filteredData = incidentData.filter(row => {
-        const [rowDate, , rowType, , rowLocation] = row;
-
-        // Ensure rowDate is in mm-dd-yyyy (if it isn't already, adjust here)
-        const formattedRowDate = rowDate.toLowerCase();
-
-        const matchType = !type || rowType.toLowerCase() === type;
-        const matchLocation = !location || rowLocation.toLowerCase().includes(location);
-        const matchDate = !formattedDate || formattedRowDate === formattedDate;
-
-        return matchType && matchLocation && matchDate;
-    });
+    applyFilterBtn.addEventListener("click", () => {
+        const type = document.getElementById("filterType").value.toLowerCase();
+        const location = document.getElementById("filterLocation").value.toLowerCase();
+        const rawDate = document.getElementById("filterDate").value;
     
+        let formattedDate = "";
+        if (rawDate) {
+            const [year, month, day] = rawDate.split("-");
+            formattedDate = `${month}-${day}-${year}`;
+            console.log("Formatted Date:", formattedDate);
+        }
+    
+        filteredData = incidentData.filter(row => {
+            const [rowDateTime, , rowType, , rowLocation] = row;
+            const rowDateOnly = rowDateTime.split("_")[0];
+            console.log("Row Date:", rowDateOnly);
+    
+            const matchType = !type || rowType.toLowerCase() === type;
+            const matchLocation = !location || rowLocation.toLowerCase().includes(location);
+            const matchDate = !formattedDate || rowDateOnly === formattedDate;
+    
+            return matchType && matchLocation && matchDate;
+        });
+    
+        console.log("Filtered Data:", filteredData);
         filterActive = true;
         currentPage = 1;
         searchInput.disabled = false;
