@@ -259,7 +259,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     data: data,
                     borderColor: "rgb(141, 201, 241)",
                     backgroundColor: "rgba(127, 198, 234, 0.2)",
-                    borderWidth: 3,
+                    borderWidth: 4,
                     fill: true,
                     tension: 0.3
                 }]
@@ -285,7 +285,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const hasData = data.some(value => value > 0);
         const chartData = hasData ? data : [1];
         const chartLabels = hasData ? eventTypes : ["No Data"];
-        const chartColors = ["#87b6d6", "#8a93a4", "#27405e", "#4BC0C0", "#e2e4da"];
+        const chartColors = ["#87b6d6", "#705e7d", "#27405e", "#8a93a4", "#e2e4da","#becaeb","#a9cbc4"];
     
         let maxIndex = data.indexOf(Math.max(...data));
         let mostFrequentEvent = hasData ? eventTypes[maxIndex] : "No Data";
@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "smoke": "../img/smoke.png",
             "collision": "../img/collision.png",
             "landslide": "../img/landslide.png",
-            "flood": "flood.png"
+            "flood": "../img/flood.png"
         };
     
         let eventImageSrc = eventImages[mostFrequentEvent] || "../img/default-obj-img.png";
