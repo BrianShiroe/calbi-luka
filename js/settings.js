@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
         //model
         detection_mode: false,
-        model_version: "cffl-6.3.11n-18.8k-100eph.pt",
+        model_version: "cffl-6.3.11n-18.8k-100eph",
         show_bounding_box: false,
         show_confidence_value: false,
         confidence_level: 0.7,

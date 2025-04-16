@@ -54,7 +54,7 @@ playback_recording = False
 
 # Detection Settings variables
 detection_mode = False
-model_version = "cffl-6.3.11n-18.8k-100eph.pt"
+model_version = "cffl-6.3.11n-18.8k-100eph"
 show_bounding_box = False
 show_confidence_value = False
 confidence_level = 0.7
