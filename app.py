@@ -54,7 +54,7 @@ playback_recording = False
 
 # Detection Settings variables
 detection_mode = False
-model_version = "car-fire-5.1.11n"
+model_version = "cffl-6.3.11n-18.8k-100eph.pt"
 show_bounding_box = False
 show_confidence_value = False
 confidence_level = 0.7
