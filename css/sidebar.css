@@ -188,4 +188,5 @@ body {
 
 .logout {
     margin-top: auto; /* Push the logout button to the bottom */
+    cursor: pointer;
 }
