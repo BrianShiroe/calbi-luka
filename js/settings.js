@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
         performance_metrics_toggle: false,
         update_metric_interval: 1,
         metric_font_size: 8,
-        stream_resolution: "720p",
+        stream_resolution: "1080p",
         stream_frame_skip: 0,
         max_frame_rate: 30,
         playback_recording: false,
@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
         model_version: "cffl-6.3.11n-18.8k-100eph",
         show_bounding_box: false,
         show_confidence_value: false,
-        confidence_level: 0.7,
+        confidence_level: 0.85,
         enable_alert: true,
         enable_mobile_alert: false,
         alert_date_format: "mm-dd-yyyy",  // Default: MM-DD-YYYY
