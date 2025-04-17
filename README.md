@@ -10,6 +10,27 @@
 
 This system is built to detect road collisions, fires, floods, and other emergencies using **deep learning-powered video analysis**. The goal is to **minimize response times** and **improve situational awareness** by integrating smart detection capabilities into existing surveillance infrastructures.
 
+## 📊 Sample Feeds and Demonstration Data
+
+<ins>This system includes sample video feeds and data to demonstrate its functionality and for generating reports.</ins>
+
+**Sample Video Feed URLs:**
+
+* Venice V Hotel Beach: https://youtu.be/3LXQWU67Ufk
+* Soliman Street Agdao, Davao City: https://youtu.be/p0Qhe4vhYLQ
+
+## ‼️Important Note: Mobile Notifications
+
+⚠️ **Currently, mobile alert notifications can only be received on our internal development devices.**
+
+If you would like proof that the mobile alert functionality is working correctly, please email us at ***mazorenej@gmail.com***. We are actively exploring and working on implementing broader mobile notification capabilities.
+
+We apologize for any inconvenience this current limitation may cause.
+
+Sincerely,
+
+Calbi
+
 ## 🛠️ Setup and Installation
 Follow these steps to set up **LUKA** on your system.
 
