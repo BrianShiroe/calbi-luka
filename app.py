@@ -233,36 +233,35 @@ def detect_objects(frame):
     detected_objects = set()
     object_detected = False  # Track if an object was detected in this frame
     
-    for model in models:
-        results = model(frame, verbose=False, conf=confidence_level)
+    results = model(frame, verbose=False, conf=confidence_level)
         
-        for result in results:
-            for box in result.boxes:
-                class_id = int(box.cls)
-                class_name = model.names[class_id]  # Get the class name from the model
-                detected_objects.add(class_name)
-                object_detected = True  # Mark that an object is detected
+    for result in results:
+        for box in result.boxes:
+            class_id = int(box.cls)
+            class_name = model.names[class_id]  # Get the class name from the model
+            detected_objects.add(class_name)
+            object_detected = True  # Mark that an object is detected
 
-                if show_bounding_box:
-                    # Draw bounding box around detected objects
-                    x1, y1, x2, y2 = map(int, box.xyxy[0])
-                    color = (0, 255, 0)  # Green color for the bounding box
-                    thickness = 5
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
+            if show_bounding_box:
+                # Draw bounding box around detected objects
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                color = (0, 255, 0)  # Green color for the bounding box
+                thickness = 5
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
 
-                    if show_confidence_value:
-                        confidence = box.conf[0].item()  # Get confidence value
-                        label = f"{class_name} {confidence:.2f}"
-                        font = cv2.FONT_HERSHEY_SIMPLEX
-                        font_scale = 2
-                        font_thickness = 5
-                        text_color = (0, 255, 0)  # Green text
+                if show_confidence_value:
+                    confidence = box.conf[0].item()  # Get confidence value
+                    label = f"{class_name} {confidence:.2f}"
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    font_scale = 2
+                    font_thickness = 5
+                    text_color = (0, 255, 0)  # Green text
 
-                        # Put text slightly above the bounding box
-                        text_size = cv2.getTextSize(label, font, font_scale, font_thickness)[0]
-                        text_x = x1
-                        text_y = max(y1 - 5, text_size[1] + 5)  # Ensure text is inside the frame
-                        cv2.putText(frame, label, (text_x, text_y), font, font_scale, text_color, font_thickness)
+                    # Put text slightly above the bounding box
+                    text_size = cv2.getTextSize(label, font, font_scale, font_thickness)[0]
+                    text_x = x1
+                    text_y = max(y1 - 5, text_size[1] + 5)  # Ensure text is inside the frame
+                    cv2.putText(frame, label, (text_x, text_y), font, font_scale, text_color, font_thickness)
                             
     return frame, detected_objects
     
