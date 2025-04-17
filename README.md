@@ -34,6 +34,9 @@ Calbi
 ## 🛠️ Setup and Installation
 Follow these steps to set up **LUKA** on your system.
 
+💡 Installation scripts for both Linux and Windows are available for easier setup. Visit:
+https://github.com/LCbalsa/calbi-luka/tree/main/installscripts
+
 ```sh
 # 1 Clone the Repository
 git clone https://github.com/LCbalsa/calbi-luka.git
