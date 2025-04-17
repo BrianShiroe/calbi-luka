@@ -22,7 +22,8 @@ This system is built to detect road collisions, fires, floods, and other emergen
 **Sample Video Feed URLs:**
 
 * Venice V Hotel Beach: https://youtu.be/3LXQWU67Ufk
-* Soliman Street Agdao, Davao City: https://youtu.be/p0Qhe4vhYLQ
+* 4 Corners Camera Downtown: https://youtu.be/ByED80IKdIU
+* EarthCam Live: Times Square in 4k: https://youtu.be/rnXIjl_Rzy4
 
 ## ‼️Important Note: Mobile Notifications
 
