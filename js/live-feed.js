@@ -24,7 +24,7 @@ function sendSavedSettingsToServer() {
 
 // Load devices
 function loadDevices() {
-    fetch("http://localhost:5500/get_devices")
+    fetch("/get_devices")
         .then(response => response.json())
         .then(data => {
             devices = data; // Store the fetched devices
@@ -53,7 +53,7 @@ function addDevice() {
         feedName = feedName || `CAM${devices.length + 1}`;
         location = location || "Unknown"; // Default location if empty
 
-        fetch("http://localhost:5500/add_device", {
+        fetch("/add_device", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ title: feedName, ip_address: streamUrl, location: location })
@@ -79,7 +79,7 @@ function renderDevices() {
     gridContainer.innerHTML = ""; // Clear the grid before rendering
 
     devices.forEach((device, index) => {
-        const videoFeedURL = `http://localhost:5500/stream?stream_url=${encodeURIComponent(device.ip_address)}&device_title=${encodeURIComponent(device.title)}&device_location=${encodeURIComponent(device.location)}&device_id=${device.id}`;
+        const videoFeedURL = `/stream?stream_url=${encodeURIComponent(device.ip_address)}&device_title=${encodeURIComponent(device.title)}&device_location=${encodeURIComponent(device.location)}&device_id=${device.id}`;
         const deviceCard = createDeviceCard(videoFeedURL, device.title, device.location, device.id, index); // Pass device.id
         deviceCard.id = `device-${device.id}`; // Assign unique ID to each device card
         gridContainer.appendChild(deviceCard);
@@ -291,7 +291,7 @@ function showDeletePopup(deviceIndex, deviceId) {
 
 // Delete a device from the list
 function deleteDevice(deviceIndex, deviceId) {
-    fetch("http://localhost:5500/delete_device", {
+    fetch("/delete_device", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: deviceId }) // Use the passed deviceId
@@ -336,7 +336,7 @@ function saveDeviceDetails() {
         newTitle = newTitle || `CAM${currentEditDeviceIndex + 1}`; // Default to CAM# if empty
         newLocation = newLocation || "Unknown"; // Default location if empty
 
-        fetch("http://localhost:5500/update_device", {
+        fetch("/update_device", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
