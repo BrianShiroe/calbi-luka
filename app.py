@@ -15,6 +15,7 @@ import subprocess
 import http.client, urllib
 import torch
 import pkg_resources
+import sys
 from datetime import datetime
 from dotenv import load_dotenv
 from watchdog.observers import Observer
@@ -40,7 +41,14 @@ playback_path = "playback"
 load_dotenv("api.env") #load pushover api key
 APP_TOKEN = os.getenv("PUSHOVER_APP_TOKEN")
 USER_KEY = os.getenv("PUSHOVER_USER_KEY")
-ffmpeg_path = os.path.abspath("ffmpeg/ffmpeg-master-latest-win64-gpl-shared/bin/ffmpeg.exe")
+# Determine FFmpeg path based on the operating system
+if sys.platform.startswith("linux"):
+    ffmpeg_path = subprocess.getoutput("which ffmpeg")  # For Linux, use the system default
+    if not ffmpeg_path:
+        raise Exception("FFmpeg not found on the system!")
+else:
+    # For Windows, use the specified absolute path
+    ffmpeg_path = os.path.abspath("ffmpeg/ffmpeg-master-latest-win64-gpl-shared/bin/ffmpeg.exe")
 
 # General Settings variables
 performance_metrics_toggle = False
