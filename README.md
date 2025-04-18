@@ -119,3 +119,6 @@ We extend our gratitude to our mentors, professors, and peers who supported the 
 
 <!-- ## 📚 Documentation
 For detailed documentation, installation instructions, and usage guidelines, please refer to the [LUKA Documentation](https://docs.google.com/document/d/1Xb9r_EgJ_dx0_urg7DnGRpxzY0-B9rsqIcPNPT30Lus/edit?usp=sharing). -->
+
+## Demo
+![Demo](gif/7-house-fire-demo - Made with Clipchamp.gif)
