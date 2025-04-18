@@ -19,12 +19,6 @@ This system is built to detect road collisions, fires, floods, and other emergen
 
 <ins>This system includes sample video feeds and data to demonstrate its functionality and for generating reports.</ins>
 
-**Sample Video Feed URLs:**
-
-* Venice V Hotel Beach: https://youtu.be/3LXQWU67Ufk
-* 4 Corners Camera Downtown: https://youtu.be/ByED80IKdIU
-* EarthCam Live: Times Square in 4k: https://youtu.be/rnXIjl_Rzy4
-
 ## ‼️Important Note: Mobile Notifications
 
 ⚠️ **Currently, mobile alert notifications can only be received on our internal development devices.**
@@ -115,9 +109,6 @@ LUKA utilizes a pre-trained **Convolutional Neural Network (CNN)** fine-tuned fo
 - **Cloud Integration** – Storing incident reports and video clips for further analysis.
 - **Enhanced Object Detection** – Adding additional AI models for better accuracy.
 - **Mobile App** – Expanding access to real-time alerts on smartphones.
-
-## 📝 License
-This project is licensed under the **MIT License**. Feel free to use and modify it for educational and research purposes.
 
 ## 🤝 Acknowledgments
 We extend our gratitude to our mentors, professors, and peers who supported the development of LUKA. Special thanks to open-source contributors who made this project possible.
