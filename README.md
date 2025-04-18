@@ -8,6 +8,8 @@
 ## ⚠️ Disclaimer
 This system was developed and optimized for use in a localhost environment. As such, the deployed version may contain bugs and limited functionality. Notably, features that rely on AI models are currently disabled due to hardware limitations (e.g., absence of GPU support on the server).
 
+You can access the deployed version here: http://luka.servehttp.com:5500/
+
 We appreciate your understanding as we continue to improve system stability and performance in future deployments.
 
 ## 📌 Description
@@ -17,7 +19,7 @@ This system is built to detect road collisions, fires, floods, and other emergen
 
 ## 📊 Sample Feeds and Demonstration Data
 
-<ins>This system includes sample video feeds and data to demonstrate its functionality and for generating reports.</ins>
+<ins>This system includes sample video feeds and data within the repository for demonstration purposes and to support report generation.</ins>
 
 ## ‼️Important Note: Mobile Notifications
 
@@ -83,13 +85,14 @@ python app.py
 ```
 
 ## 🚀 Features
-- **Real-Time YOLO-Based Detection** – Detects accidents and disasters using YOLOv8 and OpenCV.
+- **Real-Time YOLO-Based Detection** – Detects accidents and disasters using YOLOv11 and OpenCV.
 - **Automated Alerts & Logging** – Incident reports stored in an SQLite database for later review.
 - **Configurable Sensitivity** – Adjustable confidence thresholds and detection parameters.
 - **Multi-Camera Stream Handling** – Supports multiple **RTSP, CCTV, and YouTube streams**.
 - **Performance Monitoring** – Tracks **FPS, CPU usage, processing delay, and memory usage**.
 - **Web-Based Dashboard** – A Flask-powered UI for monitoring live streams and detected incidents.
 - **Dynamic Stream Control** – Adjust various stream settings to optimize performance.
+- **IoT Camera Integration with Sensors** – Supports smart IoT cameras equipped with **temperature, humidity, rainfall and seimic sensors**.
 
 ## 📌 Usage
 1. Start the Flask server: python app.py
