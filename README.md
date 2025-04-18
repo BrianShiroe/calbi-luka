@@ -92,6 +92,7 @@ python app.py
 - **Performance Monitoring** – Tracks **FPS, CPU usage, processing delay, and memory usage**.
 - **Web-Based Dashboard** – A Flask-powered UI for monitoring live streams and detected incidents.
 - **Dynamic Stream Control** – Adjust various stream settings to optimize performance.
+- **Recording & Playback** – Provides recording of live streams. allowing playback of captured videos for further review.
 - **IoT Camera Integration with Sensors** – Supports smart IoT cameras equipped with **temperature, humidity, rainfall and seimic sensors**.
 
 ## 📌 Usage
