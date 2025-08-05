@@ -108,18 +108,20 @@ For detailed documentation, installation instructions, and usage guidelines, ple
 ## 🎥 Detection Demo
 
 <p align="center">
-  <a href="https://youtu.be/Yjx-tC63V7k" target="_blank">
-    <img src="https://img.youtube.com/vi/Yjx-tC63V7k/0.jpg" alt="Detection Demo Video" width="100%" />
-  </a><br><br>
-  ▶️ Click the image to watch the full demo video on YouTube
-</p>
-
-<p align="center">
   <img src="gif/1-collision-demo.gif" width="49%"/>
   <img src="gif/2-flood-demo.gif" width="49%"/><br><br>
   <img src="gif/3-fire-demo.gif" width="49%"/>
   <img src="gif/4-flood-demo.gif" width="49%"/><br><br>
   <img src="gif/7-house-fire-demo.gif" width="100%"/><br><br>
   <img src="gif/8-house-fire-demo.gif" width="100%"/>
+</p>
+
+## 🎥 Youtube Full System Demo
+
+<p align="center">
+  <a href="https://youtu.be/Yjx-tC63V7k" target="_blank">
+    <img src="https://img.youtube.com/vi/Yjx-tC63V7k/0.jpg" alt="Detection Demo Video" width="100%" />
+  </a><br><br>
+  ▶️ Click the image to watch the full demo video on YouTube
 </p>
 
