@@ -5,13 +5,6 @@
 - **Maria Zorene J. Ramos**
 - **Mark Angelo P. Santonil**
 
-## ⚠️ Disclaimer
-This system was developed and optimized for use in a localhost environment. As such, the deployed version may contain bugs and limited functionality. Notably, features that rely on AI models are currently disabled due to hardware limitations (e.g., absence of GPU support on the server).
-
-You can access the deployed version here: http://luka.servehttp.com:5500/
-
-We appreciate your understanding as we continue to improve system stability and performance in future deployments.
-
 ## 📌 Description
 **LUKA** is a Flask-based intelligent accident and disaster detection system leveraging **YOLO (You Only Look Once), OpenCV, CCTV, and IoT-based cameras** to provide real-time monitoring and automated alerting. Designed as a **final thesis project**, LUKA aims to enhance public safety by rapidly identifying incidents and notifying relevant authorities or personnel.
 
