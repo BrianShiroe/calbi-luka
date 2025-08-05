@@ -120,8 +120,7 @@ For detailed documentation, installation instructions, and usage guidelines, ple
 
 <p align="center">
   <a href="https://youtu.be/Yjx-tC63V7k" target="_blank">
-    <img src="https://img.youtube.com/vi/Yjx-tC63V7k/0.jpg" alt="Detection Demo Video" width="100%" />
+    <img src="https://upload.wikimedia.org/wikipedia/commons/7/75/YouTube_social_white_square_(2017).svg" alt="Watch on YouTube" width="100" />
   </a><br><br>
-  ▶️ Click the image to watch the full demo video on YouTube
+  ▶️ Click the YouTube icon to watch the full demo video
 </p>
-
