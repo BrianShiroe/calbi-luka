@@ -14,14 +14,6 @@ This system is built to detect road collisions, fires, floods, and other emergen
 
 <ins>This system includes sample video feeds and data within the repository for demonstration purposes and to support report generation.</ins>
 
-## ‼️Important Note: Mobile Notifications
-
-⚠️ **Currently, mobile alert notifications can only be received on our internal development devices.**
-
-If you would like proof that the mobile alert functionality is working correctly, please email us at ***mazorenej@gmail.com***. We are actively exploring and working on implementing broader mobile notification capabilities.
-
-We apologize for any inconvenience this current limitation may cause.
-
 ## 🛠️ Setup and Installation
 Follow these steps to set up **LUKA** on your system.
 
