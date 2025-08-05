@@ -119,7 +119,7 @@ For detailed documentation, installation instructions, and usage guidelines, ple
 ## 🎥 Youtube Full System Demo
 
 <p align="center">
-  <a href="https://youtu.be/Yjx-tC63V7k" target="_blank" rel="noopener norereffer">
+  <a href="https://youtu.be/Yjx-tC63V7k" target="_blank" rel="noopener noreferrer">
     📺 Click here to watch on YouTube
   </a>
 </p>
